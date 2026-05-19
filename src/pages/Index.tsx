@@ -345,32 +345,30 @@ export default function Index() {
               </button>
             </div>
 
-            <div className="flex flex-wrap gap-6">
-              {[["1 200+", "единиц в наличии"], ["20 лет", "на рынке"], ["4–8 мес.", "окупаемость"]].map(([v, l]) => (
-                <div key={l}>
-                  <div className="text-2xl font-bold" style={{ color: "var(--orange)" }}>{v}</div>
-                  <div className="text-sm text-[#888] mt-0.5">{l}</div>
-                </div>
+            <ul className="space-y-3">
+              {[
+                "Производительность до 1 200 упаковок в час",
+                "Штучная и крупная фасовка",
+                "Подбор оборудования под потребности клиента",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: "var(--orange)" }}>
+                    <Icon name="Check" size={14} className="text-white" />
+                  </div>
+                  <span className="text-[17px] text-[#1A1A1A] font-medium leading-snug">{t}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
-          {/* Image 40% */}
-          <div className="lg:col-span-2 relative fade-up-1">
-            <div className="rounded-2xl overflow-hidden shadow-2xl bg-white aspect-[4/3] lg:aspect-auto lg:h-[520px] flex items-center justify-center p-6">
-              <img src={IMG_HERO} alt="Клипсатор для упаковки овощей" loading="lazy"
-                className="w-full h-full object-contain" />
-            </div>
-            {/* Float card */}
-            <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg px-5 py-3 flex items-center gap-3 hidden lg:flex">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(255,102,0,0.1)" }}>
-                <Icon name="TrendingUp" size={20} style={{ color: "var(--orange)" }} />
-              </div>
-              <div>
-                <div className="text-xs text-[#888]">Производительность</div>
-                <div className="font-bold text-[#1A1A1A]">до 1 200 уп/час</div>
-              </div>
-            </div>
+          {/* Image 40% — no white frame, larger */}
+          <div className="lg:col-span-2 relative fade-up-1 flex items-center justify-center">
+            <img
+              src={IMG_HERO}
+              alt="Клипсатор для упаковки овощей"
+              loading="lazy"
+              className="w-full max-w-[640px] lg:max-w-none lg:h-[620px] object-contain drop-shadow-2xl"
+            />
           </div>
         </div>
       </section>
