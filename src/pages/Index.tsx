@@ -1,10 +1,22 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 
-const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/08d4cb1b-fc43-427a-b5f6-395386202d29.jpg";
+const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/98dadd67-336a-47a5-9480-dcbd6c9cfde2.png";
 const IMG_TEAM = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/19912d2e-496e-41a2-9268-f7e32bc30cda.jpg";
 
 const CATALOG_API = "https://functions.poehali.dev/57e27975-0947-45d9-bfbb-8fff401b7c60";
+
+// Validation
+const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
+const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+// Sort params: Производительность first, then GUID-out (already filtered on BE)
+function sortParams(params: Param[]): Param[] {
+  const isPerf = (p: Param) => /производитель/i.test(p.name);
+  const perf = params.filter(isPerf);
+  const rest = params.filter(p => !isPerf(p));
+  return [...perf, ...rest];
+}
 
 type Param = { name: string; value: string };
 type Product = {
@@ -22,7 +34,7 @@ type Product = {
 
 function formatPrice(p: Product): string {
   if (!p.price || p.price <= 0) return "Запросить цену";
-  return `${p.price.toLocaleString("ru-RU")} ₽`;
+  return `${Math.round(p.price).toLocaleString("ru-RU")} ₽`;
 }
 
 function stripHtml(html: string): string {
@@ -136,6 +148,43 @@ export default function Index() {
   // Fullscreen lightbox
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
+  // Quick contact form (ФОС) — opened per product or generic
+  const [fosOpen, setFosOpen] = useState<{ productName?: string } | null>(null);
+  const [fosData, setFosData] = useState({ name: "", phone: "", email: "" });
+  const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
+  const [fosSent, setFosSent] = useState(false);
+
+  const openFos = (productName?: string) => {
+    setFosOpen({ productName });
+    setFosData({ name: "", phone: "", email: "" });
+    setFosErrors({});
+    setFosSent(false);
+  };
+
+  const validateFos = () => {
+    const errs: { name?: string; phone?: string; email?: string } = {};
+    if (!fosData.name.trim()) errs.name = "Введите имя";
+    else if (fosData.name.trim().length < 2) errs.name = "Слишком короткое имя";
+
+    const phoneDigits = fosData.phone.replace(/\D/g, "");
+    if (!fosData.phone.trim()) errs.phone = "Введите телефон";
+    else if (!PHONE_RE.test(fosData.phone) || phoneDigits.length < 10 || phoneDigits.length > 11) {
+      errs.phone = "Неверный формат телефона";
+    }
+
+    if (!fosData.email.trim()) errs.email = "Введите e-mail";
+    else if (!EMAIL_RE.test(fosData.email.trim())) errs.email = "Неверный формат e-mail";
+
+    setFosErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const submitFos = () => {
+    if (!validateFos()) return;
+    // TODO: реальная отправка
+    setFosSent(true);
+  };
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
@@ -146,7 +195,15 @@ export default function Index() {
     fetch(CATALOG_API)
       .then(r => r.json())
       .then(d => {
-        if (d.products) setProducts(d.products);
+        if (d.products) {
+          // Sort by price ascending. Products without price go last.
+          const sorted = [...d.products].sort((a: Product, b: Product) => {
+            const pa = a.price || Infinity;
+            const pb = b.price || Infinity;
+            return pa - pb;
+          });
+          setProducts(sorted);
+        }
         else setLoadError(d.error || "Не удалось загрузить каталог");
       })
       .catch(e => setLoadError(String(e)))
@@ -167,13 +224,13 @@ export default function Index() {
 
   // Lock body scroll when modal open
   useEffect(() => {
-    if (openProduct || lightbox) {
+    if (openProduct || lightbox || fosOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
     return () => { document.body.style.overflow = ""; };
-  }, [openProduct, lightbox]);
+  }, [openProduct, lightbox, fosOpen]);
 
   const scrollTo = (href: string) => {
     document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
@@ -300,9 +357,9 @@ export default function Index() {
 
           {/* Image 40% */}
           <div className="lg:col-span-2 relative fade-up-1">
-            <div className="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] lg:aspect-auto lg:h-[520px]">
-              <img src={IMG_HERO} alt="Клипсатор для овощей" loading="lazy"
-                className="w-full h-full object-cover" />
+            <div className="rounded-2xl overflow-hidden shadow-2xl bg-white aspect-[4/3] lg:aspect-auto lg:h-[520px] flex items-center justify-center p-6">
+              <img src={IMG_HERO} alt="Клипсатор для упаковки овощей" loading="lazy"
+                className="w-full h-full object-contain" />
             </div>
             {/* Float card */}
             <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg px-5 py-3 flex items-center gap-3 hidden lg:flex">
@@ -430,35 +487,46 @@ export default function Index() {
 
                     {/* Content */}
                     <div className="p-5 flex-1 flex flex-col">
-                      <h3 className="font-bold text-[#1A1A1A] text-base mb-2 line-clamp-2 min-h-[3em]">
+                      <h3 className="font-bold text-[#1A1A1A] text-[17px] mb-3 line-clamp-2 min-h-[3em] leading-snug">
                         {prod.name}
                       </h3>
 
-                      {/* Show top 2 params as preview */}
+                      {/* All params, performance first */}
                       {prod.params.length > 0 && (
-                        <ul className="mb-4 space-y-1">
-                          {prod.params.slice(0, 2).map((pr, i) => (
-                            <li key={i} className="text-xs text-[#666] flex gap-1.5">
-                              <span className="text-[#999]">{pr.name}:</span>
-                              <span className="font-medium text-[#444] truncate">{pr.value}</span>
+                        <ul className="mb-4 space-y-1.5">
+                          {sortParams(prod.params).map((pr, i) => (
+                            <li key={i} className="text-[14px] text-[#444] flex gap-2 leading-snug">
+                              <span className="text-[#888] flex-shrink-0">{pr.name}:</span>
+                              <span className="font-medium text-[#1A1A1A]">{pr.value}</span>
                             </li>
                           ))}
                         </ul>
                       )}
 
-                      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-                        <span className="font-bold text-lg" style={{ color: "var(--orange)" }}>
+                      <div className="mt-auto pt-4 border-t border-gray-100">
+                        <div className="font-bold text-xl mb-3" style={{ color: "var(--orange)" }}>
                           {formatPrice(prod)}
-                        </span>
-                        <button
-                          onClick={() => openProductCard(prod)}
-                          className="text-sm font-semibold px-4 py-2 rounded-lg transition-all"
-                          style={{ background: "rgba(255,102,0,0.08)", color: "var(--orange)" }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.18)"; }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.08)"; }}
-                        >
-                          Подробнее →
-                        </button>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <button
+                            onClick={() => openProductCard(prod)}
+                            className="text-[15px] font-semibold px-4 py-2.5 rounded-lg transition-all flex-1"
+                            style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.2)"; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.1)"; }}
+                          >
+                            Подробнее
+                          </button>
+                          <button
+                            onClick={() => openFos(prod.name)}
+                            className="text-[15px] font-semibold px-4 py-2.5 rounded-lg transition-all flex-1 text-white"
+                            style={{ background: "var(--orange)" }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "var(--orange-light)"; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "var(--orange)"; }}
+                          >
+                            Заявка
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -684,16 +752,17 @@ export default function Index() {
               <div className="space-y-4">
                 {[
                   { icon: "Phone", label: "8-800-500-40-54", sub: "Бесплатно по РФ" },
-                  { icon: "Mail", label: "info@techno-sib.ru", sub: "Ответ в течение часа" },
-                  { icon: "MapPin", label: "Новосибирск, ул. Станционная, 60А", sub: "Центральный офис" },
+                  { icon: "Mail", label: "info@t-sib.ru", sub: "Ответ в течение часа" },
+                  { icon: "MapPin", label: "Москва, ш. Энтузиастов, д. 56, стр. 32, офис 115", sub: "Офис в Москве" },
+                  { icon: "MapPin", label: "Новосибирск, ул. Электрозаводская, 2 к1, офис 304, 314", sub: "Офис в Новосибирске" },
                 ].map((c, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: "rgba(255,102,0,0.08)" }}>
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: "rgba(255,102,0,0.08)" }}>
                       <Icon name={c.icon} fallback="Circle" size={18} style={{ color: "var(--orange)" }} />
                     </div>
                     <div>
-                      <p className="font-semibold text-[#1A1A1A]">{c.label}</p>
-                      <p className="text-xs text-[#888]">{c.sub}</p>
+                      <p className="font-semibold text-[#1A1A1A] text-[16px]">{c.label}</p>
+                      <p className="text-[13px] text-[#888]">{c.sub}</p>
                     </div>
                   </div>
                 ))}
@@ -795,14 +864,18 @@ export default function Index() {
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:info@techno-sib.ru" className="text-sm text-white/65 hover:text-white transition-colors flex items-center gap-2">
+                  <a href="mailto:info@t-sib.ru" className="text-[15px] text-white/65 hover:text-white transition-colors flex items-center gap-2">
                     <Icon name="Mail" size={14} className="text-orange-500" />
-                    info@techno-sib.ru
+                    info@t-sib.ru
                   </a>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Icon name="MapPin" size={14} className="text-orange-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-white/65">Новосибирск, ул. Станционная, 60А</span>
+                  <Icon name="MapPin" size={14} className="text-orange-500 mt-1 flex-shrink-0" />
+                  <span className="text-[14px] text-white/65 leading-relaxed">Москва, ш. Энтузиастов, д. 56, стр. 32, офис 115</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Icon name="MapPin" size={14} className="text-orange-500 mt-1 flex-shrink-0" />
+                  <span className="text-[14px] text-white/65 leading-relaxed">Новосибирск, ул. Электрозаводская, 2 к1, офис 304, 314</span>
                 </li>
               </ul>
               <div className="flex gap-3 mt-4">
@@ -928,12 +1001,12 @@ export default function Index() {
                   {/* Params */}
                   {openProduct.params.length > 0 && (
                     <div className="mb-6">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#999] mb-2">Характеристики</h4>
+                      <h4 className="text-[13px] font-bold uppercase tracking-wider text-[#999] mb-3">Характеристики</h4>
                       <div className="rounded-lg border border-gray-100 divide-y divide-gray-100">
-                        {openProduct.params.map((pr, i) => (
-                          <div key={i} className="flex gap-3 px-3 py-2 text-sm">
-                            <span className="text-[#888] flex-1">{pr.name}</span>
-                            <span className="font-medium text-[#1A1A1A] flex-1 text-right">{pr.value}</span>
+                        {sortParams(openProduct.params).map((pr, i) => (
+                          <div key={i} className="flex gap-3 px-4 py-2.5 text-[15px]">
+                            <span className="text-[#666] flex-1">{pr.name}</span>
+                            <span className="font-semibold text-[#1A1A1A] flex-1 text-right">{pr.value}</span>
                           </div>
                         ))}
                       </div>
@@ -942,7 +1015,7 @@ export default function Index() {
 
                   <div className="mt-auto flex flex-col sm:flex-row gap-3">
                     <button
-                      onClick={() => { setOpenProduct(null); setTimeout(() => scrollTo("#contacts"), 100); }}
+                      onClick={() => { const name = openProduct.name; setOpenProduct(null); setTimeout(() => openFos(name), 150); }}
                       className="btn-orange flex-1 py-3"
                     >
                       Оставить заявку
@@ -1016,6 +1089,101 @@ export default function Index() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── FOS MODAL ── */}
+      {fosOpen && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto"
+          onClick={() => setFosOpen(null)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-md p-6 md:p-8 relative my-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setFosOpen(null)}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              aria-label="Закрыть"
+            >
+              <Icon name="X" size={18} className="text-[#1A1A1A]" />
+            </button>
+
+            {!fosSent ? (
+              <>
+                <h3 className="font-bold text-2xl text-[#1A1A1A] mb-2 pr-8">Оставить заявку</h3>
+                <p className="text-[15px] text-[#666] mb-5 leading-relaxed">
+                  {fosOpen.productName
+                    ? <>По товару: <span className="font-semibold text-[#1A1A1A]">{fosOpen.productName}</span></>
+                    : "Менеджер свяжется в течение 15 минут."}
+                </p>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                      Имя <span style={{ color: "var(--orange)" }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Иван Петров"
+                      value={fosData.name}
+                      onChange={e => { setFosData({ ...fosData, name: e.target.value }); if (fosErrors.name) setFosErrors({ ...fosErrors, name: undefined }); }}
+                      className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                      style={{ borderColor: fosErrors.name ? "#E53935" : "#E0E0E0" }}
+                    />
+                    {fosErrors.name && <p className="text-[13px] text-red-500 mt-1">{fosErrors.name}</p>}
+                  </div>
+
+                  <div>
+                    <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                      Телефон <span style={{ color: "var(--orange)" }}>*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="+7 (___) ___-__-__"
+                      value={fosData.phone}
+                      onChange={e => { setFosData({ ...fosData, phone: e.target.value }); if (fosErrors.phone) setFosErrors({ ...fosErrors, phone: undefined }); }}
+                      className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                      style={{ borderColor: fosErrors.phone ? "#E53935" : "#E0E0E0" }}
+                    />
+                    {fosErrors.phone && <p className="text-[13px] text-red-500 mt-1">{fosErrors.phone}</p>}
+                  </div>
+
+                  <div>
+                    <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                      E-mail <span style={{ color: "var(--orange)" }}>*</span>
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="ivan@company.ru"
+                      value={fosData.email}
+                      onChange={e => { setFosData({ ...fosData, email: e.target.value }); if (fosErrors.email) setFosErrors({ ...fosErrors, email: undefined }); }}
+                      className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                      style={{ borderColor: fosErrors.email ? "#E53935" : "#E0E0E0" }}
+                    />
+                    {fosErrors.email && <p className="text-[13px] text-red-500 mt-1">{fosErrors.email}</p>}
+                  </div>
+
+                  <button onClick={submitFos} className="btn-orange w-full py-3.5 text-base">
+                    Отправить
+                  </button>
+                  <p className="text-center text-[12px] text-[#AAA]">
+                    Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name="Check" size={32} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-2xl text-[#1A1A1A] mb-2">Заявка отправлена!</h3>
+                <p className="text-[#666] mb-6">Менеджер свяжется с вами в течение 15 минут.</p>
+                <button onClick={() => setFosOpen(null)} className="btn-orange px-8">Готово</button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

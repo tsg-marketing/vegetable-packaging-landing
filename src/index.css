@@ -50,8 +50,8 @@
   body {
     @apply bg-white text-[#1A1A1A];
     font-family: "Golos Text", sans-serif;
-    font-size: 17px;
-    line-height: 1.6;
+    font-size: 18px;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -72,7 +72,7 @@
   background: var(--orange);
   color: #fff;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 16px;
   padding: 13px 28px;
   border-radius: 6px;
   border: none;
@@ -96,7 +96,7 @@
   background: transparent;
   color: var(--orange);
   font-weight: 600;
-  font-size: 15px;
+  font-size: 16px;
   padding: 12px 28px;
   border-radius: 6px;
   border: 2px solid var(--orange);
@@ -133,7 +133,7 @@
 }
 
 .section-title {
-  font-size: clamp(22px, 3.5vw, 36px);
+  font-size: clamp(26px, 3.8vw, 40px);
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 8px;
