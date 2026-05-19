@@ -496,8 +496,8 @@ export default function Index() {
                             <li key={i} className="flex items-start gap-2 text-[14px] leading-snug">
                               <Icon name="Check" size={14} className="mt-1 flex-shrink-0" style={{ color: "var(--orange)" }} />
                               <span className="text-[#444]">
-                                <span className="text-[#888]">{pr.name}: </span>
-                                <span className="font-semibold text-[#1A1A1A]">{pr.value}</span>
+                                <span className="font-semibold text-[#1A1A1A]">{pr.name}: </span>
+                                <span className="font-normal text-[#444]">{pr.value}</span>
                               </span>
                             </li>
                           ))}
@@ -1006,8 +1006,8 @@ export default function Index() {
                       <div className="rounded-lg border border-gray-100 divide-y divide-gray-100">
                         {sortParams(openProduct.params).map((pr, i) => (
                           <div key={i} className="flex gap-3 px-4 py-2.5 text-[15px]">
-                            <span className="text-[#666] flex-1">{pr.name}</span>
-                            <span className="font-semibold text-[#1A1A1A] flex-1 text-right">{pr.value}</span>
+                            <span className="font-semibold text-[#1A1A1A] flex-1">{pr.name}</span>
+                            <span className="font-normal text-[#444] flex-1 text-right">{pr.value}</span>
                           </div>
                         ))}
                       </div>
