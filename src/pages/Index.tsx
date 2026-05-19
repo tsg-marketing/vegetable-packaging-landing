@@ -316,10 +316,10 @@ export default function Index() {
 
       {/* ── БЛОК 1: БАННЕР ── */}
       <section id="hero" className="pt-16 min-h-[88vh] flex items-center bg-[#F7F7F7] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-0 items-center py-12 lg:py-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-12 lg:py-0">
 
-          {/* Text 60% */}
-          <div className="lg:col-span-3 pr-0 lg:pr-12 fade-up">
+          {/* Text */}
+          <div className="lg:col-span-5 pr-0 lg:pr-4 fade-up">
             <div className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: "rgba(255,102,0,0.08)", color: "var(--orange)" }}>
               <span className="w-2 h-2 rounded-full inline-block" style={{ background: "var(--orange)" }} />
               Официальный дилер • 20 лет на рынке
@@ -361,13 +361,13 @@ export default function Index() {
             </ul>
           </div>
 
-          {/* Image 40% — no white frame, larger */}
-          <div className="lg:col-span-2 relative fade-up-1 flex items-center justify-center">
+          {/* Image — большой, без рамки */}
+          <div className="lg:col-span-7 relative fade-up-1 flex items-center justify-center">
             <img
               src={IMG_HERO}
               alt="Клипсатор для упаковки овощей"
               loading="lazy"
-              className="w-full max-w-[640px] lg:max-w-none lg:h-[620px] object-contain drop-shadow-2xl"
+              className="w-full h-auto lg:h-[640px] xl:h-[720px] object-contain drop-shadow-2xl"
             />
           </div>
         </div>
