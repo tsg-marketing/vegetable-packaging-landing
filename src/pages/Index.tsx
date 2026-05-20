@@ -3,7 +3,7 @@ import Icon from "@/components/ui/icon";
 import { captureUtm, readUtm } from "@/lib/utm";
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
-const LOGO_URL = "https://cdn.poehali.dev/files/c2e58201-5268-46dc-90eb-a357a9dc398d.png";
+const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 
 async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
   try {
@@ -156,7 +156,7 @@ const NAV = [
   { label: "О компании", href: "#about" },
   { label: "Кейсы", href: "#cases" },
   { label: "Как работаем", href: "#steps" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Вопросы", href: "#faq" },
   { label: "Контакты", href: "#contacts" },
 ];
 
@@ -786,7 +786,7 @@ export default function Index() {
       <section id="faq" className="py-16 bg-[#F7F7F7]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title">FAQ</h2>
+            <h2 className="section-title">Вопросы</h2>
           </div>
           <div className="space-y-3">
             {FAQS.map((faq, i) => (
