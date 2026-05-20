@@ -964,7 +964,7 @@ export default function Index() {
           </div>
 
           <div className="border-t border-white/10 pt-6 text-center">
-            <p className="text-xs text-white/35">© 2024 Техно-Сиб. Все права защищены.</p>
+            <p className="text-xs text-white/35">© 2026 Техно-Сиб. Все права защищены.</p>
           </div>
         </div>
       </footer>
