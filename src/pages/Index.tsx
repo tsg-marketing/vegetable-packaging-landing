@@ -50,11 +50,22 @@ const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // Sort params: Производительность first, then GUID-out (already filtered on BE)
+// Видео-параметр исключаем — показываем отдельной кнопкой
+function isVideoParam(p: Param): boolean {
+  return /видео/i.test(p.name);
+}
 function sortParams(params: Param[]): Param[] {
+  const cleaned = params.filter(p => !isVideoParam(p));
   const isPerf = (p: Param) => /производитель/i.test(p.name);
-  const perf = params.filter(isPerf);
-  const rest = params.filter(p => !isPerf(p));
+  const perf = cleaned.filter(isPerf);
+  const rest = cleaned.filter(p => !isPerf(p));
   return [...perf, ...rest];
+}
+function getVideoUrl(params: Param[]): string | null {
+  const v = params.find(isVideoParam);
+  if (!v) return null;
+  const m = String(v.value).match(/https?:\/\/\S+/i);
+  return m ? m[0] : null;
 }
 
 type Param = { name: string; value: string };
@@ -111,21 +122,21 @@ const CASES = [
   {
     product: "Картофель 5 кг",
     was: "Ручная фасовка: 2 бригады по 6 человек, 800 уп/смену",
-    became: "Автомат КС-800П: 1 оператор, 2 400 уп/смену",
+    became: "Автоматическая машина для упаковки овощей в сетку B-15",
     result: "Выработка ×3, ФОТ −75%, окупаемость 5 мес.",
     icon: "🥔",
   },
   {
     product: "Лук репчатый 1 кг",
     was: "Фасовка в мешки, отказ 3 сетей из-за маркировки",
-    became: "Сеточный упаковщик с wine-glass этикеткой",
+    became: "Автоматическая клипсующая машина для упаковки овощей и фруктов в сетку WX-35",
     result: "Листинг в Магните, Пятёрочке, Ленте за 2 месяца",
     icon: "🧅",
   },
   {
     product: "Черри-томаты 250 г",
     was: "Бой 8%, ручная укладка в лотки, 200 лотков/час",
-    became: "Лотковый упаковщик ЛУ-800, бережная подача",
+    became: "Автоматическая линия для взвешивания и упаковки продукта в лотки XC-880",
     result: "Бой 1,5%, производительность ×5, экспорт в ОАЭ",
     icon: "🍅",
   },
@@ -551,7 +562,7 @@ export default function Index() {
 
                     {/* Content */}
                     <div className="p-5 flex-1 flex flex-col">
-                      <h3 className="font-bold text-[#1A1A1A] text-[17px] mb-3 line-clamp-2 min-h-[3em] leading-snug">
+                      <h3 className="font-bold text-[#1A1A1A] text-[17px] mb-3 min-h-[3em] leading-snug break-words">
                         {prod.name}
                       </h3>
 
@@ -584,6 +595,18 @@ export default function Index() {
                           >
                             Подробнее
                           </button>
+                          {getVideoUrl(prod.params) && (
+                            <button
+                              onClick={() => setVideoOpen({ title: prod.name, url: getVideoUrl(prod.params) as string, thumb: "" })}
+                              className="text-[15px] font-semibold px-4 py-2.5 rounded-lg transition-all w-full flex items-center justify-center gap-2 border"
+                              style={{ borderColor: "var(--orange)", color: "var(--orange)", background: "#fff" }}
+                              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.08)"; }}
+                              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#fff"; }}
+                            >
+                              <Icon name="Play" size={16} />
+                              Смотреть видео
+                            </button>
+                          )}
                           <button
                             onClick={() => openFos(prod.name)}
                             className="text-[15px] font-semibold px-4 py-2.5 rounded-lg transition-all w-full text-white"
@@ -1079,7 +1102,22 @@ export default function Index() {
                     </div>
                   )}
 
-                  <div className="mt-auto">
+                  <div className="mt-auto flex flex-col gap-2">
+                    {getVideoUrl(openProduct.params) && (
+                      <button
+                        onClick={() => {
+                          const url = getVideoUrl(openProduct.params) as string;
+                          const name = openProduct.name;
+                          setOpenProduct(null);
+                          setTimeout(() => setVideoOpen({ title: name, url, thumb: "" }), 150);
+                        }}
+                        className="w-full py-3 rounded-lg font-semibold border flex items-center justify-center gap-2 transition-colors"
+                        style={{ borderColor: "var(--orange)", color: "var(--orange)", background: "#fff" }}
+                      >
+                        <Icon name="Play" size={16} />
+                        Смотреть видео
+                      </button>
+                    )}
                     <button
                       onClick={() => { const name = openProduct.name; setOpenProduct(null); setTimeout(() => openFos(name), 150); }}
                       className="btn-orange w-full py-3"
