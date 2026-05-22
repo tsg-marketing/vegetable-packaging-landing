@@ -8,6 +8,7 @@ const HERO_IMG = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21d
 const GROUPS_API = "https://functions.poehali.dev/ed4e9bba-a8d4-434c-af4e-52809800893d";
 
 const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
+const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 type Param = { name: string; value: string };
 type GroupProduct = {
@@ -93,14 +94,12 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
 
-  // Lead modal
-  const [fosOpen, setFosOpen] = useState<null | { source: string; title: string }>(null);
+  // Lead modal (ФОС — как на /vegetables)
+  const [fosOpen, setFosOpen] = useState<null | { source: string; productName: string }>(null);
+  const [fosData, setFosData] = useState({ name: "", phone: "", email: "" });
+  const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
+  const [fosSubmitting, setFosSubmitting] = useState(false);
   const [thanksOpen, setThanksOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [sending, setSending] = useState(false);
-  const [agree, setAgree] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
 
   // Product modal
   const [openProduct, setOpenProduct] = useState<GroupProduct | null>(null);
@@ -169,41 +168,35 @@ export default function Home() {
     });
   };
 
-  const openFos = useCallback((source: string, title: string) => {
-    setName("");
-    setPhone("");
-    setAgree(false);
-    setErrors({});
-    setFosOpen({ source, title });
+  const openFos = useCallback((source: string, productName: string) => {
+    setFosData({ name: "", phone: "", email: "" });
+    setFosErrors({});
+    setFosOpen({ source, productName });
   }, []);
 
-  const submitFos = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      const errs: { name?: string; phone?: string; agree?: string } = {};
-      if (name.trim().length < 2) errs.name = "Укажите имя";
-      if (!PHONE_RE.test(phone.trim())) errs.phone = "Укажите корректный телефон";
-      if (!agree) errs.agree = "Подтвердите согласие на обработку персональных данных";
-      setErrors(errs);
-      if (Object.keys(errs).length > 0) return;
+  const validateFos = useCallback((): boolean => {
+    const errs: { name?: string; phone?: string; email?: string } = {};
+    if (fosData.name.trim().length < 2) errs.name = "Укажите имя";
+    if (!PHONE_RE.test(fosData.phone.trim())) errs.phone = "Укажите корректный телефон";
+    if (!EMAIL_RE.test(fosData.email.trim())) errs.email = "Укажите корректный e-mail";
+    setFosErrors(errs);
+    return Object.keys(errs).length === 0;
+  }, [fosData]);
 
-      setSending(true);
-      const ok = await sendLead({
-        name: name.trim(),
-        phone: phone.trim(),
-        source: fosOpen?.source || "main_form",
-        product: fosOpen?.title || "",
-      });
-      setSending(false);
-      if (ok) {
-        setFosOpen(null);
-        setThanksOpen(true);
-      } else {
-        setErrors({ name: "Ошибка отправки. Попробуйте позже" });
-      }
-    },
-    [name, phone, agree, fosOpen]
-  );
+  const submitFos = useCallback(async () => {
+    if (!validateFos() || fosSubmitting) return;
+    setFosSubmitting(true);
+    await sendLead({
+      source: fosOpen?.source || "fos",
+      product: fosOpen?.productName || "",
+      name: fosData.name.trim(),
+      phone: fosData.phone.trim(),
+      email: fosData.email.trim(),
+    });
+    setFosSubmitting(false);
+    setFosOpen(null);
+    setThanksOpen(true);
+  }, [fosData, fosOpen, fosSubmitting, validateFos]);
 
   const scrollTo = (href: string) => {
     setMenuOpen(false);
@@ -1006,90 +999,120 @@ export default function Home() {
         );
       })()}
 
-      {/* ── LEAD MODAL ── */}
+      {/* ── FOS MODAL (как на /vegetables) ── */}
       {fosOpen && (
         <div
-          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto"
           onClick={() => setFosOpen(null)}
         >
           <div
-            className="bg-white rounded-2xl w-full max-w-md p-6 sm:p-8 relative"
+            className="bg-white rounded-2xl w-full max-w-md p-6 md:p-8 relative my-auto"
             onClick={e => e.stopPropagation()}
           >
             <button
               onClick={() => setFosOpen(null)}
-              className="absolute top-3 right-3 w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
               aria-label="Закрыть"
             >
-              <Icon name="X" size={20} />
+              <Icon name="X" size={18} className="text-[#1A1A1A]" />
             </button>
-            <h3 className="text-[22px] font-bold mb-1">Оставить заявку</h3>
-            {fosOpen.title && <p className="text-sm text-[#888] mb-5">{fosOpen.title}</p>}
 
-            <form onSubmit={submitFos} className="space-y-3">
+            <h3 className="font-bold text-2xl text-[#1A1A1A] mb-2 pr-8">Оставить заявку</h3>
+            <p className="text-[15px] text-[#666] mb-5 leading-relaxed">
+              {fosOpen.productName
+                ? <>По товару: <span className="font-semibold text-[#1A1A1A]">{fosOpen.productName}</span></>
+                : "Менеджер свяжется в течение 15 минут."}
+            </p>
+
+            <div className="space-y-4">
               <div>
+                <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                  Имя <span style={{ color: "var(--orange)" }}>*</span>
+                </label>
                 <input
                   type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="Ваше имя"
-                  className={`w-full px-4 py-3 rounded-lg border bg-white outline-none focus:border-[var(--orange)] ${errors.name ? "border-red-500" : "border-gray-200"}`}
+                  placeholder="Иван Петров"
+                  value={fosData.name}
+                  onChange={e => { setFosData({ ...fosData, name: e.target.value }); if (fosErrors.name) setFosErrors({ ...fosErrors, name: undefined }); }}
+                  className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                  style={{ borderColor: fosErrors.name ? "#E53935" : "#E0E0E0" }}
                 />
-                {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+                {fosErrors.name && <p className="text-[13px] text-red-500 mt-1">{fosErrors.name}</p>}
               </div>
+
               <div>
+                <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                  Телефон <span style={{ color: "var(--orange)" }}>*</span>
+                </label>
                 <input
                   type="tel"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
                   placeholder="+7 (___) ___-__-__"
-                  className={`w-full px-4 py-3 rounded-lg border bg-white outline-none focus:border-[var(--orange)] ${errors.phone ? "border-red-500" : "border-gray-200"}`}
+                  value={fosData.phone}
+                  onChange={e => { setFosData({ ...fosData, phone: e.target.value }); if (fosErrors.phone) setFosErrors({ ...fosErrors, phone: undefined }); }}
+                  className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                  style={{ borderColor: fosErrors.phone ? "#E53935" : "#E0E0E0" }}
                 />
-                {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
+                {fosErrors.phone && <p className="text-[13px] text-red-500 mt-1">{fosErrors.phone}</p>}
               </div>
 
-              <label className="flex items-start gap-3 cursor-pointer pt-1 select-none">
+              <div>
+                <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                  E-mail <span style={{ color: "var(--orange)" }}>*</span>
+                </label>
                 <input
-                  type="checkbox"
-                  checked={agree}
-                  onChange={e => setAgree(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded border-gray-300 accent-[var(--orange)] flex-shrink-0"
+                  type="email"
+                  placeholder="ivan@company.ru"
+                  value={fosData.email}
+                  onChange={e => { setFosData({ ...fosData, email: e.target.value }); if (fosErrors.email) setFosErrors({ ...fosErrors, email: undefined }); }}
+                  className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                  style={{ borderColor: fosErrors.email ? "#E53935" : "#E0E0E0" }}
                 />
-                <span className="text-[12.5px] text-[#666] leading-relaxed">
-                  Я согласен на обработку персональных данных и получение информации о товарах и услугах.
-                </span>
-              </label>
-              {errors.agree && <p className="text-xs text-red-500">{errors.agree}</p>}
+                {fosErrors.email && <p className="text-[13px] text-red-500 mt-1">{fosErrors.email}</p>}
+              </div>
 
               <button
-                type="submit"
-                disabled={sending}
-                className="btn-orange w-full py-3 disabled:opacity-60"
+                onClick={submitFos}
+                disabled={fosSubmitting}
+                className="btn-orange w-full py-3.5 text-base disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {sending ? "Отправляем…" : "Отправить"}
+                {fosSubmitting ? "Отправляем…" : "Отправить"}
               </button>
-            </form>
+              <p className="text-center text-[12px] text-[#AAA]">
+                Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности
+              </p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* ── THANKS MODAL ── */}
+      {/* ── THANKS MODAL (как на /vegetables) ── */}
       {thanksOpen && (
         <div
-          className="fixed inset-0 z-[125] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-[140] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
           onClick={() => setThanksOpen(false)}
         >
           <div
-            className="bg-white rounded-2xl w-full max-w-md p-8 text-center relative"
+            className="bg-white rounded-2xl w-full max-w-md p-7 md:p-9 relative text-center"
             onClick={e => e.stopPropagation()}
           >
-            <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center" style={{ background: "rgba(255,102,0,0.12)" }}>
+            <button
+              onClick={() => setThanksOpen(false)}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              aria-label="Закрыть"
+            >
+              <Icon name="X" size={18} className="text-[#1A1A1A]" />
+            </button>
+            <div className="w-16 h-16 mx-auto mb-5 rounded-full flex items-center justify-center" style={{ background: "rgba(255,102,0,0.1)" }}>
               <Icon name="Check" size={32} style={{ color: "var(--orange)" }} />
             </div>
-            <h3 className="text-[22px] font-bold mb-2">Заявка принята</h3>
-            <p className="text-[15px] text-[#555] mb-6">Менеджер свяжется с вами в рабочее время. Спасибо!</p>
-            <button onClick={() => setThanksOpen(false)} className="btn-orange w-full py-3">
-              Закрыть
+            <h3 className="font-bold text-[22px] text-[#1A1A1A] mb-3 leading-tight">
+              Благодарим за обращение в компанию Техно-Сиб
+            </h3>
+            <p className="text-[#555] leading-relaxed mb-6">
+              Менеджер свяжется с Вами в ближайшее время в часы работы.
+            </p>
+            <button onClick={() => setThanksOpen(false)} className="btn-orange px-10 py-3">
+              Хорошо
             </button>
           </div>
         </div>
