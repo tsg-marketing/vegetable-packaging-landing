@@ -105,6 +105,8 @@ export default function Home() {
   // Product modal
   const [openProduct, setOpenProduct] = useState<GroupProduct | null>(null);
   const [modalSlideIdx, setModalSlideIdx] = useState(0);
+  // Индексы фото в карточках на главной (по product id)
+  const [cardSlideIdx, setCardSlideIdx] = useState<Record<string, number>>({});
 
   useEffect(() => {
     captureUtm();
@@ -145,12 +147,19 @@ export default function Home() {
   }, [fosOpen, thanksOpen, menuOpen, openProduct]);
 
   const openProductCard = (p: GroupProduct) => {
-    setModalSlideIdx(0);
+    setModalSlideIdx(cardSlideIdx[p.id] ?? 0);
     setOpenProduct(p);
   };
   const modalSlide = (dir: 1 | -1) => {
     if (!openProduct || openProduct.pictures.length === 0) return;
     setModalSlideIdx(i => (i + dir + openProduct.pictures.length) % openProduct.pictures.length);
+  };
+  const cardSlide = (productId: string, total: number, dir: 1 | -1) => {
+    if (total <= 1) return;
+    setCardSlideIdx(prev => {
+      const cur = prev[productId] ?? 0;
+      return { ...prev, [productId]: (cur + dir + total) % total };
+    });
   };
 
   const openFos = useCallback((source: string, title: string) => {
@@ -445,13 +454,48 @@ export default function Home() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {g.products.map(p => {
-                      const img = p.pictures[0] || HERO_IMG;
                       const isMaterials = g.id === "pack-materials" || g.showSubcategory === true;
                       const title = isMaterials ? (p.subcategory || p.name) : p.name;
+                      const pics = p.pictures.length > 0 ? p.pictures : [HERO_IMG];
+                      const curIdx = Math.min(cardSlideIdx[p.id] ?? 0, pics.length - 1);
+                      const img = pics[curIdx];
+                      const canSlide = !isMaterials && pics.length > 1;
                       return (
                         <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
-                          <div className="aspect-[4/3] bg-gray-50 overflow-hidden">
+                          <div className="aspect-[4/3] bg-gray-50 overflow-hidden relative group">
                             <img src={img} alt={title} loading="lazy" className="w-full h-full object-contain" />
+                            {canSlide && (
+                              <>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); cardSlide(p.id, pics.length, -1); }}
+                                  className="absolute top-1/2 left-2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 hover:bg-white shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  aria-label="Предыдущее фото"
+                                >
+                                  <Icon name="ChevronLeft" size={18} className="text-[#1A1A1A]" />
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); cardSlide(p.id, pics.length, 1); }}
+                                  className="absolute top-1/2 right-2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 hover:bg-white shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  aria-label="Следующее фото"
+                                >
+                                  <Icon name="ChevronRight" size={18} className="text-[#1A1A1A]" />
+                                </button>
+                                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                  {pics.map((_, i) => (
+                                    <button
+                                      key={i}
+                                      onClick={(e) => { e.stopPropagation(); setCardSlideIdx(prev => ({ ...prev, [p.id]: i })); }}
+                                      className="w-1.5 h-1.5 rounded-full transition-all"
+                                      style={{ background: i === curIdx ? "var(--orange)" : "rgba(0,0,0,0.25)" }}
+                                      aria-label={`Фото ${i + 1}`}
+                                    />
+                                  ))}
+                                </div>
+                                <div className="absolute top-2 right-2 bg-black/55 text-white text-[11px] px-2 py-0.5 rounded">
+                                  {curIdx + 1} / {pics.length}
+                                </div>
+                              </>
+                            )}
                           </div>
                           <div className="p-4 flex-1 flex flex-col">
                             <h4 className="text-[15px] font-semibold text-[#1A1A1A] mb-3 leading-snug break-words flex-1">
@@ -884,11 +928,7 @@ export default function Home() {
 
                   <div className="mt-auto">
                     <button
-                      onClick={() => {
-                        const productName = openProduct.name;
-                        setOpenProduct(null);
-                        setTimeout(() => openFos("product_modal", productName), 150);
-                      }}
+                      onClick={() => openFos("product_modal", openProduct.name)}
                       className="btn-orange w-full py-3"
                     >
                       Оставить заявку
