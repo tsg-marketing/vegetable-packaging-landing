@@ -415,23 +415,27 @@ export default function Home() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {g.products.map(p => {
                       const img = p.pictures[0] || HERO_IMG;
+                      const isMaterials = g.id === "pack-materials" || g.showSubcategory === true;
+                      const title = isMaterials ? (p.subcategory || p.name) : p.name;
                       return (
                         <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
                           <div className="aspect-[4/3] bg-gray-50 overflow-hidden">
-                            <img src={img} alt={g.showSubcategory ? p.subcategory : p.name} loading="lazy" className="w-full h-full object-contain" />
+                            <img src={img} alt={title} loading="lazy" className="w-full h-full object-contain" />
                           </div>
                           <div className="p-4 flex-1 flex flex-col">
                             <h4 className="text-[15px] font-semibold text-[#1A1A1A] mb-3 leading-snug break-words flex-1">
-                              {g.showSubcategory ? (p.subcategory || p.name) : p.name}
+                              {title}
                             </h4>
-                            <div className="font-bold text-lg mb-4" style={{ color: "var(--orange)" }}>
-                              {formatPrice(p)}
-                            </div>
+                            {!isMaterials && (
+                              <div className="font-bold text-lg mb-4" style={{ color: "var(--orange)" }}>
+                                {formatPrice(p)}
+                              </div>
+                            )}
                             <button
-                              onClick={() => openFos(`catalog_${g.id}`, p.name)}
+                              onClick={() => openFos(`catalog_${g.id}`, title)}
                               className="btn-orange w-full py-3.5 text-[15px]"
                             >
-                              Получить предложение
+                              {isMaterials ? "Уточнить цену" : "Получить предложение"}
                             </button>
                           </div>
                         </div>

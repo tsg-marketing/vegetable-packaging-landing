@@ -1,7 +1,7 @@
 """
-Business: Загружает YML-фид t-sib.ru, группирует товары по заданным категориям (290, 296, 306, 307, 311, 325, 332, 336, 340, 345, 415 и все категории с parentId=350). Для каждой группы возвращает топ-10 самых дешёвых товаров.
+Business: Каталог упаковочного оборудования. Группы: 290, 296, 306, 307, 325, 452, 336, 340 (+490+491), 345, 415. Исключения: 311 (запайщики). Паллетоупаковщики (452) — только бренд Техносиб. Подкатегории parentId=350 → один блок «Упаковочные материалы», по 1 товару с подкатегории.
 Args: event с httpMethod (GET/OPTIONS); context — объект с request_id.
-Returns: JSON {groups: [{id, name, products: [...]}], updatedAt} — каждая группа с заголовком и до 10 товаров.
+Returns: JSON {groups: [{id, name, products: [...]}], updatedAt}.
 """
 import json
 import urllib.request
@@ -12,9 +12,16 @@ from typing import Any
 FEED_URL = "https://t-sib.ru/upload/catalog.xml"
 
 # Явный список целевых категорий (порядок важен — в нём отображаются на сайте)
-EXPLICIT_CATEGORY_IDS = ["290", "296", "306", "307", "311", "325", "332", "336", "340", "345", "415", "490", "491"]
-# Доп. категории, объединяемые с «Термоусадочным оборудованием»
+# 311 (Запайщики пакетов) — ИСКЛЮЧЕНО
+# 332 → заменено на 452 (Паллетоупаковщики)
+EXPLICIT_CATEGORY_IDS = ["290", "296", "306", "307", "325", "452", "336", "340", "345", "415"]
+# Категории, которые ОБЯЗАТЕЛЬНО исключаются (даже если попали через parentId)
+EXCLUDE_CATEGORY_IDS = {"311"}
+# Термоусадочное оборудование = id 340 + 490 + 491 (одним блоком под именем 340)
+SHRINK_ANCHOR_ID = "340"
 SHRINK_EXTRA_IDS = {"490", "491"}
+# Категория, для которой оставляем только бренд Техносиб
+PALLET_ID = "452"
 # parentId, чьи дети объединяются в один блок «Упаковочные материалы»
 PARENT_PACKAGING = "350"
 PACKAGING_GROUP_ID = "pack-materials"
@@ -64,19 +71,13 @@ def _fetch_and_parse() -> dict:
         cat_parent[cid] = (c.get('parentId') or '').strip()
 
     # Дети parentId=350 (для общего блока «Упаковочные материалы»)
-    packaging_child_ids = {cid for cid, pid in cat_parent.items() if pid == PARENT_PACKAGING}
+    packaging_child_ids = {
+        cid for cid, pid in cat_parent.items()
+        if pid == PARENT_PACKAGING and cid not in EXCLUDE_CATEGORY_IDS
+    }
 
-    # Все категории, которые нужно собирать как товары
-    target_ids = set(EXPLICIT_CATEGORY_IDS) | packaging_child_ids
-
-    # Поиск id «Термоусадочного оборудования» среди явных (для слияния с 490/491)
-    shrink_anchor_id = None
-    for cid in EXPLICIT_CATEGORY_IDS:
-        if cid in SHRINK_EXTRA_IDS:
-            continue
-        if 'термоусадоч' in cat_name.get(cid, '').lower():
-            shrink_anchor_id = cid
-            break
+    # Целевые категории: явные + термоусадочные доп. + дети 350, кроме исключений
+    target_ids = (set(EXPLICIT_CATEGORY_IDS) | SHRINK_EXTRA_IDS | packaging_child_ids) - EXCLUDE_CATEGORY_IDS
 
     offers_el = shop.find('offers')
     if offers_el is None:
@@ -88,7 +89,6 @@ def _fetch_and_parse() -> dict:
         for prm in offer_el.findall('param'):
             if (prm.get('name') or '').strip().lower() == 'бренд':
                 val = (prm.text or '').strip().lower()
-                # допускаем варианты «Техносиб», «Техно-Сиб»
                 norm = val.replace('-', '').replace(' ', '')
                 if 'техносиб' in norm:
                     return True
@@ -98,16 +98,11 @@ def _fetch_and_parse() -> dict:
         cat = offer.findtext('categoryId', '').strip()
         if cat not in target_ids:
             continue
-
-        name = offer.findtext('name', '').strip()
-        cat_label = cat_name.get(cat, '').lower()
-
-        # Исключаем «Запайщики пакетов» — по названию категории
-        if 'запайщик' in cat_label:
+        if cat in EXCLUDE_CATEGORY_IDS:
             continue
 
-        # Паллетоупаковщики — только бренд Техносиб
-        if 'паллетоупаков' in cat_label:
+        # Паллетоупаковщики (id=452) — только бренд Техносиб
+        if cat == PALLET_ID:
             if not _has_brand_tehnosib(offer):
                 continue
 
@@ -121,7 +116,7 @@ def _fetch_and_parse() -> dict:
 
         groups_map[cat].append({
             'id': offer.get('id', ''),
-            'name': name,
+            'name': offer.findtext('name', '').strip(),
             'vendor': offer.findtext('vendor', '').strip(),
             'price': price_num,
             'priceText': price_raw,
@@ -136,32 +131,19 @@ def _fetch_and_parse() -> dict:
         unpriced = [p for p in items if p['price'] <= 0]
         return (priced + unpriced)[:n]
 
-    # Группы из EXPLICIT (с учётом слияния термоусадочного)
+    # Группы строго по EXPLICIT_CATEGORY_IDS (порядок отображения)
     groups = []
-    used = set()
-
     for cid in EXPLICIT_CATEGORY_IDS:
-        if cid in used:
-            continue
-        cat_label = cat_name.get(cid, '').lower()
-        if 'запайщик' in cat_label:
-            used.add(cid)
+        if cid in EXCLUDE_CATEGORY_IDS:
             continue
 
         items = list(groups_map.get(cid, []))
 
-        # Если это «термоусадочное» — добавим товары из 490/491
-        if cid == shrink_anchor_id:
+        # Термоусадочное оборудование = id 340 + 490 + 491
+        if cid == SHRINK_ANCHOR_ID:
             for extra in SHRINK_EXTRA_IDS:
                 items.extend(groups_map.get(extra, []))
-                used.add(extra)
 
-        # 490/491 отдельно не показываем (их добавляем только в shrink)
-        if cid in SHRINK_EXTRA_IDS:
-            used.add(cid)
-            continue
-
-        used.add(cid)
         if not items:
             continue
 
