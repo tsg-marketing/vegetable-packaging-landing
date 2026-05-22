@@ -99,6 +99,22 @@ def _fetch_and_parse() -> dict:
         except ValueError:
             price_num = 0
 
+        # Параметры: исключаем GUID и «Видео (ссылка)»
+        params = []
+        for prm in offer.findall('param'):
+            pname = (prm.get('name') or '').strip()
+            pval = (prm.text or '').strip()
+            if not pname or not pval:
+                continue
+            up = pname.upper()
+            if up == 'GUID':
+                continue
+            if 'видео' in pname.lower() and 'ссылка' in pname.lower():
+                continue
+            params.append({'name': pname, 'value': pval})
+
+        description = (offer.findtext('description', '') or '').strip()
+
         groups_map[cat].append({
             'id': offer.get('id', ''),
             'name': offer.findtext('name', '').strip(),
@@ -109,6 +125,8 @@ def _fetch_and_parse() -> dict:
             'url': offer.findtext('url', '').strip(),
             'pictures': pictures,
             'subcategory': cat_name.get(cat, ''),
+            'description': description,
+            'params': params,
         })
 
     def _sort_take_top(items: list, n: int = TOP_N) -> list:

@@ -9,6 +9,7 @@ const GROUPS_API = "https://functions.poehali.dev/ed4e9bba-a8d4-434c-af4e-528098
 
 const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
 
+type Param = { name: string; value: string };
 type GroupProduct = {
   id: string;
   name: string;
@@ -19,6 +20,8 @@ type GroupProduct = {
   url: string;
   pictures: string[];
   subcategory?: string;
+  description?: string;
+  params?: Param[];
 };
 type Group = {
   id: string;
@@ -50,6 +53,20 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
 function formatPrice(p: GroupProduct): string {
   if (!p.price || p.price <= 0) return "Запросить цену";
   return `${Math.round(p.price).toLocaleString("ru-RU")} ₽`;
+}
+
+function stripHtml(html: string): string {
+  if (!html) return "";
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return (tmp.textContent || tmp.innerText || "").trim();
+}
+
+function sortParams(params: Param[]): Param[] {
+  const isPerf = (p: Param) => /производитель/i.test(p.name);
+  const perf = params.filter(isPerf);
+  const rest = params.filter(p => !isPerf(p));
+  return [...perf, ...rest];
 }
 
 type EquipmentItem = { label: string; href: string; external?: boolean };
@@ -85,6 +102,10 @@ export default function Home() {
   const [agree, setAgree] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
 
+  // Product modal
+  const [openProduct, setOpenProduct] = useState<GroupProduct | null>(null);
+  const [modalSlideIdx, setModalSlideIdx] = useState(0);
+
   useEffect(() => {
     captureUtm();
   }, []);
@@ -113,7 +134,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (fosOpen || thanksOpen || menuOpen) {
+    if (fosOpen || thanksOpen || menuOpen || openProduct) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -121,7 +142,16 @@ export default function Home() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [fosOpen, thanksOpen, menuOpen]);
+  }, [fosOpen, thanksOpen, menuOpen, openProduct]);
+
+  const openProductCard = (p: GroupProduct) => {
+    setModalSlideIdx(0);
+    setOpenProduct(p);
+  };
+  const modalSlide = (dir: 1 | -1) => {
+    if (!openProduct || openProduct.pictures.length === 0) return;
+    setModalSlideIdx(i => (i + dir + openProduct.pictures.length) % openProduct.pictures.length);
+  };
 
   const openFos = useCallback((source: string, title: string) => {
     setName("");
@@ -432,12 +462,25 @@ export default function Home() {
                                 {formatPrice(p)}
                               </div>
                             )}
-                            <button
-                              onClick={() => openFos(`catalog_${g.id}`, title)}
-                              className="btn-orange w-full py-3.5 text-[15px]"
-                            >
-                              {isMaterials ? "Уточнить цену" : "Получить предложение"}
-                            </button>
+                            <div className="flex flex-col gap-2">
+                              {!isMaterials && (
+                                <button
+                                  onClick={() => openProductCard(p)}
+                                  className="w-full py-2.5 rounded-lg text-[14.5px] font-semibold transition-colors"
+                                  style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
+                                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.2)"; }}
+                                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.1)"; }}
+                                >
+                                  Подробнее
+                                </button>
+                              )}
+                              <button
+                                onClick={() => openFos(`catalog_${g.id}`, title)}
+                                className="btn-orange w-full py-3 text-[15px]"
+                              >
+                                {isMaterials ? "Уточнить цену" : "Получить предложение"}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       );
@@ -733,6 +776,130 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* ── PRODUCT MODAL ── */}
+      {openProduct && (() => {
+        const pics = openProduct.pictures.length > 0 ? openProduct.pictures : [HERO_IMG];
+        const safeIdx = Math.min(modalSlideIdx, pics.length - 1);
+        const params = openProduct.params || [];
+        return (
+          <div
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto"
+            onClick={() => setOpenProduct(null)}
+          >
+            <div
+              className="bg-white rounded-2xl w-full max-w-5xl max-h-[92vh] overflow-y-auto relative my-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setOpenProduct(null)}
+                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white shadow-md hover:bg-gray-100 flex items-center justify-center transition-colors"
+                aria-label="Закрыть"
+              >
+                <Icon name="X" size={20} className="text-[#1A1A1A]" />
+              </button>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+                {/* Слайдер */}
+                <div className="bg-[#F7F7F7] relative">
+                  <div className="aspect-[4/3] md:aspect-auto md:h-full md:min-h-[460px] relative overflow-hidden">
+                    <img
+                      src={pics[safeIdx]}
+                      alt={openProduct.name}
+                      className="w-full h-full object-contain p-4"
+                    />
+                    {pics.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => modalSlide(-1)}
+                          className="absolute top-1/2 left-3 -translate-y-1/2 w-11 h-11 rounded-full bg-white/95 hover:bg-white shadow-md flex items-center justify-center"
+                          aria-label="Предыдущее фото"
+                        >
+                          <Icon name="ChevronLeft" size={22} className="text-[#1A1A1A]" />
+                        </button>
+                        <button
+                          onClick={() => modalSlide(1)}
+                          className="absolute top-1/2 right-3 -translate-y-1/2 w-11 h-11 rounded-full bg-white/95 hover:bg-white shadow-md flex items-center justify-center"
+                          aria-label="Следующее фото"
+                        >
+                          <Icon name="ChevronRight" size={22} className="text-[#1A1A1A]" />
+                        </button>
+                        <div className="absolute top-3 left-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-md">
+                          {safeIdx + 1} / {pics.length}
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {pics.length > 1 && (
+                    <div className="flex gap-2 p-3 overflow-x-auto border-t border-gray-100 bg-white">
+                      {pics.map((src, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setModalSlideIdx(i)}
+                          className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all"
+                          style={{ borderColor: i === safeIdx ? "var(--orange)" : "transparent" }}
+                        >
+                          <img src={src} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Описание и характеристики */}
+                <div className="p-6 md:p-8 flex flex-col">
+                  <h3 className="font-bold text-xl md:text-2xl text-[#1A1A1A] mb-3 leading-tight">{openProduct.name}</h3>
+
+                  <div className="mb-5">
+                    <div className="font-bold text-2xl md:text-3xl" style={{ color: "var(--orange)" }}>
+                      {formatPrice(openProduct)}
+                    </div>
+                    {openProduct.vendor && (
+                      <p className="text-xs text-[#888] mt-1">Производитель: {openProduct.vendor}</p>
+                    )}
+                  </div>
+
+                  {openProduct.description && (
+                    <div className="mb-5">
+                      <p className="text-sm text-[#444] leading-relaxed line-clamp-6">
+                        {stripHtml(openProduct.description)}
+                      </p>
+                    </div>
+                  )}
+
+                  {params.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="text-[13px] font-bold uppercase tracking-wider text-[#999] mb-3">Характеристики</h4>
+                      <div className="rounded-lg border border-gray-100 divide-y divide-gray-100">
+                        {sortParams(params).map((pr, i) => (
+                          <div key={i} className="flex gap-3 px-4 py-2.5 text-[14.5px]">
+                            <span className="font-semibold text-[#1A1A1A] flex-1">{pr.name}</span>
+                            <span className="font-normal text-[#444] flex-1 text-right break-words">{pr.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-auto">
+                    <button
+                      onClick={() => {
+                        const productName = openProduct.name;
+                        setOpenProduct(null);
+                        setTimeout(() => openFos("product_modal", productName), 150);
+                      }}
+                      className="btn-orange w-full py-3"
+                    >
+                      Оставить заявку
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── LEAD MODAL ── */}
       {fosOpen && (
