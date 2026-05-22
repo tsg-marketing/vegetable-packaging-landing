@@ -18,12 +18,14 @@ type GroupProduct = {
   currency: string;
   url: string;
   pictures: string[];
+  subcategory?: string;
 };
 type Group = {
   id: string;
   name: string;
   total: number;
   products: GroupProduct[];
+  showSubcategory?: boolean;
 };
 
 async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
@@ -173,10 +175,10 @@ export default function Home() {
             <img src={LOGO_URL} alt="ТЕХНОСИБ" className="h-9 w-auto" />
           </a>
 
-          {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-9 flex-1 justify-center">
+          {/* Desktop nav — в одну строку */}
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-7 flex-1 justify-center whitespace-nowrap">
             <div className="relative group">
-              <button className="text-[15px] font-medium text-[#1A1A1A] hover:text-[var(--orange)] transition-colors flex items-center gap-1.5">
+              <button className="text-[14px] xl:text-[15px] font-medium text-[#1A1A1A] hover:text-[var(--orange)] transition-colors flex items-center gap-1.5">
                 Оборудование
                 <Icon name="ChevronDown" size={14} />
               </button>
@@ -218,21 +220,21 @@ export default function Home() {
               <button
                 key={l.href}
                 onClick={() => scrollTo(l.href)}
-                className="text-[15px] font-medium text-[#1A1A1A] hover:text-[var(--orange)] transition-colors"
+                className="text-[14px] xl:text-[15px] font-medium text-[#1A1A1A] hover:text-[var(--orange)] transition-colors"
               >
                 {l.label}
               </button>
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-5 flex-shrink-0">
-            <a href="tel:88005004054" className="text-[15px] font-semibold text-[#1A1A1A] hover:text-[var(--orange)] flex items-center gap-2">
-              <Icon name="Phone" size={16} style={{ color: "var(--orange)" }} />
-              8-800-500-40-54
-            </a>
-            <a href="mailto:info@t-sib.ru" className="hidden 2xl:flex text-[14px] text-[#555] hover:text-[var(--orange)] items-center gap-2">
-              <Icon name="Mail" size={16} style={{ color: "var(--orange)" }} />
+          <div className="hidden md:flex flex-col items-end gap-1 flex-shrink-0 leading-tight">
+            <a href="mailto:info@t-sib.ru" className="text-[13px] text-[#555] hover:text-[var(--orange)] flex items-center gap-1.5">
+              <Icon name="Mail" size={14} style={{ color: "var(--orange)" }} />
               info@t-sib.ru
+            </a>
+            <a href="tel:88005004054" className="text-[15px] font-semibold text-[#1A1A1A] hover:text-[var(--orange)] flex items-center gap-1.5">
+              <Icon name="Phone" size={15} style={{ color: "var(--orange)" }} />
+              8-800-500-40-54
             </a>
           </div>
 
@@ -416,11 +418,11 @@ export default function Home() {
                       return (
                         <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
                           <div className="aspect-[4/3] bg-gray-50 overflow-hidden">
-                            <img src={img} alt={p.name} loading="lazy" className="w-full h-full object-contain" />
+                            <img src={img} alt={g.showSubcategory ? p.subcategory : p.name} loading="lazy" className="w-full h-full object-contain" />
                           </div>
                           <div className="p-4 flex-1 flex flex-col">
                             <h4 className="text-[15px] font-semibold text-[#1A1A1A] mb-3 leading-snug break-words flex-1">
-                              {p.name}
+                              {g.showSubcategory ? (p.subcategory || p.name) : p.name}
                             </h4>
                             <div className="font-bold text-lg mb-4" style={{ color: "var(--orange)" }}>
                               {formatPrice(p)}
