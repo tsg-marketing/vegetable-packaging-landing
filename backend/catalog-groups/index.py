@@ -20,8 +20,7 @@ EXCLUDE_CATEGORY_IDS = {"311"}
 # Термоусадочное оборудование = id 340 + 490 + 491 (одним блоком под именем 340)
 SHRINK_ANCHOR_ID = "340"
 SHRINK_EXTRA_IDS = {"490", "491"}
-# Категория, для которой оставляем только бренд Техносиб
-PALLET_ID = "452"
+# (Фильтрация паллетоупаковщиков по бренду отключена)
 # parentId, чьи дети объединяются в один блок «Упаковочные материалы»
 PARENT_PACKAGING = "350"
 PACKAGING_GROUP_ID = "pack-materials"
@@ -85,26 +84,12 @@ def _fetch_and_parse() -> dict:
 
     groups_map: dict = {cid: [] for cid in target_ids}
 
-    def _has_brand_tehnosib(offer_el) -> bool:
-        for prm in offer_el.findall('param'):
-            if (prm.get('name') or '').strip().lower() == 'бренд':
-                val = (prm.text or '').strip().lower()
-                norm = val.replace('-', '').replace(' ', '')
-                if 'техносиб' in norm:
-                    return True
-        return False
-
     for offer in offers_el.findall('offer'):
         cat = offer.findtext('categoryId', '').strip()
         if cat not in target_ids:
             continue
         if cat in EXCLUDE_CATEGORY_IDS:
             continue
-
-        # Паллетоупаковщики (id=452) — только бренд Техносиб
-        if cat == PALLET_ID:
-            if not _has_brand_tehnosib(offer):
-                continue
 
         pictures = [p.text.strip() for p in offer.findall('picture') if p.text]
 
@@ -210,14 +195,13 @@ def handler(event: dict, context: Any) -> dict:
             data['nextUpdate'] = _CACHE['next_update'].isoformat()
             _CACHE['payload'] = json.dumps(data, ensure_ascii=False)
 
-        max_age = max(60, int((_CACHE['next_update'] - now_utc).total_seconds()))
-
         return {
             'statusCode': 200,
             'headers': {
                 'Content-Type': 'application/json; charset=utf-8',
                 'Access-Control-Allow-Origin': '*',
-                'Cache-Control': f'public, max-age={max_age}',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma': 'no-cache',
             },
             'isBase64Encoded': False,
             'body': _CACHE['payload'],

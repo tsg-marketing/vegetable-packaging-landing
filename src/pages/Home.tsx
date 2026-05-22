@@ -93,7 +93,7 @@ export default function Home() {
     (async () => {
       try {
         setLoading(true);
-        const res = await fetch(GROUPS_API);
+        const res = await fetch(`${GROUPS_API}?v=${Date.now()}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const j = await res.json();
         if (!cancelled) {
