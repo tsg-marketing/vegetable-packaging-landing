@@ -62,6 +62,7 @@ const NAV = [
   { label: "О компании", href: "#about" },
   { label: "Наши преимущества", href: "#advantages" },
   { label: "Сервис", href: "#service" },
+  { label: "Доставка", href: "#delivery" },
   { label: "Оставить заявку", href: "#contact-form" },
   { label: "Контакты", href: "#contacts" },
 ];
@@ -458,25 +459,79 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── ABOUT ── */}
+      {/* ── О КОМПАНИИ ── */}
       <section id="about" className="py-20 bg-white border-t border-gray-100 scroll-mt-24">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="section-title">О компании</h2>
-          <p className="text-[17px] text-[#555] leading-relaxed mt-5 max-w-3xl mx-auto">
-            Техно-Сиб — поставщик упаковочного и пищевого оборудования с 2001 года. Подбираем линии под задачу заказчика, обеспечиваем доставку, монтаж, пусконаладку и сервисное сопровождение по всей России.
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-3">
+            <h2 className="section-title inline-block relative pb-3">
+              О компании ТЕХНОСИБ
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-0 w-16 h-1 rounded-full" style={{ background: "var(--orange)" }} />
+            </h2>
+          </div>
+          <p className="text-center text-[#666] text-[15px] mb-8">Ваш надёжный партнёр с 2001 года</p>
+
+          {/* Три карточки-факта */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-7">
             {[
-              { num: "25 лет", text: "на рынке оборудования" },
-              { num: "1500+", text: "реализованных проектов" },
-              { num: "8 стран", text: "поставщиков-партнёров" },
-              { num: "24-48 ч", text: "выезд сервиса" },
-            ].map((s, i) => (
-              <div key={i} className="rounded-xl p-5 bg-[#F7F7F7]">
-                <div className="text-[26px] font-bold" style={{ color: "var(--orange)" }}>{s.num}</div>
-                <div className="text-[14px] text-[#555] mt-1">{s.text}</div>
+              { icon: "Award", value: "25", title: "лет на рынке", desc: "Опыт и экспертиза в упаковочном оборудовании" },
+              { icon: "MapPin", value: "2 города", title: "Офисы в Москве и Новосибирске", desc: "" },
+              { icon: "Globe2", value: "Проверенные партнёры", title: "Из Европы, России и Китая", desc: "" },
+            ].map((c, i) => (
+              <div key={i} className="rounded-xl p-6 bg-white border border-gray-100 shadow-sm">
+                <div className="w-11 h-11 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.12)" }}>
+                  <Icon name={c.icon} size={20} style={{ color: "var(--orange)" }} />
+                </div>
+                {i === 0 ? (
+                  <>
+                    <div className="text-[40px] font-bold leading-none" style={{ color: "var(--orange)" }}>{c.value}</div>
+                    <div className="text-[15px] font-semibold mt-2 text-[#1A1A1A]">{c.title}</div>
+                    <div className="text-[13.5px] text-[#888] mt-1.5 leading-relaxed">{c.desc}</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-[18px] font-bold text-[#1A1A1A]">{c.value}</div>
+                    <div className="text-[13.5px] text-[#888] mt-1.5 leading-relaxed">{c.title}</div>
+                  </>
+                )}
               </div>
             ))}
+          </div>
+
+          {/* Большая карточка с текстом */}
+          <div className="rounded-xl border border-gray-100 bg-white shadow-sm p-6 sm:p-8">
+            <p className="text-[15px] text-[#444] leading-relaxed mb-5">
+              Компания «Техно-Сиб» — надёжный поставщик и партнёр в сфере профессионального пищевого и фасовочно-упаковочного оборудования. Мы работаем с 2001 года и уже 25 лет помогаем предприятиям эффективно оснащать производства и склады пищевым и упаковочным оборудованием, предоставляем сервисное обслуживание, а также реализуем упаковочные и расходные материалы.
+            </p>
+
+            <div className="rounded-r-md border-l-4 px-4 py-3 mb-5" style={{ background: "rgba(255,102,0,0.08)", borderColor: "var(--orange)" }}>
+              <p className="text-[14.5px] text-[#1A1A1A] font-medium leading-relaxed">
+                Мы сотрудничаем с ведущими заводами-производителями Европы, России и Китая, подбирая решения под задачи и бюджет клиента.
+              </p>
+            </div>
+
+            <p className="text-[15px] text-[#444] leading-relaxed mb-3">
+              Собственные офисы продаж, склады, сервисная служба и отлаженная логистика в Москве и Новосибирске позволяют нам оперативно выполнять поставки и поддерживать оборудование на территории России и стран СНГ.
+            </p>
+            <p className="text-[15px] text-[#444] leading-relaxed mb-6">
+              Экспертиза наших специалистов помогает решать задачи любого уровня сложности — от подбора единичной позиции до комплексного оснащения. «Техно-Сиб» всегда предложит оптимальное решение для вашего бизнеса и обеспечит надёжную поддержку на всех этапах работы.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 pt-2 border-t border-gray-100">
+              {[
+                { title: "Комплексные решения", desc: "От подбора оборудования до сервисного обслуживания" },
+                { title: "Быстрая доставка", desc: "Собственная логистика по всей России и СНГ" },
+                { title: "Сервисная поддержка", desc: "Гарантийное и постгарантийное обслуживание" },
+                { title: "Экспертная консультация", desc: "Помощь в выборе оптимального решения" },
+              ].map(f => (
+                <div key={f.title} className="flex items-start gap-3 pt-3">
+                  <Icon name="CheckCircle2" size={20} style={{ color: "var(--orange)" }} className="flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-[14.5px] font-semibold text-[#1A1A1A]">{f.title}</div>
+                    <div className="text-[13.5px] text-[#888] leading-relaxed mt-0.5">{f.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -509,26 +564,91 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── СЕРВИС ── */}
-      <section id="service" className="py-20 bg-white scroll-mt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="section-title">Сервис</h2>
-            <p className="text-[#888] mt-2">Полное сопровождение после поставки</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* ── СЕРВИС И ПОДДЕРЖКА ── */}
+      <section id="service" className="py-20 bg-[#F7F8FA] scroll-mt-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <h2 className="text-[28px] sm:text-[36px] font-bold text-center mb-12 text-[#1A1A1A]">Сервис и поддержка</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: "PackageCheck", title: "Поставка", text: "Доставка со складов в РФ и из-за рубежа" },
-              { icon: "Wrench", title: "Монтаж", text: "Сборка и подключение в вашем цехе" },
-              { icon: "Play", title: "Пусконаладка", text: "Запуск линии в рабочих режимах" },
-              { icon: "LifeBuoy", title: "Сервис 24/7", text: "Гарантийное и постгарантийное обслуживание" },
+              { icon: "Truck", title: "Доставка и монтаж", text: "Доставляем по всей России. Монтаж и пусконаладка выполняются нашими специалистами" },
+              { icon: "GraduationCap", title: "Обучение персонала", text: "Проводим инструктаж и обучение ваших сотрудников работе с оборудованием" },
+              { icon: "Wrench", title: "Гарантийное обслуживание", text: "12 месяцев гарантии. Быстрое реагирование на заявки и наличие запчастей на складе" },
             ].map(s => (
-              <div key={s.title} className="rounded-xl p-6 bg-[#F7F7F7] card-hover">
-                <Icon name={s.icon} size={28} style={{ color: "var(--orange)" }} />
-                <h3 className="text-[17px] font-bold mt-4 mb-2 text-[#1A1A1A]">{s.title}</h3>
-                <p className="text-[14.5px] text-[#666] leading-relaxed">{s.text}</p>
+              <div key={s.title} className="rounded-2xl p-7 bg-white text-center card-hover border border-gray-100">
+                <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: "#E6F3FB" }}>
+                  <Icon name={s.icon} size={26} style={{ color: "#3FA9E0" }} />
+                </div>
+                <h3 className="text-[19px] font-bold mb-3 text-[#1A1A1A]">{s.title}</h3>
+                <p className="text-[14.5px] text-[#888] leading-relaxed">{s.text}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── ДОСТАВКА ТОВАРА ── */}
+      <section id="delivery" className="py-20 bg-white scroll-mt-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <h2 className="text-[28px] sm:text-[36px] font-bold text-center mb-4 text-[#1A1A1A]">Доставка товара</h2>
+          <p className="text-center text-[#666] text-[15px] max-w-2xl mx-auto mb-10">
+            Доставка в пределах г. Новосибирск и г. Москва — <span className="font-semibold" style={{ color: "var(--orange)" }}>бесплатно</span>. Выгрузка товара осуществляется силами Покупателя.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Самовывоз */}
+            <div className="rounded-2xl p-7 bg-[#FFF8F2] border border-orange-100">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,102,0,0.15)" }}>
+                  <Icon name="MapPin" size={20} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="text-[20px] font-bold text-[#1A1A1A]">Самовывоз</h3>
+              </div>
+              <p className="text-[14px] text-[#777] mb-4">Забрать оплаченный товар можно на складе по адресу:</p>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2.5">
+                  <Icon name="MapPin" size={16} style={{ color: "var(--orange)" }} className="mt-1 flex-shrink-0" />
+                  <span className="text-[14.5px] text-[#1A1A1A]">г. Новосибирск, ул. Электрозаводская, 2, корпус 5</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Icon name="MapPin" size={16} style={{ color: "var(--orange)" }} className="mt-1 flex-shrink-0" />
+                  <span className="text-[14.5px] text-[#1A1A1A]">г. Москва, ш. Энтузиастов, д. 56, стр. 32</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Доставка по России */}
+            <div className="rounded-2xl p-7 bg-[#F2F8FD] border border-blue-100">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(63,169,224,0.15)" }}>
+                  <Icon name="Truck" size={20} style={{ color: "#3FA9E0" }} />
+                </div>
+                <h3 className="text-[20px] font-bold text-[#1A1A1A]">Доставка по России</h3>
+              </div>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2.5">
+                  <Icon name="Check" size={16} className="mt-1 flex-shrink-0 text-[#3FA9E0]" />
+                  <span className="text-[14.5px] text-[#1A1A1A]">Доставка по России осуществляется через транспортные компании.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Icon name="Check" size={16} className="mt-1 flex-shrink-0 text-green-600" />
+                  <span className="text-[14.5px] text-[#1A1A1A]">
+                    <span className="font-semibold text-green-700">Бесплатно</span> доставим товар до терминала любой ТК в пределах г. Новосибирск и г. Москва.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Icon name="Check" size={16} className="mt-1 flex-shrink-0 text-[#3FA9E0]" />
+                  <span className="text-[14.5px] text-[#1A1A1A]">Перевозчики: «Деловые линии», «ПЭК», «СДЭК».</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Icon name="Clock" size={16} className="mt-1 flex-shrink-0 text-[#3FA9E0]" />
+                  <span className="text-[14.5px] text-[#1A1A1A]">Сроки поставки зависят от места назначения и выбора перевозчика.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Icon name="CreditCard" size={16} className="mt-1 flex-shrink-0 text-[#3FA9E0]" />
+                  <span className="text-[14.5px] text-[#1A1A1A]">Оплата доставки — заказчиком при получении по тарифам перевозчика.</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
