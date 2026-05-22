@@ -107,6 +107,8 @@ export default function Home() {
   const [modalSlideIdx, setModalSlideIdx] = useState(0);
   // Индексы фото в карточках на главной (по product id)
   const [cardSlideIdx, setCardSlideIdx] = useState<Record<string, number>>({});
+  // Лайтбокс (просмотр фото в полноэкранном окне)
+  const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
   useEffect(() => {
     captureUtm();
@@ -136,7 +138,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (fosOpen || thanksOpen || menuOpen || openProduct) {
+    if (fosOpen || thanksOpen || menuOpen || openProduct || lightbox) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -144,7 +146,12 @@ export default function Home() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [fosOpen, thanksOpen, menuOpen, openProduct]);
+  }, [fosOpen, thanksOpen, menuOpen, openProduct, lightbox]);
+
+  const lightboxSlide = (dir: 1 | -1) => {
+    if (!lightbox || lightbox.pictures.length === 0) return;
+    setLightbox(lb => lb && { ...lb, idx: (lb.idx + dir + lb.pictures.length) % lb.pictures.length });
+  };
 
   const openProductCard = (p: GroupProduct) => {
     setModalSlideIdx(cardSlideIdx[p.id] ?? 0);
@@ -463,7 +470,13 @@ export default function Home() {
                       return (
                         <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
                           <div className="aspect-[4/3] bg-gray-50 overflow-hidden relative group">
-                            <img src={img} alt={title} loading="lazy" className="w-full h-full object-contain" />
+                            <img
+                              src={img}
+                              alt={title}
+                              loading="lazy"
+                              onClick={() => !isMaterials && setLightbox({ pictures: pics, idx: curIdx })}
+                              className={`w-full h-full object-contain ${!isMaterials ? "cursor-zoom-in" : ""}`}
+                            />
                             {canSlide && (
                               <>
                                 <button
@@ -828,41 +841,42 @@ export default function Home() {
         const params = openProduct.params || [];
         return (
           <div
-            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto"
+            className="fixed inset-0 z-[110] flex items-start sm:items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm"
             onClick={() => setOpenProduct(null)}
           >
             <div
-              className="bg-white rounded-2xl w-full max-w-5xl max-h-[92vh] overflow-y-auto relative my-auto"
+              className="bg-white rounded-2xl w-full max-w-5xl h-[96vh] sm:h-auto sm:max-h-[92vh] relative overflow-hidden flex flex-col"
               onClick={e => e.stopPropagation()}
             >
               <button
                 onClick={() => setOpenProduct(null)}
-                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white shadow-md hover:bg-gray-100 flex items-center justify-center transition-colors"
+                className="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-white shadow-md hover:bg-gray-100 flex items-center justify-center transition-colors"
                 aria-label="Закрыть"
               >
                 <Icon name="X" size={20} className="text-[#1A1A1A]" />
               </button>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 flex-1 min-h-0 overflow-y-auto md:overflow-hidden">
                 {/* Слайдер */}
-                <div className="bg-[#F7F7F7] relative">
-                  <div className="aspect-[4/3] md:aspect-auto md:h-full md:min-h-[460px] relative overflow-hidden">
+                <div className="bg-[#F7F7F7] relative flex flex-col md:h-[92vh] md:max-h-[760px]">
+                  <div className="relative overflow-hidden flex-1 min-h-[260px] sm:min-h-[340px] md:min-h-0">
                     <img
                       src={pics[safeIdx]}
                       alt={openProduct.name}
-                      className="w-full h-full object-contain p-4"
+                      onClick={() => setLightbox({ pictures: pics, idx: safeIdx })}
+                      className="w-full h-full object-contain p-4 cursor-zoom-in"
                     />
                     {pics.length > 1 && (
                       <>
                         <button
-                          onClick={() => modalSlide(-1)}
+                          onClick={(e) => { e.stopPropagation(); modalSlide(-1); }}
                           className="absolute top-1/2 left-3 -translate-y-1/2 w-11 h-11 rounded-full bg-white/95 hover:bg-white shadow-md flex items-center justify-center"
                           aria-label="Предыдущее фото"
                         >
                           <Icon name="ChevronLeft" size={22} className="text-[#1A1A1A]" />
                         </button>
                         <button
-                          onClick={() => modalSlide(1)}
+                          onClick={(e) => { e.stopPropagation(); modalSlide(1); }}
                           className="absolute top-1/2 right-3 -translate-y-1/2 w-11 h-11 rounded-full bg-white/95 hover:bg-white shadow-md flex items-center justify-center"
                           aria-label="Следующее фото"
                         >
@@ -876,7 +890,7 @@ export default function Home() {
                   </div>
 
                   {pics.length > 1 && (
-                    <div className="flex gap-2 p-3 overflow-x-auto border-t border-gray-100 bg-white">
+                    <div className="flex gap-2 p-3 overflow-x-auto border-t border-gray-100 bg-white flex-shrink-0">
                       {pics.map((src, i) => (
                         <button
                           key={i}
@@ -892,41 +906,43 @@ export default function Home() {
                 </div>
 
                 {/* Описание и характеристики */}
-                <div className="p-6 md:p-8 flex flex-col">
-                  <h3 className="font-bold text-xl md:text-2xl text-[#1A1A1A] mb-3 leading-tight">{openProduct.name}</h3>
+                <div className="flex flex-col md:h-[92vh] md:max-h-[760px] md:min-h-0">
+                  <div className="p-6 md:p-8 overflow-y-auto flex-1">
+                    <h3 className="font-bold text-xl md:text-2xl text-[#1A1A1A] mb-3 leading-tight pr-12">{openProduct.name}</h3>
 
-                  <div className="mb-5">
-                    <div className="font-bold text-2xl md:text-3xl" style={{ color: "var(--orange)" }}>
-                      {formatPrice(openProduct)}
+                    <div className="mb-5">
+                      <div className="font-bold text-2xl md:text-3xl" style={{ color: "var(--orange)" }}>
+                        {formatPrice(openProduct)}
+                      </div>
+                      {openProduct.vendor && (
+                        <p className="text-xs text-[#888] mt-1">Производитель: {openProduct.vendor}</p>
+                      )}
                     </div>
-                    {openProduct.vendor && (
-                      <p className="text-xs text-[#888] mt-1">Производитель: {openProduct.vendor}</p>
+
+                    {openProduct.description && (
+                      <div className="mb-5">
+                        <p className="text-sm text-[#444] leading-relaxed">
+                          {stripHtml(openProduct.description)}
+                        </p>
+                      </div>
+                    )}
+
+                    {params.length > 0 && (
+                      <div className="mb-2">
+                        <h4 className="text-[13px] font-bold uppercase tracking-wider text-[#999] mb-3">Характеристики</h4>
+                        <div className="rounded-lg border border-gray-100 divide-y divide-gray-100">
+                          {sortParams(params).map((pr, i) => (
+                            <div key={i} className="flex gap-3 px-4 py-2.5 text-[14.5px]">
+                              <span className="font-semibold text-[#1A1A1A] flex-1">{pr.name}</span>
+                              <span className="font-normal text-[#444] flex-1 text-right break-words">{pr.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
 
-                  {openProduct.description && (
-                    <div className="mb-5">
-                      <p className="text-sm text-[#444] leading-relaxed line-clamp-6">
-                        {stripHtml(openProduct.description)}
-                      </p>
-                    </div>
-                  )}
-
-                  {params.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="text-[13px] font-bold uppercase tracking-wider text-[#999] mb-3">Характеристики</h4>
-                      <div className="rounded-lg border border-gray-100 divide-y divide-gray-100">
-                        {sortParams(params).map((pr, i) => (
-                          <div key={i} className="flex gap-3 px-4 py-2.5 text-[14.5px]">
-                            <span className="font-semibold text-[#1A1A1A] flex-1">{pr.name}</span>
-                            <span className="font-normal text-[#444] flex-1 text-right break-words">{pr.value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="mt-auto">
+                  <div className="p-4 md:p-6 border-t border-gray-100 bg-white flex-shrink-0">
                     <button
                       onClick={() => openFos("product_modal", openProduct.name)}
                       className="btn-orange w-full py-3"
@@ -937,6 +953,55 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+        );
+      })()}
+
+      {/* ── LIGHTBOX (просмотр фото) ── */}
+      {lightbox && (() => {
+        const pics = lightbox.pictures;
+        const idx = Math.min(lightbox.idx, pics.length - 1);
+        return (
+          <div
+            className="fixed inset-0 z-[130] bg-black/95 flex items-center justify-center p-2 sm:p-6"
+            onClick={() => setLightbox(null)}
+          >
+            <button
+              onClick={() => setLightbox(null)}
+              className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center"
+              aria-label="Закрыть"
+            >
+              <Icon name="X" size={22} />
+            </button>
+
+            <img
+              src={pics[idx]}
+              alt=""
+              onClick={e => e.stopPropagation()}
+              className="max-w-full max-h-full object-contain select-none"
+            />
+
+            {pics.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); lightboxSlide(-1); }}
+                  className="absolute top-1/2 left-3 sm:left-6 -translate-y-1/2 w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center"
+                  aria-label="Предыдущее"
+                >
+                  <Icon name="ChevronLeft" size={26} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); lightboxSlide(1); }}
+                  className="absolute top-1/2 right-3 sm:right-6 -translate-y-1/2 w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center"
+                  aria-label="Следующее"
+                >
+                  <Icon name="ChevronRight" size={26} />
+                </button>
+                <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/60 text-white text-sm px-3 py-1 rounded-md">
+                  {idx + 1} / {pics.length}
+                </div>
+              </>
+            )}
           </div>
         );
       })()}

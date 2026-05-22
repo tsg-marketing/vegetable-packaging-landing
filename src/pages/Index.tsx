@@ -160,7 +160,7 @@ const FAQS = [
 ];
 
 const NAV = [
-  { label: "Проблемы", href: "#problems" },
+  { label: "Главная", href: "/" },
   { label: "Каталог", href: "#catalog" },
   { label: "Видео", href: "#videos" },
   { label: "Преимущества", href: "#advantages" },
@@ -322,6 +322,10 @@ export default function Index() {
   }, [openProduct, lightbox, fosOpen, videoOpen, thanksOpen]);
 
   const scrollTo = (href: string) => {
+    if (href.startsWith("/")) {
+      window.location.href = href;
+      return;
+    }
     document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
     setMobileOpen(false);
   };
