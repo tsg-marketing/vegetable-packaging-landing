@@ -1,14 +1,19 @@
-// UTM-метки: захватываем из URL и храним в cookie 30 дней
+// UTM-метки: каждая метка хранится в ОТДЕЛЬНОЙ cookie 30 дней
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
 export type UtmKey = typeof UTM_KEYS[number];
 export type UtmMap = Partial<Record<UtmKey, string>>;
 
-const COOKIE_NAME = "tsib_utm";
 const DAYS = 30;
+// Старая кука с JSON — больше не используется, чистим при наличии
+const LEGACY_COOKIE = "tsib_utm";
 
 function setCookie(name: string, value: string, days: number) {
   const expires = new Date(Date.now() + days * 86400_000).toUTCString();
   document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
+function deleteCookie(name: string) {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
 }
 
 function getCookie(name: string): string | null {
@@ -18,26 +23,26 @@ function getCookie(name: string): string | null {
 
 export function captureUtm(): void {
   if (typeof window === "undefined") return;
+
+  // Если когда-то писали в общую куку JSON — удалим её
+  if (getCookie(LEGACY_COOKIE)) deleteCookie(LEGACY_COOKIE);
+
   const params = new URLSearchParams(window.location.search);
-  const fresh: UtmMap = {};
-  let hasAny = false;
   UTM_KEYS.forEach(k => {
     const v = params.get(k);
-    if (v) { fresh[k] = v; hasAny = true; }
+    if (v) {
+      // Каждая UTM-метка пишется в отдельную cookie с её именем
+      setCookie(k, v, DAYS);
+    }
   });
-  if (hasAny) {
-    setCookie(COOKIE_NAME, JSON.stringify(fresh), DAYS);
-  }
 }
 
 export function readUtm(): UtmMap {
   if (typeof window === "undefined") return {};
-  const raw = getCookie(COOKIE_NAME);
-  if (!raw) return {};
-  try {
-    const obj = JSON.parse(raw);
-    return obj && typeof obj === "object" ? obj : {};
-  } catch {
-    return {};
-  }
+  const out: UtmMap = {};
+  UTM_KEYS.forEach(k => {
+    const v = getCookie(k);
+    if (v) out[k] = v;
+  });
+  return out;
 }
