@@ -118,7 +118,11 @@ export default function Home() {
     (async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${GROUPS_API}?v=${Date.now()}`, { cache: "no-store" });
+        // ?refresh=1 в адресе страницы → принудительно обновить кэш каталога на бэкенде
+        const wantRefresh = typeof window !== "undefined"
+          && /[?&]refresh=(1|true|yes)\b/i.test(window.location.search);
+        const refreshParam = wantRefresh ? "&refresh=1" : "";
+        const res = await fetch(`${GROUPS_API}?v=${Date.now()}${refreshParam}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const j = await res.json();
         if (!cancelled) {

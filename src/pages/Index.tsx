@@ -281,7 +281,11 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    fetch(CATALOG_API)
+    // ?refresh=1 в адресе страницы → принудительно обновить кэш каталога на бэкенде
+    const wantRefresh = typeof window !== "undefined"
+      && /[?&]refresh=(1|true|yes)\b/i.test(window.location.search);
+    const url = wantRefresh ? `${CATALOG_API}?refresh=1` : CATALOG_API;
+    fetch(url, { cache: "no-store" })
       .then(r => r.json())
       .then(d => {
         if (d.products) {
