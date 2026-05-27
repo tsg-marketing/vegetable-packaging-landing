@@ -229,10 +229,9 @@ const FAQS = [
 const NAV = [
   { label: "Главная", href: "/" },
   { label: "Преимущества", href: "#advantages" },
-  { label: "Каталог", href: "#catalog" },
+  { label: "Оборудование", href: "#catalog" },
   { label: "Применение", href: "#applications" },
   { label: "Опции", href: "#options" },
-  { label: "Как работает", href: "#process" },
   { label: "Сервис", href: "#service" },
   { label: "FAQ", href: "#faq" },
   { label: "Контакты", href: "#contacts" },
@@ -295,12 +294,6 @@ export default function Vacuum() {
     for (const v of EXTRA_VIDEOS) {
       seen.add(v.url);
       out.push({ id: v.id, name: v.name, url: v.url, image: IMG_HERO });
-    }
-    for (const p of catalog) {
-      const url = getVideoUrl(p.params);
-      if (!url || seen.has(url)) continue;
-      seen.add(url);
-      out.push({ id: p.id, name: p.name, url, image: p.pictures[0] || IMG_HERO });
     }
     return out;
   }, [catalog]);
