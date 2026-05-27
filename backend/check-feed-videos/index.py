@@ -19,8 +19,14 @@ def handler(event: dict, context) -> dict:
     rutube = 0
     youtube = 0
     samples = []
+    category_counts: dict = {}
+    cat290_examples: list = []
 
     for p in products:
+        cid = str(p.get('categoryId') or '')
+        category_counts[cid] = category_counts.get(cid, 0) + 1
+        if cid == '290' and len(cat290_examples) < 5:
+            cat290_examples.append(p.get('name'))
         params = p.get('params', []) or []
         video_param = None
         for pr in params:
@@ -52,6 +58,8 @@ def handler(event: dict, context) -> dict:
             'rutube_count': rutube,
             'youtube_count': youtube,
             'samples': samples,
+            'category_counts': category_counts,
+            'cat290_examples': cat290_examples,
         }, ensure_ascii=False),
     }
 

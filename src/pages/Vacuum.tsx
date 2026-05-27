@@ -118,12 +118,18 @@ function formatPrice(price: number): string {
   return new Intl.NumberFormat("ru-RU").format(price) + " руб";
 }
 
-type TabKey = "all" | "291" | "294" | "292";
+type TabKey = "all" | "291" | "294" | "292" | "290";
 const CATALOG_TABS: { key: TabKey; label: string; categoryId?: string }[] = [
   { key: "all", label: "Вакуум-упаковочное" },
   { key: "291", label: "Бескамерные", categoryId: "291" },
   { key: "294", label: "Однокамерные", categoryId: "294" },
   { key: "292", label: "Двухкамерные", categoryId: "292" },
+  { key: "290", label: "Вакуумные упаковщики", categoryId: "290" },
+];
+
+const EXTRA_VIDEOS: { id: string; name: string; url: string }[] = [
+  { id: "extra-1", name: "Вакуумная упаковка продуктов — демонстрация", url: "https://rutube.ru/video/00227bfba52f39f035dd131ecaa0adef/" },
+  { id: "extra-2", name: "Работа промышленного вакуумного упаковщика", url: "https://rutube.ru/video/968cbe87c330f29ea7bdce80355a916b/" },
 ];
 
 const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
@@ -286,6 +292,10 @@ export default function Vacuum() {
   const catalogVideos = useMemo(() => {
     const seen = new Set<string>();
     const out: { id: string; name: string; url: string; image: string }[] = [];
+    for (const v of EXTRA_VIDEOS) {
+      seen.add(v.url);
+      out.push({ id: v.id, name: v.name, url: v.url, image: IMG_HERO });
+    }
     for (const p of catalog) {
       const url = getVideoUrl(p.params);
       if (!url || seen.has(url)) continue;
@@ -691,15 +701,7 @@ export default function Vacuum() {
                                 <Icon name="MessageSquare" size={16} />
                                 Оставить заявку
                               </button>
-                              {getVideoUrl(p.params) && (
-                                <button
-                                  onClick={() => setVideoModal(getVideoUrl(p.params))}
-                                  className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all border border-gray-200 hover:border-orange-300 text-[#1A1A1A] inline-flex items-center justify-center gap-2"
-                                >
-                                  <Icon name="Play" size={16} style={{ color: "var(--orange)" }} />
-                                  Смотреть видео
-                                </button>
-                              )}
+
                             </div>
                           </div>
                         </div>
@@ -728,6 +730,39 @@ export default function Vacuum() {
           )}
         </div>
       </section>
+
+      {/* VIDEO */}
+      {catalogVideos.length > 0 && (
+        <section id="video" className="py-16 bg-[#F7F7F7]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="text-center mb-8">
+              <h2 className="section-title">Посмотрите как работает наше оборудование</h2>
+              <p className="text-[#888] mt-2">Видео с реальной работой вакуумных упаковщиков</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {catalogVideos.map(v => {
+                const thumb = getVideoThumb(v.url) || v.image;
+                return (
+                  <button
+                    key={v.id}
+                    onClick={() => setVideoModal(v.url)}
+                    className="group relative bg-[#1A1A1A] rounded-xl overflow-hidden aspect-video shadow-md hover:shadow-xl transition-shadow text-left"
+                  >
+                    <img src={thumb || v.image} alt={v.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform" style={{ background: "var(--orange)" }}>
+                        <Icon name="Play" size={24} className="text-white ml-0.5" />
+                      </div>
+                    </div>
+                    <p className="absolute bottom-0 left-0 right-0 px-3 py-2.5 text-white text-[13px] font-semibold leading-snug line-clamp-2">{v.name}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ADVANTAGES */}
       <section id="advantages" className="py-16 bg-white">
@@ -788,39 +823,6 @@ export default function Vacuum() {
           </div>
         </div>
       </section>
-
-      {/* VIDEO */}
-      {catalogVideos.length > 0 && (
-        <section id="video" className="py-16 bg-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <div className="text-center mb-8">
-              <h2 className="section-title">Посмотрите как работает наше оборудование</h2>
-              <p className="text-[#888] mt-2">Видео с реальной работой вакуумных упаковщиков</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {catalogVideos.map(v => {
-                const thumb = getVideoThumb(v.url) || v.image;
-                return (
-                  <button
-                    key={v.id}
-                    onClick={() => setVideoModal(v.url)}
-                    className="group relative bg-[#1A1A1A] rounded-xl overflow-hidden aspect-video shadow-md hover:shadow-xl transition-shadow text-left"
-                  >
-                    <img src={thumb || v.image} alt={v.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform" style={{ background: "var(--orange)" }}>
-                        <Icon name="Play" size={24} className="text-white ml-0.5" />
-                      </div>
-                    </div>
-                    <p className="absolute bottom-0 left-0 right-0 px-3 py-2.5 text-white text-[13px] font-semibold leading-snug line-clamp-2">{v.name}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* OPTIONS */}
       <section id="options" className="py-16 bg-[#F7F7F7]">
@@ -1089,17 +1091,6 @@ export default function Vacuum() {
                   {detailsProduct.vendor && (
                     <p className="text-sm text-[#666] mb-2"><span className="text-[#999]">Производитель: </span><span className="text-[#1A1A1A] font-semibold">{detailsProduct.vendor}</span></p>
                   )}
-                  <div className="flex flex-col gap-2 mt-3">
-                    {getVideoUrl(detailsProduct.params) && (
-                      <button
-                        onClick={() => setVideoModal(getVideoUrl(detailsProduct.params))}
-                        className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg border border-gray-200 hover:border-orange-300 text-[#1A1A1A] inline-flex items-center justify-center gap-2"
-                      >
-                        <Icon name="Play" size={16} style={{ color: "var(--orange)" }} />
-                        Смотреть видео
-                      </button>
-                    )}
-                  </div>
                 </div>
               </div>
 
