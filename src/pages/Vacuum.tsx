@@ -1187,19 +1187,19 @@ export default function Vacuum() {
           onClick={() => setFosOpen(null)}
         >
           <div
-            className="bg-white rounded-2xl w-full max-w-md p-6 md:p-8 relative my-auto"
+            className="bg-white rounded-2xl w-full max-w-md p-5 sm:p-6 md:p-8 relative my-auto overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
             <button
               onClick={() => setFosOpen(null)}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors z-10"
               aria-label="Закрыть"
             >
               <Icon name="X" size={18} className="text-[#1A1A1A]" />
             </button>
 
-            <h3 className="font-bold text-2xl text-[#1A1A1A] mb-2 pr-8">Оставить заявку</h3>
-            <p className="text-[15px] text-[#666] mb-5 leading-relaxed">
+            <h3 className="font-bold text-2xl text-[#1A1A1A] mb-2 pr-10">Оставить заявку</h3>
+            <p className="text-[15px] text-[#666] mb-5 leading-relaxed break-words">
               {fosOpen.productName
                 ? <>По товару: <span className="font-semibold text-[#1A1A1A]">{fosOpen.productName}</span></>
                 : "Менеджер свяжется в течение 15 минут."}
@@ -1277,14 +1277,33 @@ export default function Vacuum() {
 
       {/* THANKS MODAL */}
       {thanksOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4" onClick={() => setThanksOpen(false)}>
-          <div className="bg-white rounded-2xl max-w-md w-full p-8 text-center" onClick={e => e.stopPropagation()}>
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-              <Icon name="Check" size={32} className="text-green-600" />
+        <div
+          className="fixed inset-0 z-[140] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setThanksOpen(false)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-md p-7 md:p-9 relative text-center"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setThanksOpen(false)}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              aria-label="Закрыть"
+            >
+              <Icon name="X" size={18} className="text-[#1A1A1A]" />
+            </button>
+            <div className="w-16 h-16 mx-auto mb-5 rounded-full flex items-center justify-center" style={{ background: "rgba(255,102,0,0.1)" }}>
+              <Icon name="Check" size={32} style={{ color: "var(--orange)" }} />
             </div>
-            <h3 className="text-2xl font-bold mb-2">Заявка отправлена!</h3>
-            <p className="text-[#666] mb-6">Менеджер свяжется с вами в течение 15 минут.</p>
-            <button onClick={() => setThanksOpen(false)} className="btn-orange w-full">Хорошо</button>
+            <h3 className="font-bold text-[22px] text-[#1A1A1A] mb-3 leading-tight">
+              Благодарим за обращение в компанию Техно-Сиб
+            </h3>
+            <p className="text-[#555] leading-relaxed mb-6">
+              Менеджер свяжется с Вами в ближайшее время в часы работы.
+            </p>
+            <button onClick={() => setThanksOpen(false)} className="btn-orange px-10 py-3">
+              Хорошо
+            </button>
           </div>
         </div>
       )}

@@ -150,15 +150,15 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[120] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[640px] max-h-[90vh] overflow-hidden flex flex-col"
+        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[640px] max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 sm:px-8 pt-6 pb-4 border-b border-gray-100">
+        <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: "var(--orange)" }}>
@@ -191,7 +191,7 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
         </div>
 
         {/* Body */}
-        <div className="px-6 sm:px-8 py-6 overflow-y-auto flex-1">
+        <div className="px-4 sm:px-6 md:px-8 py-5 sm:py-6 overflow-y-auto flex-1">
           {done ? (
             <div className="text-center py-6">
               <div
@@ -200,15 +200,12 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
               >
                 <Icon name="Check" size={32} style={{ color: "var(--orange)" }} />
               </div>
-              <p className="text-[#555] leading-relaxed">
-                Менеджер свяжется с вами в ближайшее время и пришлёт персональную подборку с ценами и видео работы машин.
+              <h3 className="font-bold text-[22px] text-[#1A1A1A] mb-3 leading-tight">Благодарим за обращение в компанию Техно-Сиб</h3>
+              <p className="text-[#555] leading-relaxed mb-6">
+                Менеджер свяжется с Вами в ближайшее время в часы работы.
               </p>
-              <button
-                onClick={onClose}
-                className="mt-6 px-6 py-3 rounded-lg font-semibold text-white"
-                style={{ background: "var(--orange)" }}
-              >
-                Закрыть
+              <button onClick={onClose} className="btn-orange px-10 py-3">
+                Хорошо
               </button>
             </div>
           ) : isFinal ? (
@@ -309,7 +306,7 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
 
         {/* Footer */}
         {!done && (isFinal || step > 0) && (
-          <div className="px-6 sm:px-8 py-4 border-t border-gray-100 bg-[#FAFAFA] flex items-center justify-between">
+          <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 border-t border-gray-100 bg-[#FAFAFA] flex items-center justify-between">
             <button
               onClick={back}
               className="text-sm font-semibold text-[#666] hover:text-[#1A1A1A] flex items-center gap-1.5"

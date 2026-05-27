@@ -45,6 +45,7 @@
 
   html {
     scroll-behavior: smooth;
+    overflow-x: clip;
   }
 
   body {
@@ -53,6 +54,11 @@
     font-size: 18px;
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  #root {
+    overflow-x: clip;
   }
 
   h1,

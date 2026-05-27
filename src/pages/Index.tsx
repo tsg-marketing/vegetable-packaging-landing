@@ -1318,12 +1318,12 @@ export default function Index() {
           onClick={() => setFosOpen(null)}
         >
           <div
-            className="bg-white rounded-2xl w-full max-w-md p-6 md:p-8 relative my-auto"
+            className="bg-white rounded-2xl w-full max-w-md p-5 sm:p-6 md:p-8 relative my-auto overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
             <button
               onClick={() => setFosOpen(null)}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors z-10"
               aria-label="Закрыть"
             >
               <Icon name="X" size={18} className="text-[#1A1A1A]" />
@@ -1331,8 +1331,8 @@ export default function Index() {
 
             {!fosSent ? (
               <>
-                <h3 className="font-bold text-2xl text-[#1A1A1A] mb-2 pr-8">Оставить заявку</h3>
-                <p className="text-[15px] text-[#666] mb-5 leading-relaxed">
+                <h3 className="font-bold text-2xl text-[#1A1A1A] mb-2 pr-10">Оставить заявку</h3>
+                <p className="text-[15px] text-[#666] mb-5 leading-relaxed break-words">
                   {fosOpen.productName
                     ? <>По товару: <span className="font-semibold text-[#1A1A1A]">{fosOpen.productName}</span></>
                     : "Менеджер свяжется в течение 15 минут."}

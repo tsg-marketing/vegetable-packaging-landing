@@ -142,28 +142,28 @@ export default function VacuumQuiz({ open, onClose, onSubmit }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[680px] max-h-[92vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 text-[#999]">
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[680px] max-h-[95vh] sm:max-h-[92vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 text-[#999] bg-white">
           <Icon name="X" size={20} />
         </button>
 
-        <div className="px-6 sm:px-8 pt-6 pb-4">
+        <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-6 pb-4 pr-12 sm:pr-14">
           <p className="text-[12px] text-[#888] mb-2">Шаг {Math.min(step + 1, totalSteps)} из {totalSteps}</p>
           <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
             <div className="h-full transition-all duration-300 bg-[#3897FF]" style={{ width: `${progress}%` }} />
           </div>
         </div>
 
-        <div className="px-6 sm:px-8 pb-6 overflow-y-auto flex-1">
+        <div className="px-4 sm:px-6 md:px-8 pb-5 sm:pb-6 overflow-y-auto flex-1">
           {done ? (
             <div className="text-center py-10">
               <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(255,102,0,0.1)" }}>
                 <Icon name="Check" size={32} style={{ color: "var(--orange)" }} />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-[#1A1A1A]">Спасибо! Заявка принята</h3>
-              <p className="text-[#555] leading-relaxed">Менеджер свяжется в течение 15 минут и пришлёт подборку оборудования под ваши задачи.</p>
-              <button onClick={onClose} className="mt-6 px-6 py-3 rounded-lg font-semibold text-white" style={{ background: "var(--orange)" }}>Закрыть</button>
+              <h3 className="font-bold text-[22px] text-[#1A1A1A] mb-3 leading-tight">Благодарим за обращение в компанию Техно-Сиб</h3>
+              <p className="text-[#555] leading-relaxed mb-6">Менеджер свяжется с Вами в ближайшее время в часы работы.</p>
+              <button onClick={onClose} className="btn-orange px-10 py-3">Хорошо</button>
             </div>
           ) : isFinal ? (
             <div>
@@ -261,7 +261,7 @@ export default function VacuumQuiz({ open, onClose, onSubmit }: Props) {
         </div>
 
         {!done && step > 0 && (
-          <div className="px-6 sm:px-8 py-3 border-t border-gray-100 bg-[#FAFAFA]">
+          <div className="px-4 sm:px-6 md:px-8 py-3 border-t border-gray-100 bg-[#FAFAFA]">
             <button onClick={back} className="text-sm font-semibold text-[#666] hover:text-[#1A1A1A] flex items-center gap-1.5">
               <Icon name="ArrowLeft" size={16} />Назад
             </button>
