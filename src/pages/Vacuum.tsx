@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 import { captureUtm, readUtm } from "@/lib/utm";
 
+// Страница вакуумного упаковочного оборудования /vacuum
+
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/cfe23789-bc80-43d8-9bfa-338b2fa4d337.jpg";
