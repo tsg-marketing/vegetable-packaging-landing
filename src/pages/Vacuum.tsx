@@ -1,6 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Icon from "@/components/ui/icon";
 import { captureUtm, readUtm } from "@/lib/utm";
+import QuizSideTab from "@/components/QuizSideTab";
+import VacuumQuiz, { VacuumQuizPayload } from "@/components/VacuumQuiz";
+import ProductGallery from "@/components/ProductGallery";
 
 // Страница вакуумного упаковочного оборудования /vacuum
 
@@ -49,7 +52,26 @@ function getVideoUrl(params: CatalogParam[]): string | null {
   const p = params.find(x => /видео.*ссылк/i.test(x.name) || /^видео$/i.test(x.name.trim()));
   if (!p) return null;
   const url = p.value.trim();
-  return /^https?:\/\//i.test(url) ? url : null;
+  if (!/^https?:\/\//i.test(url)) return null;
+  if (/youtube\.com|youtu\.be/i.test(url)) return null;
+  if (!/rutube\.ru/i.test(url)) return null;
+  return url;
+}
+
+function stripHtml(html: string): string {
+  if (!html) return "";
+  let s = html.replace(/<!--[\s\S]*?-->/g, "");
+  s = s.replace(/<\/(p|div|br|li|h[1-6])>/gi, "\n");
+  s = s.replace(/<br\s*\/?>/gi, "\n");
+  s = s.replace(/<[^>]+>/g, "");
+  s = s.replace(/&nbsp;/gi, " ");
+  s = s.replace(/&amp;/gi, "&");
+  s = s.replace(/&quot;/gi, '"');
+  s = s.replace(/&#39;|&apos;/gi, "'");
+  s = s.replace(/&lt;/gi, "<");
+  s = s.replace(/&gt;/gi, ">");
+  s = s.replace(/\n{3,}/g, "\n\n");
+  return s.trim();
 }
 
 function pickParams(params: CatalogParam[]): CatalogParam[] {
@@ -164,44 +186,6 @@ const SERVICES = [
   { icon: "CreditCard", title: "Лизинг и рассрочка", desc: "Гибкие условия оплаты и финансирования" },
 ];
 
-const QUIZ_STEPS = [
-  { title: "Что будете упаковывать?", options: [
-    { icon: "UtensilsCrossed", label: "Продукты питания" },
-    { icon: "Package", label: "Непищевая продукция" },
-    { icon: "Shirt", label: "Одежда" },
-    { icon: "Cpu", label: "Электроника" },
-    { icon: "HelpCircle", label: "Другое" },
-  ]},
-  { title: "Какой объём упаковки в смену?", options: [
-    { icon: "Gauge", label: "До 100 пакетов" },
-    { icon: "BarChart3", label: "100–500 пакетов" },
-    { icon: "TrendingUp", label: "500–2000 пакетов" },
-    { icon: "Rocket", label: "Свыше 2000" },
-  ]},
-  { title: "Размер продукта?", options: [
-    { icon: "Minimize2", label: "Маленький (до 20 см)" },
-    { icon: "Square", label: "Средний (20–40 см)" },
-    { icon: "Maximize2", label: "Большой (от 40 см)" },
-    { icon: "Layers", label: "Разный" },
-  ]},
-  { title: "Тип установки?", options: [
-    { icon: "Table", label: "Настольная" },
-    { icon: "Building", label: "Напольная" },
-    { icon: "HelpCircle", label: "Подскажите" },
-  ]},
-  { title: "Нужно ли газонаполнение (MAP)?", options: [
-    { icon: "Check", label: "Да, обязательно" },
-    { icon: "X", label: "Нет" },
-    { icon: "HelpCircle", label: "Расскажите подробнее" },
-  ]},
-  { title: "Когда планируете запуск?", options: [
-    { icon: "Zap", label: "Срочно — в этом месяце" },
-    { icon: "Calendar", label: "В течение 1–3 месяцев" },
-    { icon: "Clock", label: "Изучаю варианты" },
-  ]},
-  { title: "Куда отправить подбор?", options: [] },
-];
-
 const FAQS = [
   { q: "Насколько надёжен двойной шов?", a: "Двойная запайка состоит из двух 3,5 мм выпуклых струн. Это позволяет быть уверенным, что остатки продукта или жидкости будут вытеснены с зоны шва во время запаечного цикла. Обеспечивает максимальную герметичность и исключает развакуум пакета при транспортировке." },
   { q: "Какие пакеты подходят и как выбрать размер?", a: "Используются специальные вакуумные пакеты с рифлением или гладкие плёнки. Размер выбирается исходя из габаритов продукта + 5–7 см запаса на запайку. Наши специалисты помогут подобрать оптимальный тип." },
@@ -244,8 +228,6 @@ export default function Vacuum() {
   const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
   const [thanksOpen, setThanksOpen] = useState(false);
 
-  const [videoPlay, setVideoPlay] = useState(false);
-
   const [catalog, setCatalog] = useState<CatalogProduct[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState(false);
@@ -278,39 +260,51 @@ export default function Vacuum() {
     if (q && !p.name.toLowerCase().includes(q)) return false;
     return true;
   });
-  const [quizStep, setQuizStep] = useState(0);
-  const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
-  const [quizContact, setQuizContact] = useState({ name: "", phone: "" });
-  const [quizErrors, setQuizErrors] = useState<{ name?: string; phone?: string }>({});
-  const [quizSubmitting, setQuizSubmitting] = useState(false);
 
-  const selectQuizOption = (label: string) => {
-    const next = [...quizAnswers];
-    next[quizStep] = label;
-    setQuizAnswers(next);
-    setTimeout(() => setQuizStep(s => Math.min(s + 1, QUIZ_STEPS.length - 1)), 250);
-  };
+  const catalogVideos = useMemo(() => {
+    const seen = new Set<string>();
+    const out: { id: string; name: string; url: string; image: string }[] = [];
+    for (const p of catalog) {
+      const url = getVideoUrl(p.params);
+      if (!url || seen.has(url)) continue;
+      seen.add(url);
+      out.push({ id: p.id, name: p.name, url, image: p.pictures[0] || IMG_HERO });
+    }
+    return out;
+  }, [catalog]);
+  const [quizOpen, setQuizOpen] = useState(false);
 
-  const submitQuiz = async () => {
-    const errs: { name?: string; phone?: string } = {};
-    if (quizContact.name.trim().length < 2) errs.name = "Укажите имя";
-    if (!PHONE_RE.test(quizContact.phone.trim())) errs.phone = "Укажите корректный телефон";
-    setQuizErrors(errs);
-    if (Object.keys(errs).length > 0 || quizSubmitting) return;
-    setQuizSubmitting(true);
-    await sendLead({
+  const submitQuiz = useCallback(async (data: VacuumQuizPayload): Promise<boolean> => {
+    return sendLead({
       source: "quiz",
       page: "vacuum",
-      name: quizContact.name.trim(),
-      phone: quizContact.phone.trim(),
-      answers: quizAnswers,
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      product: data.product,
+      size: data.size,
+      volume: data.volume,
+      budget: data.budget,
+      quizAnswers: {
+        product: data.product,
+        size: data.size,
+        volume: data.volume,
+        budget: data.budget,
+      },
     });
-    setQuizSubmitting(false);
-    setQuizStep(0);
-    setQuizAnswers([]);
-    setQuizContact({ name: "", phone: "" });
-    setThanksOpen(true);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (sessionStorage.getItem("vacuumQuizAutoShown") === "1") return;
+    } catch { /* ignore */ }
+    const t = window.setTimeout(() => {
+      try { sessionStorage.setItem("vacuumQuizAutoShown", "1"); } catch { /* ignore */ }
+      setQuizOpen(true);
+    }, 30000);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     captureUtm();
@@ -632,13 +626,16 @@ export default function Vacuum() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredCatalog.slice(0, catalogShow).map(p => {
-                    const img = p.pictures[0] || IMG_HERO;
                     const keyParams = pickParams(p.params);
                     return (
                       <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
-                        <div className="aspect-[16/10] bg-white flex items-center justify-center overflow-hidden">
-                          <img src={img} alt={p.name} loading="lazy" className="w-full h-full object-contain p-4" />
-                        </div>
+                        <ProductGallery
+                          images={p.pictures}
+                          alt={p.name}
+                          fallback={IMG_HERO}
+                          className="aspect-[16/10] bg-white flex items-center justify-center overflow-hidden"
+                          imgClassName="w-full h-full object-contain p-4"
+                        />
                         <div className="p-5 flex-1 flex flex-col">
                           <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-3 leading-snug min-h-[44px]">{p.name}</h3>
                           {keyParams.length > 0 && (
@@ -771,46 +768,38 @@ export default function Vacuum() {
       </section>
 
       {/* VIDEO */}
-      <section id="video" className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8">
-            <h2 className="section-title">Посмотрите как работает наше оборудование</h2>
-            <p className="text-[#888] mt-2">Видео с реальной работой вакуумных упаковщиков на производстве</p>
+      {catalogVideos.length > 0 && (
+        <section id="video" className="py-16 bg-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="text-center mb-8">
+              <h2 className="section-title">Посмотрите как работает наше оборудование</h2>
+              <p className="text-[#888] mt-2">Видео с реальной работой вакуумных упаковщиков</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {catalogVideos.map(v => {
+                const rt = v.url.match(/rutube\.ru\/video\/([\w-]+)/);
+                const thumb = rt ? `https://rutube.ru/api/video/${rt[1]}/thumbnail/?redirect=1` : v.image;
+                return (
+                  <button
+                    key={v.id}
+                    onClick={() => setVideoModal(v.url)}
+                    className="group relative bg-[#1A1A1A] rounded-xl overflow-hidden aspect-video shadow-md hover:shadow-xl transition-shadow text-left"
+                  >
+                    <img src={thumb || v.image} alt={v.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform" style={{ background: "var(--orange)" }}>
+                        <Icon name="Play" size={24} className="text-white ml-0.5" />
+                      </div>
+                    </div>
+                    <p className="absolute bottom-0 left-0 right-0 px-3 py-2.5 text-white text-[13px] font-semibold leading-snug line-clamp-2">{v.name}</p>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <div className="relative rounded-2xl overflow-hidden bg-[#1A1A1A] aspect-video shadow-xl">
-            {videoPlay ? (
-              <iframe
-                className="absolute inset-0 w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                title="EV-30"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-              />
-            ) : (
-              <>
-                <div className="absolute inset-0 bg-gradient-to-br from-[#2A3540] via-[#1A1A1A] to-[#3A4555] flex items-center">
-                  <div className="px-8 md:px-14 text-white">
-                    <p className="text-xs md:text-sm tracking-wider opacity-70 mb-2">НАСТОЛЬНЫЙ</p>
-                    <p className="text-2xl md:text-4xl font-bold leading-tight mb-1">ВАКУУМНЫЙ<br />УПАКОВЩИК</p>
-                    <p className="text-4xl md:text-6xl font-extrabold" style={{ color: "var(--orange)" }}>EV-30</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setVideoPlay(true)}
-                  className="absolute inset-0 m-auto w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center transition-transform hover:scale-110"
-                  style={{ background: "var(--orange)" }}
-                  aria-label="Воспроизвести видео"
-                >
-                  <Icon name="Play" size={36} className="text-white ml-1" />
-                </button>
-                <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-center py-2 text-sm">
-                  Вакуумная упаковочная машина
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* OPTIONS */}
       <section id="options" className="py-16 bg-[#F7F7F7]">
@@ -870,7 +859,7 @@ export default function Vacuum() {
             ))}
           </div>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <button onClick={() => { document.getElementById("video")?.scrollIntoView({ behavior: "smooth" }); setVideoPlay(true); }} className="px-6 py-3 rounded-lg bg-[#1A1A1A] hover:bg-black text-white text-sm font-semibold inline-flex items-center gap-2 transition-colors">
+            <button onClick={() => document.getElementById("video")?.scrollIntoView({ behavior: "smooth" })} className="px-6 py-3 rounded-lg bg-[#1A1A1A] hover:bg-black text-white text-sm font-semibold inline-flex items-center gap-2 transition-colors">
               <Icon name="Play" size={16} />
               Посмотреть демонстрацию
             </button>
@@ -928,73 +917,6 @@ export default function Vacuum() {
                 <p className="text-sm text-[#666] leading-relaxed">{s.desc}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* QUIZ */}
-      <section id="quiz" className="py-20" style={{ background: "linear-gradient(180deg, #E8F0F8 0%, #F4F8FB 100%)" }}>
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8">
-            <h2 className="section-title">Подберём оборудование</h2>
-            <p className="text-[#666] mt-2">Ответьте на 6 вопросов, и мы предложим оптимальное решение под ваши задачи</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm text-[#666]">Шаг {quizStep + 1} из {QUIZ_STEPS.length}</p>
-              {quizStep > 0 && (
-                <button onClick={() => setQuizStep(s => Math.max(0, s - 1))} className="text-sm text-[#888] hover:text-orange-600 flex items-center gap-1">
-                  <Icon name="ArrowLeft" size={14} />Назад
-                </button>
-              )}
-            </div>
-            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-6">
-              <div className="h-full bg-[#1A1A1A] transition-all" style={{ width: `${((quizStep + 1) / QUIZ_STEPS.length) * 100}%` }} />
-            </div>
-            <h3 className="font-bold text-[#1A1A1A] text-xl mb-5">{QUIZ_STEPS[quizStep].title}</h3>
-
-            {quizStep < QUIZ_STEPS.length - 1 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {QUIZ_STEPS[quizStep].options.map((opt, i) => {
-                  const selected = quizAnswers[quizStep] === opt.label;
-                  return (
-                    <button
-                      key={i}
-                      onClick={() => selectQuizOption(opt.label)}
-                      className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
-                        selected ? "border-orange-500 bg-orange-50" : "border-gray-200 bg-white hover:border-orange-300"
-                      }`}
-                    >
-                      <Icon name={opt.icon} fallback="Circle" size={22} className="text-[#3897FF]" />
-                      <span className="text-[13px] font-medium text-[#1A1A1A] leading-tight">{opt.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="Ваше имя"
-                  value={quizContact.name}
-                  onChange={e => setQuizContact({ ...quizContact, name: e.target.value })}
-                  className={`w-full px-4 py-3 rounded-lg border ${quizErrors.name ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
-                />
-                {quizErrors.name && <p className="text-xs text-red-500 -mt-1">{quizErrors.name}</p>}
-                <input
-                  type="tel"
-                  placeholder="Телефон"
-                  value={quizContact.phone}
-                  onChange={e => setQuizContact({ ...quizContact, phone: e.target.value })}
-                  className={`w-full px-4 py-3 rounded-lg border ${quizErrors.phone ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
-                />
-                {quizErrors.phone && <p className="text-xs text-red-500 -mt-1">{quizErrors.phone}</p>}
-                <button onClick={submitQuiz} disabled={quizSubmitting} className="btn-orange w-full text-base py-3.5 disabled:opacity-60">
-                  {quizSubmitting ? "Отправляем..." : "Получить подбор оборудования"}
-                </button>
-                <p className="text-xs text-[#888] text-center">Нажимая кнопку, вы соглашаетесь с обработкой персональных данных</p>
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -1131,9 +1053,13 @@ export default function Vacuum() {
 
             <div className="overflow-y-auto px-5 sm:px-7 py-5 flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                <div className="bg-[#F7F7F7] rounded-xl aspect-square flex items-center justify-center overflow-hidden">
-                  <img src={detailsProduct.pictures[0] || IMG_HERO} alt={detailsProduct.name} className="w-full h-full object-contain p-4" />
-                </div>
+                <ProductGallery
+                  images={detailsProduct.pictures}
+                  alt={detailsProduct.name}
+                  fallback={IMG_HERO}
+                  className="bg-[#F7F7F7] rounded-xl aspect-square flex items-center justify-center overflow-hidden"
+                  imgClassName="w-full h-full object-contain p-4"
+                />
                 <div>
                   <div className="bg-[#EEF6FF] rounded-xl p-4 mb-4">
                     <p className="text-xs uppercase tracking-wider text-[#666] mb-1">Цена</p>
@@ -1152,25 +1078,14 @@ export default function Vacuum() {
                         Смотреть видео
                       </button>
                     )}
-                    {detailsProduct.url && (
-                      <a
-                        href={detailsProduct.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg border border-gray-200 hover:border-orange-300 text-[#1A1A1A] inline-flex items-center justify-center gap-2"
-                      >
-                        <Icon name="ExternalLink" size={16} />
-                        Открыть на t-sib.ru
-                      </a>
-                    )}
                   </div>
                 </div>
               </div>
 
-              {detailsProduct.description && (
+              {detailsProduct.description && stripHtml(detailsProduct.description) && (
                 <div className="mb-6">
                   <h4 className="font-bold text-[#3897FF] text-[13px] uppercase tracking-wider mb-2">Описание</h4>
-                  <p className="text-[14px] text-[#444] leading-relaxed whitespace-pre-line">{detailsProduct.description}</p>
+                  <p className="text-[14px] text-[#444] leading-relaxed whitespace-pre-line">{stripHtml(detailsProduct.description)}</p>
                 </div>
               )}
 
@@ -1292,6 +1207,10 @@ export default function Vacuum() {
           </div>
         </div>
       )}
+
+      {/* QUIZ SIDE TAB + MODAL */}
+      <QuizSideTab onClick={() => setQuizOpen(true)} />
+      <VacuumQuiz open={quizOpen} onClose={() => setQuizOpen(false)} onSubmit={submitQuiz} />
     </div>
   );
 }
