@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 import { captureUtm, readUtm } from "@/lib/utm";
+import Quiz, { type QuizPayload } from "@/components/Quiz";
+import QuizSideTab from "@/components/QuizSideTab";
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
@@ -208,6 +210,40 @@ export default function Index() {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
   const [thanksOpen, setThanksOpen] = useState(false);
+
+  // Quiz
+  const [quizOpen, setQuizOpen] = useState(false);
+
+  // Авто-открытие квиза: 1 раз за сессию, через 30 секунд после начала
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (sessionStorage.getItem("quizAutoShown") === "1") return;
+    } catch { /* sessionStorage может быть недоступен */ }
+    const t = window.setTimeout(() => {
+      try { sessionStorage.setItem("quizAutoShown", "1"); } catch { /* ignore */ }
+      setQuizOpen(true);
+    }, 30000);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  const submitQuiz = useCallback(async (data: QuizPayload): Promise<boolean> => {
+    return sendLead({
+      source: "quiz",
+      name: data.name,
+      contact: data.contact,
+      product: data.product,
+      packaging: data.packaging,
+      volume: data.volume,
+      automation: data.automation,
+      quizAnswers: {
+        product: data.product,
+        packaging: data.packaging,
+        volume: data.volume,
+        automation: data.automation,
+      },
+    });
+  }, []);
 
   const openFos = (productName?: string) => {
     setFosOpen({ productName });
@@ -687,6 +723,36 @@ export default function Index() {
                 <p className="text-base text-[#333] font-medium leading-relaxed">{u.text}</p>
               </div>
             ))}
+          </div>
+
+          {/* CTA: Подобрать оборудование (квиз) */}
+          <div className="mt-12">
+            <div
+              className="rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:gap-6"
+              style={{ background: "linear-gradient(135deg, rgba(255,102,0,0.08), rgba(255,102,0,0.02))", border: "1px solid rgba(255,102,0,0.18)" }}
+            >
+              <div
+                className="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center"
+                style={{ background: "var(--orange)" }}
+              >
+                <Icon name="ListChecks" size={26} className="text-white" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-1">
+                  Подобрать оборудование
+                </h3>
+                <p className="text-[#555] text-[15px] leading-relaxed">
+                  Ответьте на 4 коротких вопроса — пришлём персональную подборку с ценами и видео работы машин.
+                </p>
+              </div>
+              <button
+                onClick={() => setQuizOpen(true)}
+                className="px-6 py-3.5 rounded-lg font-semibold text-white text-base transition-opacity hover:opacity-90 whitespace-nowrap"
+                style={{ background: "var(--orange)" }}
+              >
+                Пройти квиз
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -1363,6 +1429,10 @@ export default function Index() {
           </div>
         </div>
       )}
+
+      {/* ── QUIZ ── */}
+      <QuizSideTab onClick={() => setQuizOpen(true)} />
+      <Quiz open={quizOpen} onClose={() => setQuizOpen(false)} onSubmit={submitQuiz} />
     </div>
   );
 }
