@@ -179,6 +179,7 @@ export default function Index() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "", pack: "", comment: "" });
 
   // Catalog
@@ -403,7 +404,27 @@ export default function Index() {
 
           {/* Nav desktop */}
           <nav className="hidden lg:flex items-center gap-4 xl:gap-5">
-            {NAV.map(l => (
+            {NAV.slice(0, 2).map(l => (
+              <button key={l.href} onClick={() => scrollTo(l.href)}
+                className="text-[13px] xl:text-sm font-medium text-[#444] hover:text-orange-600 transition-colors whitespace-nowrap">
+                {l.label}
+              </button>
+            ))}
+            <div className="relative" onMouseEnter={() => setEquipmentOpen(true)} onMouseLeave={() => setEquipmentOpen(false)}>
+              <button className="text-[13px] xl:text-sm font-medium text-[#444] hover:text-orange-600 transition-colors whitespace-nowrap flex items-center gap-1">
+                Оборудование
+                <Icon name="ChevronDown" size={14} className={`transition-transform ${equipmentOpen ? "rotate-180" : ""}`} />
+              </button>
+              {equipmentOpen && (
+                <div className="absolute left-0 top-full pt-2 z-50">
+                  <div className="bg-white border border-gray-100 shadow-lg rounded-lg py-2 min-w-[260px]">
+                    <a href="/vegetables" className="block px-4 py-2 text-sm text-orange-600 font-semibold bg-[#FFF5EE]">Упаковка овощей и фруктов</a>
+                    <a href="/vacuum" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Вакуумные упаковщики</a>
+                  </div>
+                </div>
+              )}
+            </div>
+            {NAV.slice(2).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
                 className="text-[13px] xl:text-sm font-medium text-[#444] hover:text-orange-600 transition-colors whitespace-nowrap">
                 {l.label}
@@ -430,7 +451,18 @@ export default function Index() {
         {/* Mobile menu */}
         {mobileOpen && (
           <div className="lg:hidden bg-white border-t border-gray-100 px-4 py-4 flex flex-col gap-3 max-h-[80vh] overflow-y-auto">
-            {NAV.map(l => (
+            {NAV.slice(0, 2).map(l => (
+              <button key={l.href} onClick={() => scrollTo(l.href)}
+                className="text-left text-base font-medium text-[#444] py-2 border-b border-gray-100">
+                {l.label}
+              </button>
+            ))}
+            <div className="border-b border-gray-100 pb-2">
+              <p className="text-xs font-semibold text-[#999] uppercase mb-2">Оборудование</p>
+              <a href="/vegetables" className="block text-base text-orange-600 font-semibold py-1.5 pl-2">Упаковка овощей и фруктов</a>
+              <a href="/vacuum" className="block text-base text-[#444] py-1.5 pl-2">Вакуумные упаковщики</a>
+            </div>
+            {NAV.slice(2).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
                 className="text-left text-base font-medium text-[#444] py-2 border-b border-gray-100">
                 {l.label}
