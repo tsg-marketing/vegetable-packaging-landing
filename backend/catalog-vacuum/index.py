@@ -1,6 +1,6 @@
 """
-Business: Загружает YML-фид t-sib.ru, отдаёт товары вакуумного оборудования (category 291,292,293,294,444,477,478,480,481,482,510).
-Кэш: данные обновляются один раз в сутки в 12:00 по Новосибирску (UTC+7).
+Business: Загружает YML-фид t-sib.ru, отдаёт товары вакуумного оборудования (category 290,291,292,293,294,444,477,478,480,481,482,510).
+Кэш: данные обновляются один раз в сутки в 11:45 по Новосибирску (UTC+7).
 Args: event с httpMethod (GET/OPTIONS); context — объект с request_id.
 Returns: JSON {products: [...], updatedAt, nextUpdate} с фото, параметрами и описанием.
 """
@@ -11,10 +11,11 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 FEED_URL = "https://t-sib.ru/upload/catalog.xml"
-TARGET_CATEGORIES = {"291", "292", "293", "294", "444", "477", "478", "480", "481", "482", "510"}
+TARGET_CATEGORIES = {"290", "291", "292", "293", "294", "444", "477", "478", "480", "481", "482", "510"}
 
 NSK_TZ = timezone(timedelta(hours=7))
-REFRESH_HOUR_NSK = 12
+REFRESH_HOUR_NSK = 11
+REFRESH_MINUTE_NSK = 45
 
 _CACHE: dict = {
     'payload': None,
@@ -25,7 +26,7 @@ _CACHE: dict = {
 
 def _next_refresh_after(now_utc: datetime) -> datetime:
     now_nsk = now_utc.astimezone(NSK_TZ)
-    target_nsk = now_nsk.replace(hour=REFRESH_HOUR_NSK, minute=0, second=0, microsecond=0)
+    target_nsk = now_nsk.replace(hour=REFRESH_HOUR_NSK, minute=REFRESH_MINUTE_NSK, second=0, microsecond=0)
     if now_nsk >= target_nsk:
         target_nsk = target_nsk + timedelta(days=1)
     return target_nsk.astimezone(timezone.utc)
