@@ -5,8 +5,55 @@ import { captureUtm, readUtm } from "@/lib/utm";
 // Страница вакуумного упаковочного оборудования /vacuum
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
+const CATALOG_ENDPOINT = "https://functions.poehali.dev/981263b7-3a88-449e-abf8-f61fbd2b5289";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/cfe23789-bc80-43d8-9bfa-338b2fa4d337.jpg";
+
+type CatalogParam = { name: string; value: string };
+type CatalogProduct = {
+  id: string;
+  categoryId: string;
+  name: string;
+  vendor: string;
+  price: number;
+  priceText: string;
+  currency: string;
+  url: string;
+  description: string;
+  pictures: string[];
+  params: CatalogParam[];
+};
+
+const KEY_PARAMS = [
+  "Производительность вакуумного насоса",
+  "Размер вакуумной камеры",
+  "Длина запайки",
+  "Тип",
+  "Мощность",
+  "Габариты",
+  "Вес",
+];
+
+function pickParams(params: CatalogParam[]): CatalogParam[] {
+  const found: CatalogParam[] = [];
+  for (const key of KEY_PARAMS) {
+    const p = params.find(x => x.name.toLowerCase() === key.toLowerCase());
+    if (p) found.push(p);
+    if (found.length >= 3) break;
+  }
+  if (found.length < 3) {
+    for (const p of params) {
+      if (found.length >= 3) break;
+      if (!found.find(f => f.name === p.name)) found.push(p);
+    }
+  }
+  return found;
+}
+
+function formatPrice(price: number): string {
+  if (!price || price <= 0) return "По запросу";
+  return new Intl.NumberFormat("ru-RU").format(price) + " ₽";
+}
 
 const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -50,15 +97,6 @@ const ADVANTAGES = [
   { icon: "Minus", title: "Двойной шов", desc: "Две струны 3,5 мм — товарный вид и 100% герметичность" },
   { icon: "Award", title: "Сертификация", desc: "CE, ISO 9001, декларация ТР ТС для работы в РФ и СНГ" },
   { icon: "Clock", title: "Работа 24/7", desc: "Промышленный ресурс для непрерывного производства" },
-];
-
-const MODELS = [
-  { name: "HVC-260T", type: "Настольная", chambers: "1 камера", chamber: "260×280×80 мм", pump: "12 м³/ч", seal: "260 мм", price: "от 89 900 ₽" },
-  { name: "HVC-410T", type: "Настольная", chambers: "1 камера", chamber: "410×340×100 мм", pump: "20 м³/ч", seal: "410 мм", price: "от 159 900 ₽" },
-  { name: "HVC-510S", type: "Настольная", chambers: "1 камера", chamber: "510×365×130 мм", pump: "20 м³/ч", seal: "500 мм", price: "от 259 900 ₽" },
-  { name: "HVC-720S/2B", type: "Напольная", chambers: "2 камеры", chamber: "720×550×180 мм", pump: "40 м³/ч", seal: "710 мм", price: "от 399 900 ₽" },
-  { name: "HVC-810S/2B", type: "Напольная", chambers: "2 камеры", chamber: "810×550×180 мм", pump: "63 м³/ч", seal: "810 мм", price: "от 499 900 ₽" },
-  { name: "DZ-1100/2SB", type: "Напольная", chambers: "2 камеры", chamber: "1100×700×220 мм", pump: "100 м³/ч", seal: "2×1000 мм", price: "от 749 900 ₽" },
 ];
 
 const APPLICATIONS = [
@@ -150,6 +188,7 @@ const FAQS = [
 ];
 
 const NAV = [
+  { label: "Главная", href: "/" },
   { label: "Преимущества", href: "#advantages" },
   { label: "Каталог", href: "#catalog" },
   { label: "Применение", href: "#applications" },
@@ -179,6 +218,11 @@ export default function Vacuum() {
   const [thanksOpen, setThanksOpen] = useState(false);
 
   const [videoPlay, setVideoPlay] = useState(false);
+
+  const [catalog, setCatalog] = useState<CatalogProduct[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [catalogError, setCatalogError] = useState(false);
+  const [catalogShow, setCatalogShow] = useState(9);
   const [quizStep, setQuizStep] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
   const [quizContact, setQuizContact] = useState({ name: "", phone: "" });
@@ -218,6 +262,30 @@ export default function Vacuum() {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(CATALOG_ENDPOINT);
+        if (!res.ok) throw new Error("bad status");
+        const data = await res.json();
+        if (cancelled) return;
+        const list: CatalogProduct[] = Array.isArray(data?.products) ? data.products : [];
+        list.sort((a, b) => {
+          const pa = a.price || Number.MAX_SAFE_INTEGER;
+          const pb = b.price || Number.MAX_SAFE_INTEGER;
+          return pa - pb;
+        });
+        setCatalog(list);
+      } catch {
+        if (!cancelled) setCatalogError(true);
+      } finally {
+        if (!cancelled) setCatalogLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -423,56 +491,110 @@ export default function Vacuum() {
         </div>
       </section>
 
-      {/* CATALOG STUB */}
+      {/* CATALOG */}
       <section id="catalog" className="py-16 bg-[#F7F7F7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-            <h2 className="section-title mb-0">Линейка моделей</h2>
-            <p className="text-sm text-[#888]">Полный каталог обновляется. Цены — стартовые.</p>
+            <h2 className="section-title mb-0">Каталог вакуумных упаковщиков</h2>
+            <p className="text-sm text-[#888]">{catalog.length > 0 ? `${catalog.length} моделей в наличии и под заказ` : "Загружаем каталог с t-sib.ru..."}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {MODELS.map(m => (
-              <div key={m.name} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
-                <div className="aspect-[16/10] bg-[#F7F7F7] flex items-center justify-center">
-                  <img src={IMG_HERO} alt={m.name} loading="lazy" className="w-full h-full object-contain p-4" />
-                </div>
-                <div className="p-5 flex-1 flex flex-col">
-                  <h3 className="font-bold text-[#1A1A1A] text-[17px] mb-1">{m.name}</h3>
-                  <p className="text-xs text-[#888] mb-3">{m.type} · {m.chambers}</p>
-                  <ul className="mb-4 space-y-2">
-                    {[
-                      { k: "Камера", v: m.chamber },
-                      { k: "Производительность насоса", v: m.pump },
-                      { k: "Длина запайки", v: m.seal },
-                    ].map((pr, i) => (
-                      <li key={i} className="flex items-start gap-2 text-[14px] leading-snug">
-                        <Icon name="Check" size={14} className="mt-1 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                        <span className="text-[#444]">
-                          <span className="font-semibold text-[#1A1A1A]">{pr.k}: </span>{pr.v}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-auto pt-4 border-t border-gray-100">
-                    <div className="font-bold text-xl mb-3" style={{ color: "var(--orange)" }}>{m.price}</div>
-                    <button
-                      onClick={() => openFos(m.name)}
-                      className="text-[15px] font-semibold px-4 py-2.5 rounded-lg transition-all w-full"
-                      style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
-                    >
-                      Получить КП
-                    </button>
+          {catalogLoading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
+                  <div className="aspect-[16/10] bg-gray-100" />
+                  <div className="p-5 space-y-3">
+                    <div className="h-5 bg-gray-100 rounded w-3/4" />
+                    <div className="h-3 bg-gray-100 rounded w-1/2" />
+                    <div className="h-3 bg-gray-100 rounded w-full" />
+                    <div className="h-3 bg-gray-100 rounded w-5/6" />
+                    <div className="h-9 bg-gray-100 rounded mt-2" />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
-          <div className="mt-10 bg-white rounded-xl border border-gray-100 p-6 text-center">
-            <p className="text-[#555] mb-4">Нужна другая модель или индивидуальная конфигурация?</p>
-            <button onClick={() => openFos()} className="btn-orange">Подобрать под задачу</button>
-          </div>
+          {!catalogLoading && catalogError && (
+            <div className="bg-white rounded-xl border border-gray-100 p-8 text-center">
+              <Icon name="AlertCircle" size={32} className="mx-auto mb-3" style={{ color: "var(--orange)" }} />
+              <p className="text-[#1A1A1A] font-semibold mb-1">Не удалось загрузить каталог</p>
+              <p className="text-sm text-[#666] mb-4">Оставьте заявку — пришлём актуальный прайс на e-mail</p>
+              <button onClick={() => openFos()} className="btn-orange">Запросить прайс</button>
+            </div>
+          )}
+
+          {!catalogLoading && !catalogError && catalog.length > 0 && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {catalog.slice(0, catalogShow).map(p => {
+                  const img = p.pictures[0] || IMG_HERO;
+                  const keyParams = pickParams(p.params);
+                  return (
+                    <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
+                      <div className="aspect-[16/10] bg-white flex items-center justify-center overflow-hidden">
+                        <img src={img} alt={p.name} loading="lazy" className="w-full h-full object-contain p-4" />
+                      </div>
+                      <div className="p-5 flex-1 flex flex-col">
+                        <h3 className="font-bold text-[#1A1A1A] text-[16px] mb-1 leading-snug line-clamp-2 min-h-[44px]">{p.name}</h3>
+                        {p.vendor && <p className="text-xs text-[#888] mb-3">{p.vendor}</p>}
+                        {keyParams.length > 0 && (
+                          <ul className="mb-4 space-y-1.5">
+                            {keyParams.map((pr, i) => (
+                              <li key={i} className="flex items-start gap-2 text-[13px] leading-snug">
+                                <Icon name="Check" size={14} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                                <span className="text-[#444]">
+                                  <span className="font-semibold text-[#1A1A1A]">{pr.name}: </span>{pr.value}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        <div className="mt-auto pt-4 border-t border-gray-100">
+                          <div className="font-bold text-xl mb-3" style={{ color: "var(--orange)" }}>{formatPrice(p.price)}</div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => openFos(p.name)}
+                              className="flex-1 text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all"
+                              style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
+                            >
+                              Получить КП
+                            </button>
+                            {p.url && (
+                              <a
+                                href={p.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:border-orange-300 transition-colors flex-shrink-0"
+                                title="Подробнее"
+                              >
+                                <Icon name="ExternalLink" size={16} className="text-[#666]" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {catalog.length > catalogShow && (
+                <div className="mt-8 text-center">
+                  <button onClick={() => setCatalogShow(s => s + 9)} className="btn-outline-orange">
+                    <Icon name="ChevronDown" size={18} className="mr-2" />
+                    Показать ещё ({catalog.length - catalogShow})
+                  </button>
+                </div>
+              )}
+
+              <div className="mt-10 bg-white rounded-xl border border-gray-100 p-6 text-center">
+                <p className="text-[#555] mb-4">Нужна индивидуальная конфигурация или подбор под задачу?</p>
+                <button onClick={() => openFos()} className="btn-orange">Подобрать под задачу</button>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
