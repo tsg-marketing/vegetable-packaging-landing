@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import Icon from "@/components/ui/icon";
+import PolicyDisclaimer from "@/components/PolicyDisclaimer";
+import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 
-const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export type QuizPayload = {
@@ -10,6 +11,9 @@ export type QuizPayload = {
   volume: string;
   automation: string;
   name: string;
+  phone: string;
+  email: string;
+  /** legacy совместимость: phone или email одной строкой */
   contact: string;
 };
 
@@ -75,8 +79,10 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [name, setName] = useState("");
-  const [contact, setContact] = useState("");
-  const [errors, setErrors] = useState<{ name?: string; contact?: string }>({});
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [agree, setAgree] = useState(false);
+  const [errors, setErrors] = useState<{ name?: string; phone?: string; email?: string; agree?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -85,7 +91,9 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
       setStep(0);
       setAnswers({});
       setName("");
-      setContact("");
+      setPhone("");
+      setEmail("");
+      setAgree(false);
       setErrors({});
       setSubmitting(false);
       setDone(false);
@@ -113,14 +121,11 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
   const back = () => setStep(s => Math.max(0, s - 1));
 
   const validate = () => {
-    const e: { name?: string; contact?: string } = {};
+    const e: { name?: string; phone?: string; email?: string; agree?: string } = {};
     if (!name.trim() || name.trim().length < 2) e.name = "Введите имя";
-    const c = contact.trim();
-    const digits = c.replace(/\D/g, "");
-    const phoneOk = PHONE_RE.test(c) && digits.length >= 10 && digits.length <= 11;
-    const emailOk = EMAIL_RE.test(c);
-    if (!c) e.contact = "Введите телефон или e-mail";
-    else if (!phoneOk && !emailOk) e.contact = "Неверный формат телефона или e-mail";
+    if (!isValidPhoneRu(phone)) e.phone = "Введите телефон в формате +7 и 10 цифр";
+    if (email.trim() && !EMAIL_RE.test(email.trim())) e.email = "Неверный формат e-mail";
+    if (!agree) e.agree = "Необходимо согласие";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -135,7 +140,9 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
       volume: answers.volume || "",
       automation: answers.automation || "",
       name: name.trim(),
-      contact: contact.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+      contact: phone.trim() || email.trim(),
     });
     setSubmitting(false);
     if (ok) setDone(true);
@@ -209,29 +216,64 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
               <p className="text-[#555] mb-5 leading-relaxed">
                 Оставьте контакты — отправим персональную подборку оборудования с ценами и видео работы машин.
               </p>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
+                  <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                    Имя <span style={{ color: "var(--orange)" }}>*</span>
+                  </label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => { setName(e.target.value); if (errors.name) setErrors(s => ({ ...s, name: undefined })); }}
-                    placeholder="Ваше имя"
-                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] outline-none transition-colors"
-                    style={{ borderColor: errors.name ? "#e11" : "#e5e5e5" }}
+                    placeholder="Иван Петров"
+                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                    style={{ borderColor: errors.name ? "#E53935" : "#E0E0E0" }}
                   />
-                  {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name}</p>}
+                  {errors.name && <p className="text-[13px] text-red-500 mt-1">{errors.name}</p>}
                 </div>
+
                 <div>
+                  <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                    Телефон <span style={{ color: "var(--orange)" }}>*</span>
+                  </label>
                   <input
-                    type="text"
-                    value={contact}
-                    onChange={(e) => { setContact(e.target.value); if (errors.contact) setErrors(s => ({ ...s, contact: undefined })); }}
-                    placeholder="Телефон или e-mail"
-                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] outline-none transition-colors"
-                    style={{ borderColor: errors.contact ? "#e11" : "#e5e5e5" }}
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => { setPhone(formatPhoneRu(e.target.value)); if (errors.phone) setErrors(s => ({ ...s, phone: undefined })); }}
+                    onFocus={(e) => { if (!e.target.value) setPhone("+7 "); }}
+                    placeholder="+7 (___) ___-__-__"
+                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                    style={{ borderColor: errors.phone ? "#E53935" : "#E0E0E0" }}
                   />
-                  {errors.contact && <p className="text-xs text-red-600 mt-1">{errors.contact}</p>}
+                  {errors.phone && <p className="text-[13px] text-red-500 mt-1">{errors.phone}</p>}
                 </div>
+
+                <div>
+                  <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors(s => ({ ...s, email: undefined })); }}
+                    placeholder="your@email.com"
+                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                    style={{ borderColor: errors.email ? "#E53935" : "#E0E0E0" }}
+                  />
+                  {errors.email && <p className="text-[13px] text-red-500 mt-1">{errors.email}</p>}
+                </div>
+
+                <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={agree}
+                    onChange={e => { setAgree(e.target.checked); if (errors.agree) setErrors(s => ({ ...s, agree: undefined })); }}
+                    className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
+                  />
+                  <PolicyDisclaimer />
+                </label>
+                {errors.agree && <p className="text-[13px] text-red-500 -mt-2">{errors.agree}</p>}
+
                 <button
                   onClick={submit}
                   disabled={submitting}
@@ -240,9 +282,6 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
                 >
                   {submitting ? "Отправляем..." : "Получить подборку"}
                 </button>
-                <p className="text-[11px] text-[#999] leading-relaxed text-center">
-                  Нажимая на кнопку, вы соглашаетесь с обработкой персональных данных
-                </p>
               </div>
             </div>
           ) : (

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import Icon from "@/components/ui/icon";
+import PolicyDisclaimer from "@/components/PolicyDisclaimer";
+import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 
-const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export type VacuumQuizPayload = {
@@ -82,15 +83,15 @@ export default function VacuumQuiz({ open, onClose, onSubmit }: Props) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [agree, setAgree] = useState(true);
-  const [errors, setErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
+  const [agree, setAgree] = useState(false);
+  const [errors, setErrors] = useState<{ name?: string; phone?: string; email?: string; agree?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
     if (open) {
       setStep(0); setAnswers({}); setName(""); setPhone(""); setEmail("");
-      setAgree(true); setErrors({}); setSubmitting(false); setDone(false);
+      setAgree(false); setErrors({}); setSubmitting(false); setDone(false);
     }
   }, [open]);
 
@@ -115,11 +116,10 @@ export default function VacuumQuiz({ open, onClose, onSubmit }: Props) {
   const back = () => setStep(s => Math.max(0, s - 1));
 
   const validate = () => {
-    const e: { name?: string; phone?: string; agree?: string } = {};
+    const e: { name?: string; phone?: string; email?: string; agree?: string } = {};
     if (!name.trim() || name.trim().length < 2) e.name = "Введите имя";
-    const digits = phone.replace(/\D/g, "");
-    if (!PHONE_RE.test(phone) || digits.length < 10 || digits.length > 11) e.phone = "Неверный телефон";
-    if (email.trim() && !EMAIL_RE.test(email.trim())) (e as Record<string, string>).email = "Неверный e-mail";
+    if (!isValidPhoneRu(phone)) e.phone = "Введите телефон в формате +7 и 10 цифр";
+    if (email.trim() && !EMAIL_RE.test(email.trim())) e.email = "Неверный e-mail";
     if (!agree) e.agree = "Необходимо согласие";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -169,37 +169,70 @@ export default function VacuumQuiz({ open, onClose, onSubmit }: Props) {
             <div>
               <h3 className="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2">Отлично! Осталось оставить контакты</h3>
               <p className="text-[#666] text-[14px] mb-5">Менеджер подберёт оборудование под ваши задачи и свяжется в течение 15 минут</p>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
-                  <label className="text-[12px] font-semibold text-[#1A1A1A] block mb-1">Имя *</label>
-                  <input type="text" value={name} placeholder="Ваше имя"
+                  <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                    Имя <span style={{ color: "var(--orange)" }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    placeholder="Иван Петров"
                     onChange={e => { setName(e.target.value); if (errors.name) setErrors(s => ({ ...s, name: undefined })); }}
-                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] outline-none"
-                    style={{ borderColor: errors.name ? "#e11" : "#e5e5e5" }} />
-                  {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name}</p>}
+                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                    style={{ borderColor: errors.name ? "#E53935" : "#E0E0E0" }}
+                  />
+                  {errors.name && <p className="text-[13px] text-red-500 mt-1">{errors.name}</p>}
                 </div>
+
                 <div>
-                  <label className="text-[12px] font-semibold text-[#1A1A1A] block mb-1">Телефон *</label>
-                  <input type="tel" value={phone} placeholder="+7 (999) 999-99-99"
-                    onChange={e => { setPhone(e.target.value); if (errors.phone) setErrors(s => ({ ...s, phone: undefined })); }}
-                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] outline-none"
-                    style={{ borderColor: errors.phone ? "#e11" : "#e5e5e5" }} />
-                  {errors.phone && <p className="text-xs text-red-600 mt-1">{errors.phone}</p>}
+                  <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                    Телефон <span style={{ color: "var(--orange)" }}>*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    placeholder="+7 (___) ___-__-__"
+                    onChange={e => { setPhone(formatPhoneRu(e.target.value)); if (errors.phone) setErrors(s => ({ ...s, phone: undefined })); }}
+                    onFocus={e => { if (!e.target.value) setPhone("+7 "); }}
+                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                    style={{ borderColor: errors.phone ? "#E53935" : "#E0E0E0" }}
+                  />
+                  {errors.phone && <p className="text-[13px] text-red-500 mt-1">{errors.phone}</p>}
                 </div>
+
                 <div>
-                  <label className="text-[12px] font-semibold text-[#1A1A1A] block mb-1">Email</label>
-                  <input type="email" value={email} placeholder="email@example.com"
-                    onChange={e => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] outline-none border-gray-200" />
+                  <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    placeholder="your@email.com"
+                    onChange={e => { setEmail(e.target.value); if (errors.email) setErrors(s => ({ ...s, email: undefined })); }}
+                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                    style={{ borderColor: errors.email ? "#E53935" : "#E0E0E0" }}
+                  />
+                  {errors.email && <p className="text-[13px] text-red-500 mt-1">{errors.email}</p>}
                 </div>
-                <label className="flex items-start gap-2 text-[12px] text-[#666] leading-snug cursor-pointer pt-1">
-                  <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} className="mt-0.5" />
-                  <span>Отправляя форму, я соглашаюсь с <a href="#" className="underline">политикой обработки персональных данных</a></span>
+
+                <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={agree}
+                    onChange={e => { setAgree(e.target.checked); if (errors.agree) setErrors(s => ({ ...s, agree: undefined })); }}
+                    className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
+                  />
+                  <PolicyDisclaimer />
                 </label>
-                {errors.agree && <p className="text-xs text-red-600">{errors.agree}</p>}
-                <button onClick={submit} disabled={submitting}
+                {errors.agree && <p className="text-[13px] text-red-500 -mt-2">{errors.agree}</p>}
+
+                <button
+                  onClick={submit}
+                  disabled={submitting}
                   className="w-full py-3.5 rounded-lg font-semibold text-white text-base transition-opacity disabled:opacity-60 inline-flex items-center justify-center gap-2"
-                  style={{ background: "var(--orange)" }}>
+                  style={{ background: "var(--orange)" }}
+                >
                   <Icon name="Send" size={18} />
                   {submitting ? "Отправляем..." : "Получить подбор оборудования"}
                 </button>

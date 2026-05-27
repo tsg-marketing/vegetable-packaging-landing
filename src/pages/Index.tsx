@@ -234,7 +234,10 @@ export default function Index() {
   const submitQuiz = useCallback(async (data: QuizPayload): Promise<boolean> => {
     return sendLead({
       source: "quiz",
+      page: "vegetables",
       name: data.name,
+      phone: data.phone,
+      email: data.email,
       contact: data.contact,
       product: data.product,
       packaging: data.packaging,
