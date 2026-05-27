@@ -28,7 +28,7 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
   }
 }
 
-const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/98dadd67-336a-47a5-9480-dcbd6c9cfde2.png";
+const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/22bbdae7-6281-4ea3-9e01-c96ce393f30f.png";
 const IMG_TEAM = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/758aa06d-2c1a-4f5b-a919-8eb8e70feaff.jpg";
 
 type VideoItem = { title: string; url: string; thumb: string };
