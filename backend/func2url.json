@@ -1,4 +1,5 @@
 {
+  "check-feed-videos": "https://functions.poehali.dev/acfdb9c0-8270-4ad7-a532-e74b7dcfca91",
   "fetch-html": "https://functions.poehali.dev/b051715b-867e-4273-8f91-80a712a18416",
   "catalog-vacuum": "https://functions.poehali.dev/981263b7-3a88-449e-abf8-f61fbd2b5289",
   "import-zip": "https://functions.poehali.dev/d183aac8-ca47-4749-813a-5dc516fea252",

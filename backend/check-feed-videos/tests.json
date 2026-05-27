@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Feed analysis",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"total_products": "number"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

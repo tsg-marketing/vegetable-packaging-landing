@@ -10,7 +10,8 @@ import ProductGallery from "@/components/ProductGallery";
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/981263b7-3a88-449e-abf8-f61fbd2b5289";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
-const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/cfe23789-bc80-43d8-9bfa-338b2fa4d337.jpg";
+const IMG_HERO = "https://cdn.poehali.dev/files/4636d5a7-aed0-42a8-9883-c7efdaac6536.png";
+const IMG_GUARANTEE = "https://cdn.poehali.dev/files/a4eac8fe-dca9-4118-87d7-6de8054161e3.jpg";
 
 type CatalogParam = { name: string; value: string };
 type CatalogProduct = {
@@ -51,11 +52,32 @@ function visibleParams(params: CatalogParam[]): CatalogParam[] {
 function getVideoUrl(params: CatalogParam[]): string | null {
   const p = params.find(x => /видео.*ссылк/i.test(x.name) || /^видео$/i.test(x.name.trim()));
   if (!p) return null;
-  const url = p.value.trim();
-  if (!/^https?:\/\//i.test(url)) return null;
-  if (/youtube\.com|youtu\.be/i.test(url)) return null;
-  if (!/rutube\.ru/i.test(url)) return null;
+  const raw = (p.value || "").trim();
+  if (!raw) return null;
+  const first = raw.split(/[,\s;]+/).find(s => /^https?:\/\//i.test(s));
+  if (!first) return null;
+  if (!/(rutube\.ru|youtube\.com|youtu\.be)/i.test(first)) return null;
+  return first;
+}
+
+function getEmbedUrl(url: string): string {
+  const rt = url.match(/rutube\.ru\/video\/([\w-]+)/i);
+  if (rt) return `https://rutube.ru/play/embed/${rt[1]}/?autoplay=1`;
+  const yt1 = url.match(/youtu\.be\/([\w-]+)/i);
+  if (yt1) return `https://www.youtube.com/embed/${yt1[1]}?autoplay=1`;
+  const yt2 = url.match(/[?&]v=([\w-]+)/i);
+  if (yt2) return `https://www.youtube.com/embed/${yt2[1]}?autoplay=1`;
   return url;
+}
+
+function getVideoThumb(url: string): string | null {
+  const rt = url.match(/rutube\.ru\/video\/([\w-]+)/i);
+  if (rt) return `https://rutube.ru/api/video/${rt[1]}/thumbnail/?redirect=1`;
+  const yt1 = url.match(/youtu\.be\/([\w-]+)/i);
+  if (yt1) return `https://img.youtube.com/vi/${yt1[1]}/hqdefault.jpg`;
+  const yt2 = url.match(/[?&]v=([\w-]+)/i);
+  if (yt2) return `https://img.youtube.com/vi/${yt2[1]}/hqdefault.jpg`;
+  return null;
 }
 
 function stripHtml(html: string): string {
@@ -777,8 +799,7 @@ export default function Vacuum() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {catalogVideos.map(v => {
-                const rt = v.url.match(/rutube\.ru\/video\/([\w-]+)/);
-                const thumb = rt ? `https://rutube.ru/api/video/${rt[1]}/thumbnail/?redirect=1` : v.image;
+                const thumb = getVideoThumb(v.url) || v.image;
                 return (
                   <button
                     key={v.id}
@@ -872,29 +893,29 @@ export default function Vacuum() {
       </section>
 
       {/* GUARANTEES */}
-      <section id="guarantees" className="py-16 bg-white">
+      <section id="guarantees" className="py-14 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div>
-            <h2 className="section-title text-left mb-6">Гарантии и сертификаты</h2>
-            <ul className="space-y-5">
+            <h2 className="text-[clamp(24px,3.2vw,34px)] font-bold text-[#1A1A1A] mb-6 leading-tight">Гарантии и сертификаты</h2>
+            <ul className="space-y-4">
               {GUARANTEES.map((g, i) => (
-                <li key={i} className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(56,151,255,0.10)" }}>
-                    <Icon name={g.icon} fallback="ShieldCheck" size={22} className="text-[#3897FF]" />
+                <li key={i} className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgba(56,151,255,0.10)" }}>
+                    <Icon name={g.icon} fallback="ShieldCheck" size={18} className="text-[#3897FF]" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-[#1A1A1A] text-[16px] mb-1">{g.title}</h3>
-                    <p className="text-sm text-[#666] leading-relaxed">{g.desc}</p>
+                    <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-0.5 leading-tight">{g.title}</h3>
+                    <p className="text-[13px] text-[#888] leading-snug">{g.desc}</p>
                   </div>
                 </li>
               ))}
             </ul>
           </div>
-          <div className="rounded-2xl overflow-hidden bg-[#F7F7F7]">
+          <div className="rounded-2xl overflow-hidden bg-[#F7F7F7] shadow-sm">
             <img
-              src="https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/5c177aea-1d9e-4624-8693-04effc5c2806.png"
-              alt="Вакуумные пакеты с продуктами"
-              className="w-full h-full object-cover"
+              src={IMG_GUARANTEE}
+              alt="Продукты в вакуумной упаковке"
+              className="w-full h-full object-cover aspect-[4/3]"
               loading="lazy"
             />
           </div>
