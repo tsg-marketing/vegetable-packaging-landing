@@ -34,16 +34,35 @@ const KEY_PARAMS = [
   "Вес",
 ];
 
+const HIDDEN_PARAM_NAMES = ["guid", "видео (ссылка)", "видео(ссылка)", "видео"];
+
+function isHiddenParam(name: string): boolean {
+  const n = name.trim().toLowerCase();
+  return HIDDEN_PARAM_NAMES.some(h => n === h);
+}
+
+function visibleParams(params: CatalogParam[]): CatalogParam[] {
+  return params.filter(p => !isHiddenParam(p.name));
+}
+
+function getVideoUrl(params: CatalogParam[]): string | null {
+  const p = params.find(x => /видео.*ссылк/i.test(x.name) || /^видео$/i.test(x.name.trim()));
+  if (!p) return null;
+  const url = p.value.trim();
+  return /^https?:\/\//i.test(url) ? url : null;
+}
+
 function pickParams(params: CatalogParam[]): CatalogParam[] {
+  const filtered = visibleParams(params);
   const found: CatalogParam[] = [];
   for (const key of KEY_PARAMS) {
-    const p = params.find(x => x.name.toLowerCase() === key.toLowerCase());
+    const p = filtered.find(x => x.name.toLowerCase() === key.toLowerCase());
     if (p) found.push(p);
-    if (found.length >= 3) break;
+    if (found.length >= 4) break;
   }
-  if (found.length < 3) {
-    for (const p of params) {
-      if (found.length >= 3) break;
+  if (found.length < 4) {
+    for (const p of filtered) {
+      if (found.length >= 4) break;
       if (!found.find(f => f.name === p.name)) found.push(p);
     }
   }
@@ -52,8 +71,16 @@ function pickParams(params: CatalogParam[]): CatalogParam[] {
 
 function formatPrice(price: number): string {
   if (!price || price <= 0) return "По запросу";
-  return new Intl.NumberFormat("ru-RU").format(price) + " ₽";
+  return new Intl.NumberFormat("ru-RU").format(price) + " руб";
 }
+
+type TabKey = "all" | "291" | "294" | "292";
+const CATALOG_TABS: { key: TabKey; label: string; categoryId?: string }[] = [
+  { key: "all", label: "Вакуум-упаковочное" },
+  { key: "291", label: "Бескамерные", categoryId: "291" },
+  { key: "294", label: "Однокамерные", categoryId: "294" },
+  { key: "292", label: "Двухкамерные", categoryId: "292" },
+];
 
 const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -223,6 +250,34 @@ export default function Vacuum() {
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState(false);
   const [catalogShow, setCatalogShow] = useState(9);
+  const [catalogTab, setCatalogTab] = useState<TabKey>("all");
+  const [catalogSearch, setCatalogSearch] = useState("");
+
+  const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
+  const [videoModal, setVideoModal] = useState<string | null>(null);
+
+  const catalogCounts = (() => {
+    const counts: Record<string, number> = { all: catalog.length };
+    for (const t of CATALOG_TABS) {
+      if (t.categoryId) counts[t.key] = catalog.filter(p => p.categoryId === t.categoryId).length;
+    }
+    return counts;
+  })();
+
+  useEffect(() => { setCatalogShow(9); }, [catalogTab, catalogSearch]);
+
+  useEffect(() => {
+    if (detailsProduct || videoModal) document.body.style.overflow = "hidden";
+    else if (!fosOpen && !thanksOpen) document.body.style.overflow = "";
+  }, [detailsProduct, videoModal, fosOpen, thanksOpen]);
+
+  const filteredCatalog = catalog.filter(p => {
+    const tab = CATALOG_TABS.find(t => t.key === catalogTab);
+    if (tab?.categoryId && p.categoryId !== tab.categoryId) return false;
+    const q = catalogSearch.trim().toLowerCase();
+    if (q && !p.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
   const [quizStep, setQuizStep] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
   const [quizContact, setQuizContact] = useState({ name: "", phone: "" });
@@ -494,9 +549,47 @@ export default function Vacuum() {
       {/* CATALOG */}
       <section id="catalog" className="py-16 bg-[#F7F7F7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-            <h2 className="section-title mb-0">Каталог вакуумных упаковщиков</h2>
-            <p className="text-sm text-[#888]">{catalog.length > 0 ? `${catalog.length} моделей в наличии и под заказ` : "Загружаем каталог с t-sib.ru..."}</p>
+          <div className="text-center mb-8">
+            <h2 className="section-title">Каталог оборудования</h2>
+            <p className="text-[#666] mt-2 max-w-xl mx-auto">Выберите подходящее вакуумно-упаковочное оборудование для вашего производства</p>
+          </div>
+
+          <div className="max-w-md mx-auto mb-6 relative">
+            <Icon name="Search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#999] pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Поиск по названию..."
+              value={catalogSearch}
+              onChange={e => setCatalogSearch(e.target.value)}
+              className="w-full pl-11 pr-10 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:border-orange-500 text-[14px]"
+            />
+            {catalogSearch && (
+              <button
+                onClick={() => setCatalogSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                aria-label="Очистить"
+              >
+                <Icon name="X" size={14} className="text-[#999]" />
+              </button>
+            )}
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-1 mb-8 flex flex-wrap gap-1 overflow-x-auto">
+            {CATALOG_TABS.map(tab => {
+              const active = catalogTab === tab.key;
+              const count = catalogCounts[tab.key] ?? 0;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setCatalogTab(tab.key)}
+                  className={`flex-1 min-w-[140px] px-4 py-3 rounded-md text-[13px] sm:text-[14px] font-semibold transition-all whitespace-nowrap ${
+                    active ? "bg-[#F7F7F7] text-[#1A1A1A] shadow-sm" : "text-[#888] hover:text-[#1A1A1A]"
+                  }`}
+                >
+                  {tab.label} <span className={active ? "text-[#1A1A1A]" : "text-[#aaa]"}>({count})</span>
+                </button>
+              );
+            })}
           </div>
 
           {catalogLoading && (
@@ -525,74 +618,93 @@ export default function Vacuum() {
             </div>
           )}
 
-          {!catalogLoading && !catalogError && catalog.length > 0 && (
+          {!catalogLoading && !catalogError && (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {catalog.slice(0, catalogShow).map(p => {
-                  const img = p.pictures[0] || IMG_HERO;
-                  const keyParams = pickParams(p.params);
-                  return (
-                    <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
-                      <div className="aspect-[16/10] bg-white flex items-center justify-center overflow-hidden">
-                        <img src={img} alt={p.name} loading="lazy" className="w-full h-full object-contain p-4" />
-                      </div>
-                      <div className="p-5 flex-1 flex flex-col">
-                        <h3 className="font-bold text-[#1A1A1A] text-[16px] mb-1 leading-snug line-clamp-2 min-h-[44px]">{p.name}</h3>
-                        {p.vendor && <p className="text-xs text-[#888] mb-3">{p.vendor}</p>}
-                        {keyParams.length > 0 && (
-                          <ul className="mb-4 space-y-1.5">
-                            {keyParams.map((pr, i) => (
-                              <li key={i} className="flex items-start gap-2 text-[13px] leading-snug">
-                                <Icon name="Check" size={14} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                                <span className="text-[#444]">
-                                  <span className="font-semibold text-[#1A1A1A]">{pr.name}: </span>{pr.value}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                        <div className="mt-auto pt-4 border-t border-gray-100">
-                          <div className="font-bold text-xl mb-3" style={{ color: "var(--orange)" }}>{formatPrice(p.price)}</div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => openFos(p.name)}
-                              className="flex-1 text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all"
-                              style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
-                            >
-                              Получить КП
-                            </button>
-                            {p.url && (
-                              <a
-                                href={p.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:border-orange-300 transition-colors flex-shrink-0"
-                                title="Подробнее"
+              {filteredCatalog.length === 0 ? (
+                <div className="bg-white rounded-xl border border-gray-100 p-10 text-center">
+                  <Icon name="SearchX" size={32} className="mx-auto mb-3 text-[#888]" />
+                  <p className="text-[#1A1A1A] font-semibold mb-1">Ничего не найдено</p>
+                  <p className="text-sm text-[#666] mb-4">Попробуйте изменить запрос или выбрать другую категорию</p>
+                  <button onClick={() => { setCatalogSearch(""); setCatalogTab("all"); }} className="btn-outline-orange">
+                    Сбросить фильтры
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredCatalog.slice(0, catalogShow).map(p => {
+                    const img = p.pictures[0] || IMG_HERO;
+                    const keyParams = pickParams(p.params);
+                    return (
+                      <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
+                        <div className="aspect-[16/10] bg-white flex items-center justify-center overflow-hidden">
+                          <img src={img} alt={p.name} loading="lazy" className="w-full h-full object-contain p-4" />
+                        </div>
+                        <div className="p-5 flex-1 flex flex-col">
+                          <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-3 leading-snug min-h-[44px]">{p.name}</h3>
+                          {keyParams.length > 0 && (
+                            <ul className="mb-4 space-y-1.5">
+                              {keyParams.map((pr, i) => (
+                                <li key={i} className="flex items-start gap-2 text-[13px] leading-snug">
+                                  <span className="text-[#888] mt-1">·</span>
+                                  <span className="text-[#444]">
+                                    <span className="text-[#444]">{pr.name}: </span>
+                                    <span className="text-[#1A1A1A]">{pr.value}</span>
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          <div className="mt-auto pt-3">
+                            <div className="font-bold text-xl mb-3 text-[#3897FF]">{formatPrice(p.price)}</div>
+                            <div className="space-y-2">
+                              <button
+                                onClick={() => setDetailsProduct(p)}
+                                className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all bg-[#3897FF] hover:bg-[#2980E0] text-white inline-flex items-center justify-center gap-2"
                               >
-                                <Icon name="ExternalLink" size={16} className="text-[#666]" />
-                              </a>
-                            )}
+                                <Icon name="Eye" size={16} />
+                                Узнать подробнее
+                              </button>
+                              <button
+                                onClick={() => openFos(p.name)}
+                                className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all text-white inline-flex items-center justify-center gap-2"
+                                style={{ background: "var(--orange)" }}
+                              >
+                                <Icon name="MessageSquare" size={16} />
+                                Оставить заявку
+                              </button>
+                              {getVideoUrl(p.params) && (
+                                <button
+                                  onClick={() => setVideoModal(getVideoUrl(p.params))}
+                                  className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all border border-gray-200 hover:border-orange-300 text-[#1A1A1A] inline-flex items-center justify-center gap-2"
+                                >
+                                  <Icon name="Play" size={16} style={{ color: "var(--orange)" }} />
+                                  Смотреть видео
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
 
-              {catalog.length > catalogShow && (
+              {filteredCatalog.length > catalogShow && (
                 <div className="mt-8 text-center">
                   <button onClick={() => setCatalogShow(s => s + 9)} className="btn-outline-orange">
                     <Icon name="ChevronDown" size={18} className="mr-2" />
-                    Показать ещё ({catalog.length - catalogShow})
+                    Показать ещё ({filteredCatalog.length - catalogShow})
                   </button>
                 </div>
               )}
 
-              <div className="mt-10 bg-white rounded-xl border border-gray-100 p-6 text-center">
-                <p className="text-[#555] mb-4">Нужна индивидуальная конфигурация или подбор под задачу?</p>
-                <button onClick={() => openFos()} className="btn-orange">Подобрать под задачу</button>
-              </div>
+              {catalog.length > 0 && (
+                <div className="mt-10 bg-white rounded-xl border border-gray-100 p-6 text-center">
+                  <p className="text-[#555] mb-4">Нужна индивидуальная конфигурация или подбор под задачу?</p>
+                  <button onClick={() => openFos()} className="btn-orange">Подобрать под задачу</button>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -1005,6 +1117,122 @@ export default function Vacuum() {
           © {new Date().getFullYear()} ТЕХНОСИБ. Все права защищены.
         </div>
       </footer>
+
+      {/* DETAILS MODAL */}
+      {detailsProduct && (
+        <div className="fixed inset-0 z-[100] bg-black/60 flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto" onClick={() => setDetailsProduct(null)}>
+          <div className="bg-white rounded-2xl max-w-3xl w-full my-4 relative flex flex-col max-h-[95vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4 px-5 sm:px-7 pt-5 pb-3 border-b border-gray-100">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#1A1A1A] pr-8 leading-tight">{detailsProduct.name}</h3>
+              <button onClick={() => setDetailsProduct(null)} className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <Icon name="X" size={20} className="text-[#666]" />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto px-5 sm:px-7 py-5 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div className="bg-[#F7F7F7] rounded-xl aspect-square flex items-center justify-center overflow-hidden">
+                  <img src={detailsProduct.pictures[0] || IMG_HERO} alt={detailsProduct.name} className="w-full h-full object-contain p-4" />
+                </div>
+                <div>
+                  <div className="bg-[#EEF6FF] rounded-xl p-4 mb-4">
+                    <p className="text-xs uppercase tracking-wider text-[#666] mb-1">Цена</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-[#3897FF]">{formatPrice(detailsProduct.price)}</p>
+                  </div>
+                  {detailsProduct.vendor && (
+                    <p className="text-sm text-[#666] mb-2"><span className="text-[#999]">Производитель: </span><span className="text-[#1A1A1A] font-semibold">{detailsProduct.vendor}</span></p>
+                  )}
+                  <div className="flex flex-col gap-2 mt-3">
+                    {getVideoUrl(detailsProduct.params) && (
+                      <button
+                        onClick={() => setVideoModal(getVideoUrl(detailsProduct.params))}
+                        className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg border border-gray-200 hover:border-orange-300 text-[#1A1A1A] inline-flex items-center justify-center gap-2"
+                      >
+                        <Icon name="Play" size={16} style={{ color: "var(--orange)" }} />
+                        Смотреть видео
+                      </button>
+                    )}
+                    {detailsProduct.url && (
+                      <a
+                        href={detailsProduct.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg border border-gray-200 hover:border-orange-300 text-[#1A1A1A] inline-flex items-center justify-center gap-2"
+                      >
+                        <Icon name="ExternalLink" size={16} />
+                        Открыть на t-sib.ru
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {detailsProduct.description && (
+                <div className="mb-6">
+                  <h4 className="font-bold text-[#3897FF] text-[13px] uppercase tracking-wider mb-2">Описание</h4>
+                  <p className="text-[14px] text-[#444] leading-relaxed whitespace-pre-line">{detailsProduct.description}</p>
+                </div>
+              )}
+
+              {visibleParams(detailsProduct.params).length > 0 && (
+                <div>
+                  <h4 className="font-bold text-[#3897FF] text-[13px] uppercase tracking-wider mb-3">Характеристики</h4>
+                  <div className="rounded-xl border border-gray-100 divide-y divide-gray-100">
+                    {visibleParams(detailsProduct.params).map((pr, i) => (
+                      <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 px-4 py-2.5 odd:bg-[#FAFAFA]">
+                        <span className="text-[13px] text-[#666] sm:w-1/2">{pr.name}</span>
+                        <span className="text-[13.5px] text-[#1A1A1A] font-medium sm:flex-1">{pr.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="px-5 sm:px-7 py-4 border-t border-gray-100 bg-white">
+              <button
+                onClick={() => { const name = detailsProduct.name; setDetailsProduct(null); openFos(name); }}
+                className="btn-orange w-full text-base py-3.5 inline-flex items-center justify-center gap-2"
+              >
+                <Icon name="MessageSquare" size={18} />
+                Оставить заявку
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIDEO MODAL */}
+      {videoModal && (
+        <div className="fixed inset-0 z-[110] bg-black/80 flex items-center justify-center p-4" onClick={() => setVideoModal(null)}>
+          <div className="relative w-full max-w-4xl" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setVideoModal(null)} className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+              <Icon name="X" size={22} />
+            </button>
+            <div className="relative aspect-video bg-black rounded-xl overflow-hidden">
+              {(() => {
+                const ytMatch = videoModal.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/);
+                const rtMatch = videoModal.match(/rutube\.ru\/video\/([\w-]+)/);
+                if (ytMatch) {
+                  return <iframe className="absolute inset-0 w-full h-full" src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1`} title="Видео" allow="autoplay; encrypted-media" allowFullScreen />;
+                }
+                if (rtMatch) {
+                  return <iframe className="absolute inset-0 w-full h-full" src={`https://rutube.ru/play/embed/${rtMatch[1]}`} title="Видео" allow="autoplay" allowFullScreen />;
+                }
+                return (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center gap-3">
+                    <Icon name="Film" size={48} className="opacity-60" />
+                    <p>Видео доступно по внешней ссылке</p>
+                    <a href={videoModal} target="_blank" rel="noopener noreferrer" className="btn-orange inline-flex items-center gap-2 px-5 py-2.5">
+                      <Icon name="ExternalLink" size={16} />Открыть видео
+                    </a>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* FOS MODAL */}
       {fosOpen && (
