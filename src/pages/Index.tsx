@@ -3,6 +3,8 @@ import Icon from "@/components/ui/icon";
 import { captureUtm, readUtm } from "@/lib/utm";
 import Quiz, { type QuizPayload } from "@/components/Quiz";
 import QuizSideTab from "@/components/QuizSideTab";
+import PolicyDisclaimer from "@/components/PolicyDisclaimer";
+import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
@@ -48,7 +50,6 @@ function rutubeEmbedUrl(url: string): string {
 const CATALOG_API = "https://functions.poehali.dev/57e27975-0947-45d9-bfbb-8fff401b7c60";
 
 // Validation
-const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // Sort params: Производительность first, then GUID-out (already filtered on BE)
@@ -181,6 +182,7 @@ export default function Index() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "", pack: "", comment: "" });
+  const [formAgree, setFormAgree] = useState(true);
 
   // Catalog
   const [products, setProducts] = useState<Product[]>([]);
@@ -203,13 +205,14 @@ export default function Index() {
   // Quick contact form (ФОС) — opened per product or generic
   const [fosOpen, setFosOpen] = useState<{ productName?: string } | null>(null);
   const [fosData, setFosData] = useState({ name: "", phone: "", email: "" });
-  const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
+  const [fosAgree, setFosAgree] = useState(true);
+  const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string; agree?: string }>({});
   const [fosSent, setFosSent] = useState(false);
   const [fosSubmitting, setFosSubmitting] = useState(false);
 
   // Main form state
   const [formSubmitting, setFormSubmitting] = useState(false);
-  const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
+  const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
   const [thanksOpen, setThanksOpen] = useState(false);
 
   // Quiz
@@ -255,18 +258,18 @@ export default function Index() {
   };
 
   const validateFos = () => {
-    const errs: { name?: string; phone?: string; email?: string } = {};
+    const errs: { name?: string; phone?: string; email?: string; agree?: string } = {};
     if (!fosData.name.trim()) errs.name = "Введите имя";
     else if (fosData.name.trim().length < 2) errs.name = "Слишком короткое имя";
 
-    const phoneDigits = fosData.phone.replace(/\D/g, "");
     if (!fosData.phone.trim()) errs.phone = "Введите телефон";
-    else if (!PHONE_RE.test(fosData.phone) || phoneDigits.length < 10 || phoneDigits.length > 11) {
-      errs.phone = "Неверный формат телефона";
+    else if (!isValidPhoneRu(fosData.phone)) errs.phone = "Введите телефон в формате +7 и 10 цифр";
+
+    if (fosData.email.trim() && !EMAIL_RE.test(fosData.email.trim())) {
+      errs.email = "Неверный формат e-mail";
     }
 
-    if (!fosData.email.trim()) errs.email = "Введите e-mail";
-    else if (!EMAIL_RE.test(fosData.email.trim())) errs.email = "Неверный формат e-mail";
+    if (!fosAgree) errs.agree = "Необходимо согласие";
 
     setFosErrors(errs);
     return Object.keys(errs).length === 0;
@@ -288,12 +291,12 @@ export default function Index() {
   };
 
   const submitMainForm = async () => {
-    const errs: { name?: string; phone?: string } = {};
+    const errs: { name?: string; phone?: string; agree?: string } = {};
     if (!formData.name.trim() || formData.name.trim().length < 2) errs.name = "Введите имя";
-    const phoneDigits = formData.phone.replace(/\D/g, "");
-    if (!formData.phone.trim() || !PHONE_RE.test(formData.phone) || phoneDigits.length < 10 || phoneDigits.length > 11) {
-      errs.phone = "Неверный телефон";
+    if (!formData.phone.trim() || !isValidPhoneRu(formData.phone)) {
+      errs.phone = "Введите телефон в формате +7 и 10 цифр";
     }
+    if (!formAgree) errs.agree = "Необходимо согласие";
     setFormErrors(errs);
     if (Object.keys(errs).length > 0 || formSubmitting) return;
 
@@ -991,7 +994,8 @@ export default function Index() {
                   <label className="text-xs font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">Телефон</label>
                   <input type="tel" placeholder="+7 (___) ___-__-__"
                     value={formData.phone}
-                    onChange={e => { setFormData({ ...formData, phone: e.target.value }); if (formErrors.phone) setFormErrors({ ...formErrors, phone: undefined }); }}
+                    onChange={e => { setFormData({ ...formData, phone: formatPhoneRu(e.target.value) }); if (formErrors.phone) setFormErrors({ ...formErrors, phone: undefined }); }}
+                    onFocus={e => { if (!e.target.value) setFormData({ ...formData, phone: "+7 " }); }}
                     className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none focus:border-orange-400 transition-colors"
                     style={{ borderColor: formErrors.phone ? "#E53935" : "#E5E7EB" }}
                   />
@@ -1017,6 +1021,16 @@ export default function Index() {
                     className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white text-[#1A1A1A] text-base outline-none focus:border-orange-400 transition-colors resize-none"
                   />
                 </div>
+                <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={formAgree}
+                    onChange={e => { setFormAgree(e.target.checked); if (formErrors.agree) setFormErrors({ ...formErrors, agree: undefined }); }}
+                    className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
+                  />
+                  <PolicyDisclaimer />
+                </label>
+                {formErrors.agree && <p className="text-[13px] text-red-500">{formErrors.agree}</p>}
                 <button
                   onClick={submitMainForm}
                   disabled={formSubmitting}
@@ -1024,9 +1038,6 @@ export default function Index() {
                 >
                   {formSubmitting ? "Отправляем…" : "Отправить заявку"}
                 </button>
-                <p className="text-center text-xs text-[#AAA]">
-                  Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности
-                </p>
               </div>
             </div>
           </div>
@@ -1348,7 +1359,8 @@ export default function Index() {
                       type="tel"
                       placeholder="+7 (___) ___-__-__"
                       value={fosData.phone}
-                      onChange={e => { setFosData({ ...fosData, phone: e.target.value }); if (fosErrors.phone) setFosErrors({ ...fosErrors, phone: undefined }); }}
+                      onChange={e => { setFosData({ ...fosData, phone: formatPhoneRu(e.target.value) }); if (fosErrors.phone) setFosErrors({ ...fosErrors, phone: undefined }); }}
+                      onFocus={e => { if (!e.target.value) setFosData({ ...fosData, phone: "+7 " }); }}
                       className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
                       style={{ borderColor: fosErrors.phone ? "#E53935" : "#E0E0E0" }}
                     />
@@ -1357,11 +1369,11 @@ export default function Index() {
 
                   <div>
                     <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
-                      E-mail <span style={{ color: "var(--orange)" }}>*</span>
+                      Email
                     </label>
                     <input
                       type="email"
-                      placeholder="ivan@company.ru"
+                      placeholder="your@email.com"
                       value={fosData.email}
                       onChange={e => { setFosData({ ...fosData, email: e.target.value }); if (fosErrors.email) setFosErrors({ ...fosErrors, email: undefined }); }}
                       className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
@@ -1370,6 +1382,17 @@ export default function Index() {
                     {fosErrors.email && <p className="text-[13px] text-red-500 mt-1">{fosErrors.email}</p>}
                   </div>
 
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={fosAgree}
+                      onChange={e => { setFosAgree(e.target.checked); if (fosErrors.agree) setFosErrors({ ...fosErrors, agree: undefined }); }}
+                      className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
+                    />
+                    <PolicyDisclaimer />
+                  </label>
+                  {fosErrors.agree && <p className="text-[13px] text-red-500 -mt-2">{fosErrors.agree}</p>}
+
                   <button
                     onClick={submitFos}
                     disabled={fosSubmitting}
@@ -1377,9 +1400,6 @@ export default function Index() {
                   >
                     {fosSubmitting ? "Отправляем…" : "Отправить"}
                   </button>
-                  <p className="text-center text-[12px] text-[#AAA]">
-                    Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности
-                  </p>
                 </div>
               </>
             ) : (

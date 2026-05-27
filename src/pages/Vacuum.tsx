@@ -4,6 +4,8 @@ import { captureUtm, readUtm } from "@/lib/utm";
 import QuizSideTab from "@/components/QuizSideTab";
 import VacuumQuiz, { VacuumQuizPayload } from "@/components/VacuumQuiz";
 import ProductGallery from "@/components/ProductGallery";
+import PolicyDisclaimer from "@/components/PolicyDisclaimer";
+import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 
 // Страница вакуумного упаковочного оборудования /vacuum
 
@@ -132,7 +134,6 @@ const EXTRA_VIDEOS: { id: string; name: string; url: string }[] = [
   { id: "extra-2", name: "Работа промышленного вакуумного упаковщика", url: "https://rutube.ru/video/968cbe87c330f29ea7bdce80355a916b/" },
 ];
 
-const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
@@ -248,11 +249,13 @@ export default function Vacuum() {
 
   const [fosOpen, setFosOpen] = useState<{ productName?: string } | null>(null);
   const [fosData, setFosData] = useState({ name: "", phone: "", email: "" });
-  const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
+  const [fosAgree, setFosAgree] = useState(true);
+  const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string; agree?: string }>({});
   const [fosSubmitting, setFosSubmitting] = useState(false);
 
   const [formSubmitting, setFormSubmitting] = useState(false);
-  const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
+  const [formAgree, setFormAgree] = useState(true);
+  const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
   const [thanksOpen, setThanksOpen] = useState(false);
 
   const [catalog, setCatalog] = useState<CatalogProduct[]>([]);
@@ -377,13 +380,14 @@ export default function Vacuum() {
   }, []);
 
   const validateFos = useCallback(() => {
-    const errs: { name?: string; phone?: string; email?: string } = {};
+    const errs: { name?: string; phone?: string; email?: string; agree?: string } = {};
     if (fosData.name.trim().length < 2) errs.name = "Укажите имя";
-    if (!PHONE_RE.test(fosData.phone.trim())) errs.phone = "Укажите корректный телефон";
-    if (!EMAIL_RE.test(fosData.email.trim())) errs.email = "Укажите корректный e-mail";
+    if (!isValidPhoneRu(fosData.phone)) errs.phone = "Введите телефон в формате +7 и 10 цифр";
+    if (fosData.email.trim() && !EMAIL_RE.test(fosData.email.trim())) errs.email = "Укажите корректный e-mail";
+    if (!fosAgree) errs.agree = "Необходимо согласие";
     setFosErrors(errs);
     return Object.keys(errs).length === 0;
-  }, [fosData]);
+  }, [fosData, fosAgree]);
 
   const submitFos = useCallback(async () => {
     if (!validateFos() || fosSubmitting) return;
@@ -402,12 +406,12 @@ export default function Vacuum() {
   }, [fosData, fosOpen, fosSubmitting, validateFos]);
 
   const submitMainForm = async () => {
-    const errs: { name?: string; phone?: string } = {};
+    const errs: { name?: string; phone?: string; agree?: string } = {};
     if (!formData.name.trim() || formData.name.trim().length < 2) errs.name = "Введите имя";
-    const phoneDigits = formData.phone.replace(/\D/g, "");
-    if (!formData.phone.trim() || !PHONE_RE.test(formData.phone) || phoneDigits.length < 10 || phoneDigits.length > 11) {
-      errs.phone = "Неверный телефон";
+    if (!formData.phone.trim() || !isValidPhoneRu(formData.phone)) {
+      errs.phone = "Введите телефон в формате +7 и 10 цифр";
     }
+    if (!formAgree) errs.agree = "Необходимо согласие";
     setFormErrors(errs);
     if (Object.keys(errs).length > 0 || formSubmitting) return;
     setFormSubmitting(true);
@@ -1006,7 +1010,8 @@ export default function Vacuum() {
                 <input
                   type="tel"
                   value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={e => setFormData({ ...formData, phone: formatPhoneRu(e.target.value) })}
+                  onFocus={e => { if (!e.target.value) setFormData({ ...formData, phone: "+7 " }); }}
                   className={`w-full px-4 py-3 rounded-lg border ${formErrors.phone ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
                   placeholder="+7 (___) ___-__-__"
                 />
@@ -1037,10 +1042,19 @@ export default function Vacuum() {
               />
             </div>
 
+            <label className="flex items-start gap-2.5 cursor-pointer select-none mb-4">
+              <input
+                type="checkbox"
+                checked={formAgree}
+                onChange={e => { setFormAgree(e.target.checked); if (formErrors.agree) setFormErrors({ ...formErrors, agree: undefined }); }}
+                className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
+              />
+              <PolicyDisclaimer />
+            </label>
+            {formErrors.agree && <p className="text-xs text-red-500 mb-2">{formErrors.agree}</p>}
             <button onClick={submitMainForm} disabled={formSubmitting} className="btn-orange w-full text-base py-4 disabled:opacity-60">
               {formSubmitting ? "Отправляем..." : "Отправить заявку"}
             </button>
-            <p className="text-xs text-[#888] mt-3 text-center">Нажимая «Отправить», вы соглашаетесь с обработкой персональных данных</p>
           </div>
         </div>
       </section>
@@ -1187,25 +1201,35 @@ export default function Vacuum() {
                 {fosErrors.name && <p className="text-xs text-red-500 mt-1">{fosErrors.name}</p>}
               </div>
               <div>
-                <input type="tel" placeholder="Телефон"
+                <input type="tel" placeholder="+7 (___) ___-__-__"
                   value={fosData.phone}
-                  onChange={e => setFosData({ ...fosData, phone: e.target.value })}
+                  onChange={e => setFosData({ ...fosData, phone: formatPhoneRu(e.target.value) })}
+                  onFocus={e => { if (!e.target.value) setFosData({ ...fosData, phone: "+7 " }); }}
                   className={`w-full px-4 py-3 rounded-lg border ${fosErrors.phone ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
                 />
                 {fosErrors.phone && <p className="text-xs text-red-500 mt-1">{fosErrors.phone}</p>}
               </div>
               <div>
-                <input type="email" placeholder="E-mail"
+                <input type="email" placeholder="your@email.com"
                   value={fosData.email}
                   onChange={e => setFosData({ ...fosData, email: e.target.value })}
                   className={`w-full px-4 py-3 rounded-lg border ${fosErrors.email ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
                 />
                 {fosErrors.email && <p className="text-xs text-red-500 mt-1">{fosErrors.email}</p>}
               </div>
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={fosAgree}
+                  onChange={e => { setFosAgree(e.target.checked); if (fosErrors.agree) setFosErrors({ ...fosErrors, agree: undefined }); }}
+                  className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
+                />
+                <PolicyDisclaimer />
+              </label>
+              {fosErrors.agree && <p className="text-xs text-red-500">{fosErrors.agree}</p>}
               <button onClick={submitFos} disabled={fosSubmitting} className="btn-orange w-full text-base py-3.5 disabled:opacity-60">
                 {fosSubmitting ? "Отправляем..." : "Отправить"}
               </button>
-              <p className="text-xs text-[#888] text-center">Нажимая «Отправить», вы соглашаетесь с обработкой персональных данных</p>
             </div>
           </div>
         </div>
