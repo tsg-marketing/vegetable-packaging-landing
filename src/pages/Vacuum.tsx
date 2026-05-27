@@ -38,14 +38,18 @@ const PROBLEMS = [
 ];
 
 const ADVANTAGES = [
-  { icon: "Boxes", title: "В наличии", desc: "Для мяса, рыбы, сыра, медицинских, косметических и прочих товаров" },
+  { icon: "Boxes", title: "В наличии", desc: "Отгрузка со склада в Новосибирске и Москве в день оплаты" },
   { icon: "Layers", title: "Линейка моделей", desc: "Настольные и напольные, 1 или 2 камеры, под любой объём" },
-  { icon: "ShieldCheck", title: "Гарантия до 3 лет", desc: "Надёжность и стабильность работы — нержавеющий корпус SUS304" },
-  { icon: "Wind", title: "Газонаполнение MAP", desc: "Срок годности продукции увеличивается в 3–5 раз" },
-  { icon: "Droplets", title: "Двойной шов 3,5 мм", desc: "100% герметичность даже при выпуске жидкости — исключает развакуум" },
+  { icon: "ShieldCheck", title: "До 3-х лет гарантия", desc: "На всё оборудование с бесплатной пусконаладкой" },
+  { icon: "Package", title: "Полная комплектация", desc: "Пакеты, ленты, тефлон и масло уже в комплекте" },
+  { icon: "Droplets", title: "Герметичный пакет", desc: "Двойной шов 3,5 мм исключает развакуум при транспортировке" },
+  { icon: "Sparkles", title: "Универсальность", desc: "Пищевые, медицинские, косметические и промышленные товары" },
   { icon: "Settings2", title: "Автопрограммы", desc: "Быстрая настройка цикла под продукт — обучение оператора за 1 день" },
   { icon: "Wrench", title: "Оперативный сервис", desc: "Расходники на складе, замена планки и плёнки за 1 рабочий день" },
-  { icon: "Award", title: "Сертификаты CE и ТР ТС", desc: "Соответствие требованиям РФ и СНГ, разрешение для пищевых производств" },
+  { icon: "Gauge", title: "Мощные насосы", desc: "От 12 до 100 м³/ч — Busch и Becker для тяжёлых нагрузок" },
+  { icon: "Minus", title: "Двойной шов", desc: "Две струны 3,5 мм — товарный вид и 100% герметичность" },
+  { icon: "Award", title: "Сертификация", desc: "CE, ISO 9001, декларация ТР ТС для работы в РФ и СНГ" },
+  { icon: "Clock", title: "Работа 24/7", desc: "Промышленный ресурс для непрерывного производства" },
 ];
 
 const MODELS = [
@@ -57,13 +61,80 @@ const MODELS = [
   { name: "DZ-1100/2SB", type: "Напольная", chambers: "2 камеры", chamber: "1100×700×220 мм", pump: "100 м³/ч", seal: "2×1000 мм", price: "от 749 900 ₽" },
 ];
 
-const STEPS = [
-  { num: "01", title: "Заявка", desc: "Оставляете запрос онлайн или звоните" },
-  { num: "02", title: "Подбор", desc: "Менеджер подбирает модель за 15 минут" },
-  { num: "03", title: "Тест", desc: "Бесплатное тестирование в нашем демозале" },
-  { num: "04", title: "Договор", desc: "Согласуем условия, подписываем договор" },
-  { num: "05", title: "Доставка", desc: "Отгрузка со склада в РФ за 2–7 дней" },
-  { num: "06", title: "Запуск", desc: "Пусконаладка и обучение в вашем цехе" },
+const APPLICATIONS = [
+  { icon: "Beef", title: "Идеально для мяса", items: ["Увеличение срока хранения до 3х", "Защита от окисления", "Презентабельный вид", "Сохранение вкуса и структуры"] },
+  { icon: "Fish", title: "Идеально для рыбы", items: ["Защита от обветривания", "Герметичная упаковка", "Сохранение свежести", "Удобная презентация"] },
+  { icon: "Cake", title: "Идеально для сыра", items: ["Контроль созревания", "Защита от плесени", "Товарный вид", "Длительное хранение"] },
+  { icon: "Nut", title: "Идеально для орехов", items: ["Прекращение доступа кислорода", "Защита от влаги", "Защита от пыли и загрязнений", "Предотвращение засыхания ядер"] },
+  { icon: "Package", title: "Для непищевых товаров", items: ["Защита от влаги и пыли", "Презентация продукции", "Сохранность при транспортировке", "Универсальность"] },
+  { icon: "HeartPulse", title: "Для медицинских товаров", items: ["Стерильность упаковки", "Длительное хранение", "Защита от загрязнений", "Соответствие стандартам"] },
+  { icon: "Sparkles", title: "Для косметических товаров", items: ["Сохранение свойств", "Защита от окисления", "Презентабельный вид", "Увеличение срока годности"] },
+  { icon: "PawPrint", title: "Для товаров для животных", items: ["Свежесть корма", "Защита от влаги", "Удобная фасовка", "Длительное хранение"] },
+];
+
+const OPTIONS = [
+  { icon: "Flame", title: "Газонаполнение (MAP)", desc: "Модифицированная атмосфера с инертным газом увеличивает срок годности в 3–5 раз", bullets: ["Снижение окисления на 90%", "Сохранение цвета мяса", "Защита от бактерий"] },
+  { icon: "Scissors", title: "Автоматическая запайка/обрезка", desc: "Двойной шов и чистая обрезка края пакета за один цикл", bullets: ["Идеальный товарный вид", "Экономия времени", "100% герметичность"] },
+];
+
+const PROCESS = [
+  { num: 1, icon: "PackageOpen", title: "Загрузка", desc: "Размещение продукта в камере" },
+  { num: 2, icon: "Sliders", title: "Настройка", desc: "Выбор программы на панели" },
+  { num: 3, icon: "Wind", title: "Вакуумирование", desc: "Откачка воздуха из пакета" },
+  { num: 4, icon: "Flame", title: "Газонаполнение", desc: "MAP - замена воздуха газом (опция)" },
+  { num: 5, icon: "Zap", title: "Запайка", desc: "Двойная запайка, широкая запайка, запайка-обрезка" },
+  { num: 6, icon: "CheckCircle2", title: "Контроль", desc: "Проверка герметичности шва" },
+];
+
+const GUARANTEES = [
+  { icon: "ShieldCheck", title: "Гарантия до 3 лет", desc: "На всё оборудование с бесплатной пусконаладкой" },
+  { icon: "Award", title: "Сертификация CE, ISO 9001", desc: "Соответствие международным стандартам качества" },
+  { icon: "FileCheck", title: "Декларация соответствия", desc: "Документы для работы на территории РФ и СНГ" },
+];
+
+const SERVICES = [
+  { icon: "MapPin", title: "Наличие на складах", desc: "В Новосибирске и Москве" },
+  { icon: "Truck", title: "Доставка РФ и СНГ", desc: "Экспресс-отправка со склада в день оплаты" },
+  { icon: "GraduationCap", title: "Обучение персонала", desc: "Инструктаж на объекте клиента включён" },
+  { icon: "CreditCard", title: "Лизинг и рассрочка", desc: "Гибкие условия оплаты и финансирования" },
+];
+
+const QUIZ_STEPS = [
+  { title: "Что будете упаковывать?", options: [
+    { icon: "UtensilsCrossed", label: "Продукты питания" },
+    { icon: "Package", label: "Непищевая продукция" },
+    { icon: "Shirt", label: "Одежда" },
+    { icon: "Cpu", label: "Электроника" },
+    { icon: "HelpCircle", label: "Другое" },
+  ]},
+  { title: "Какой объём упаковки в смену?", options: [
+    { icon: "Gauge", label: "До 100 пакетов" },
+    { icon: "BarChart3", label: "100–500 пакетов" },
+    { icon: "TrendingUp", label: "500–2000 пакетов" },
+    { icon: "Rocket", label: "Свыше 2000" },
+  ]},
+  { title: "Размер продукта?", options: [
+    { icon: "Minimize2", label: "Маленький (до 20 см)" },
+    { icon: "Square", label: "Средний (20–40 см)" },
+    { icon: "Maximize2", label: "Большой (от 40 см)" },
+    { icon: "Layers", label: "Разный" },
+  ]},
+  { title: "Тип установки?", options: [
+    { icon: "Table", label: "Настольная" },
+    { icon: "Building", label: "Напольная" },
+    { icon: "HelpCircle", label: "Подскажите" },
+  ]},
+  { title: "Нужно ли газонаполнение (MAP)?", options: [
+    { icon: "Check", label: "Да, обязательно" },
+    { icon: "X", label: "Нет" },
+    { icon: "HelpCircle", label: "Расскажите подробнее" },
+  ]},
+  { title: "Когда планируете запуск?", options: [
+    { icon: "Zap", label: "Срочно — в этом месяце" },
+    { icon: "Calendar", label: "В течение 1–3 месяцев" },
+    { icon: "Clock", label: "Изучаю варианты" },
+  ]},
+  { title: "Куда отправить подбор?", options: [] },
 ];
 
 const FAQS = [
@@ -79,11 +150,13 @@ const FAQS = [
 ];
 
 const NAV = [
-  { label: "Главная", href: "/" },
-  { label: "Каталог", href: "#catalog" },
   { label: "Преимущества", href: "#advantages" },
-  { label: "Как работаем", href: "#steps" },
-  { label: "Вопросы", href: "#faq" },
+  { label: "Каталог", href: "#catalog" },
+  { label: "Применение", href: "#applications" },
+  { label: "Опции", href: "#options" },
+  { label: "Как работает", href: "#process" },
+  { label: "Сервис", href: "#service" },
+  { label: "FAQ", href: "#faq" },
   { label: "Контакты", href: "#contacts" },
 ];
 
@@ -104,6 +177,41 @@ export default function Vacuum() {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
   const [thanksOpen, setThanksOpen] = useState(false);
+
+  const [videoPlay, setVideoPlay] = useState(false);
+  const [quizStep, setQuizStep] = useState(0);
+  const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
+  const [quizContact, setQuizContact] = useState({ name: "", phone: "" });
+  const [quizErrors, setQuizErrors] = useState<{ name?: string; phone?: string }>({});
+  const [quizSubmitting, setQuizSubmitting] = useState(false);
+
+  const selectQuizOption = (label: string) => {
+    const next = [...quizAnswers];
+    next[quizStep] = label;
+    setQuizAnswers(next);
+    setTimeout(() => setQuizStep(s => Math.min(s + 1, QUIZ_STEPS.length - 1)), 250);
+  };
+
+  const submitQuiz = async () => {
+    const errs: { name?: string; phone?: string } = {};
+    if (quizContact.name.trim().length < 2) errs.name = "Укажите имя";
+    if (!PHONE_RE.test(quizContact.phone.trim())) errs.phone = "Укажите корректный телефон";
+    setQuizErrors(errs);
+    if (Object.keys(errs).length > 0 || quizSubmitting) return;
+    setQuizSubmitting(true);
+    await sendLead({
+      source: "quiz",
+      page: "vacuum",
+      name: quizContact.name.trim(),
+      phone: quizContact.phone.trim(),
+      answers: quizAnswers,
+    });
+    setQuizSubmitting(false);
+    setQuizStep(0);
+    setQuizAnswers([]);
+    setQuizContact({ name: "", phone: "" });
+    setThanksOpen(true);
+  };
 
   useEffect(() => {
     captureUtm();
@@ -373,6 +481,7 @@ export default function Vacuum() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="section-title">Почему выбирают наше оборудование</h2>
+            <p className="text-[#888] mt-2 max-w-2xl mx-auto">12 причин, по которым производители выбирают вакуум-упаковщики ТЕХНОСИБ</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {ADVANTAGES.map((a, i) => (
@@ -385,23 +494,273 @@ export default function Vacuum() {
               </div>
             ))}
           </div>
+          <div className="mt-10 text-center">
+            <button onClick={() => openFos()} className="btn-outline-orange">
+              <Icon name="Settings" size={18} className="mr-2" />
+              Подобрать модель под вашу задачу
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* STEPS */}
-      <section id="steps" className="py-16 bg-[#F7F7F7]">
+      {/* APPLICATIONS */}
+      <section id="applications" className="py-16 bg-[#F7F7F7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title">Как мы работаем</h2>
+            <h2 className="section-title">Применение</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {STEPS.map(s => (
-              <div key={s.num} className="bg-white rounded-xl border border-gray-100 p-5 text-center">
-                <div className="text-3xl font-bold mb-2" style={{ color: "var(--orange)" }}>{s.num}</div>
-                <h3 className="font-bold text-[#1A1A1A] mb-2 text-base">{s.title}</h3>
-                <p className="text-xs text-[#666] leading-relaxed">{s.desc}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {APPLICATIONS.map((app, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 card-hover">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(56,151,255,0.10)" }}>
+                  <Icon name={app.icon} fallback="Package" size={24} className="text-[#3897FF]" />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-3">{app.title}</h3>
+                <ul className="space-y-1.5">
+                  {app.items.map((it, k) => (
+                    <li key={k} className="flex items-start gap-2 text-[13px] text-[#555] leading-snug">
+                      <Icon name="Check" size={14} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                      <span>{it}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
+          </div>
+          <div className="mt-10 text-center">
+            <button onClick={() => openFos()} className="btn-outline-orange">
+              <Icon name="MessageSquare" size={18} className="mr-2" />
+              Получить рекомендации по упаковке вашего продукта
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* VIDEO */}
+      <section id="video" className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8">
+            <h2 className="section-title">Посмотрите как работает наше оборудование</h2>
+            <p className="text-[#888] mt-2">Видео с реальной работой вакуумных упаковщиков на производстве</p>
+          </div>
+          <div className="relative rounded-2xl overflow-hidden bg-[#1A1A1A] aspect-video shadow-xl">
+            {videoPlay ? (
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+                title="EV-30"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+              />
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-br from-[#2A3540] via-[#1A1A1A] to-[#3A4555] flex items-center">
+                  <div className="px-8 md:px-14 text-white">
+                    <p className="text-xs md:text-sm tracking-wider opacity-70 mb-2">НАСТОЛЬНЫЙ</p>
+                    <p className="text-2xl md:text-4xl font-bold leading-tight mb-1">ВАКУУМНЫЙ<br />УПАКОВЩИК</p>
+                    <p className="text-4xl md:text-6xl font-extrabold" style={{ color: "var(--orange)" }}>EV-30</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setVideoPlay(true)}
+                  className="absolute inset-0 m-auto w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center transition-transform hover:scale-110"
+                  style={{ background: "var(--orange)" }}
+                  aria-label="Воспроизвести видео"
+                >
+                  <Icon name="Play" size={36} className="text-white ml-1" />
+                </button>
+                <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-center py-2 text-sm">
+                  Вакуумная упаковочная машина
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* OPTIONS */}
+      <section id="options" className="py-16 bg-[#F7F7F7]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Опции и расходные материалы</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {OPTIONS.map((op, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-7 card-hover">
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.10)" }}>
+                  <Icon name={op.icon} fallback="Sparkles" size={28} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-xl mb-2">{op.title}</h3>
+                <p className="text-[14px] text-[#666] mb-4 leading-relaxed">{op.desc}</p>
+                <ul className="space-y-2">
+                  {op.bullets.map((b, k) => (
+                    <li key={k} className="flex items-start gap-2 text-[14px] text-[#1A1A1A]">
+                      <Icon name="Check" size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <button onClick={() => openFos()} className="px-6 py-3 rounded-lg bg-white border border-gray-200 hover:border-orange-300 text-[#1A1A1A] font-semibold text-sm inline-flex items-center gap-2 transition-colors">
+              <Icon name="Package" size={18} style={{ color: "var(--orange)" }} />
+              Заказать расходники со склада
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* PROCESS / HOW IT WORKS — DARK BLUE */}
+      <section id="process" className="py-20 text-white" style={{ background: "linear-gradient(135deg, #1E5A8A 0%, #2A6FA8 50%, #1E5A8A 100%)" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-[clamp(26px,3.8vw,40px)] font-bold mb-3">Как это работает</h2>
+            <p className="text-white/80 max-w-2xl mx-auto">Полный цикл вакуумной упаковки с автоматическими программами и контролем качества</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {PROCESS.map(p => (
+              <div key={p.num} className="bg-white/5 backdrop-blur rounded-xl border border-white/10 p-5 flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0" style={{ background: "var(--orange)" }}>
+                  {p.num}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Icon name={p.icon} fallback="Circle" size={18} className="text-white/80" />
+                    <h3 className="font-bold text-white text-base">{p.title}</h3>
+                  </div>
+                  <p className="text-sm text-white/75 leading-snug">{p.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
+            <button onClick={() => { document.getElementById("video")?.scrollIntoView({ behavior: "smooth" }); setVideoPlay(true); }} className="px-6 py-3 rounded-lg bg-[#1A1A1A] hover:bg-black text-white text-sm font-semibold inline-flex items-center gap-2 transition-colors">
+              <Icon name="Play" size={16} />
+              Посмотреть демонстрацию
+            </button>
+            <button onClick={() => openFos()} className="px-6 py-3 rounded-lg bg-white hover:bg-gray-100 text-[#1A1A1A] text-sm font-semibold inline-flex items-center gap-2 transition-colors">
+              <Icon name="Calendar" size={16} />
+              Записаться в демозал
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* GUARANTEES */}
+      <section id="guarantees" className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <h2 className="section-title text-left mb-6">Гарантии и сертификаты</h2>
+            <ul className="space-y-5">
+              {GUARANTEES.map((g, i) => (
+                <li key={i} className="flex items-start gap-4">
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(56,151,255,0.10)" }}>
+                    <Icon name={g.icon} fallback="ShieldCheck" size={22} className="text-[#3897FF]" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-[#1A1A1A] text-[16px] mb-1">{g.title}</h3>
+                    <p className="text-sm text-[#666] leading-relaxed">{g.desc}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-2xl overflow-hidden bg-[#F7F7F7]">
+            <img
+              src="https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/5c177aea-1d9e-4624-8693-04effc5c2806.png"
+              alt="Вакуумные пакеты с продуктами"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* SERVICE */}
+      <section id="service" className="py-16 bg-[#F7F7F7]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Сервис и доставка</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {SERVICES.map((s, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 card-hover">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(56,151,255,0.10)" }}>
+                  <Icon name={s.icon} fallback="CheckCircle" size={22} className="text-[#3897FF]" />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{s.title}</h3>
+                <p className="text-sm text-[#666] leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* QUIZ */}
+      <section id="quiz" className="py-20" style={{ background: "linear-gradient(180deg, #E8F0F8 0%, #F4F8FB 100%)" }}>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8">
+            <h2 className="section-title">Подберём оборудование</h2>
+            <p className="text-[#666] mt-2">Ответьте на 6 вопросов, и мы предложим оптимальное решение под ваши задачи</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-[#666]">Шаг {quizStep + 1} из {QUIZ_STEPS.length}</p>
+              {quizStep > 0 && (
+                <button onClick={() => setQuizStep(s => Math.max(0, s - 1))} className="text-sm text-[#888] hover:text-orange-600 flex items-center gap-1">
+                  <Icon name="ArrowLeft" size={14} />Назад
+                </button>
+              )}
+            </div>
+            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-6">
+              <div className="h-full bg-[#1A1A1A] transition-all" style={{ width: `${((quizStep + 1) / QUIZ_STEPS.length) * 100}%` }} />
+            </div>
+            <h3 className="font-bold text-[#1A1A1A] text-xl mb-5">{QUIZ_STEPS[quizStep].title}</h3>
+
+            {quizStep < QUIZ_STEPS.length - 1 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {QUIZ_STEPS[quizStep].options.map((opt, i) => {
+                  const selected = quizAnswers[quizStep] === opt.label;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => selectQuizOption(opt.label)}
+                      className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
+                        selected ? "border-orange-500 bg-orange-50" : "border-gray-200 bg-white hover:border-orange-300"
+                      }`}
+                    >
+                      <Icon name={opt.icon} fallback="Circle" size={22} className="text-[#3897FF]" />
+                      <span className="text-[13px] font-medium text-[#1A1A1A] leading-tight">{opt.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Ваше имя"
+                  value={quizContact.name}
+                  onChange={e => setQuizContact({ ...quizContact, name: e.target.value })}
+                  className={`w-full px-4 py-3 rounded-lg border ${quizErrors.name ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
+                />
+                {quizErrors.name && <p className="text-xs text-red-500 -mt-1">{quizErrors.name}</p>}
+                <input
+                  type="tel"
+                  placeholder="Телефон"
+                  value={quizContact.phone}
+                  onChange={e => setQuizContact({ ...quizContact, phone: e.target.value })}
+                  className={`w-full px-4 py-3 rounded-lg border ${quizErrors.phone ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
+                />
+                {quizErrors.phone && <p className="text-xs text-red-500 -mt-1">{quizErrors.phone}</p>}
+                <button onClick={submitQuiz} disabled={quizSubmitting} className="btn-orange w-full text-base py-3.5 disabled:opacity-60">
+                  {quizSubmitting ? "Отправляем..." : "Получить подбор оборудования"}
+                </button>
+                <p className="text-xs text-[#888] text-center">Нажимая кнопку, вы соглашаетесь с обработкой персональных данных</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
