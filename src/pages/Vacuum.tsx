@@ -249,12 +249,12 @@ export default function Vacuum() {
 
   const [fosOpen, setFosOpen] = useState<{ productName?: string } | null>(null);
   const [fosData, setFosData] = useState({ name: "", phone: "", email: "" });
-  const [fosAgree, setFosAgree] = useState(true);
+  const [fosAgree, setFosAgree] = useState(false);
   const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string; agree?: string }>({});
   const [fosSubmitting, setFosSubmitting] = useState(false);
 
   const [formSubmitting, setFormSubmitting] = useState(false);
-  const [formAgree, setFormAgree] = useState(true);
+  const [formAgree, setFormAgree] = useState(false);
   const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
   const [thanksOpen, setThanksOpen] = useState(false);
 
@@ -1182,41 +1182,76 @@ export default function Vacuum() {
 
       {/* FOS MODAL */}
       {fosOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4" onClick={() => setFosOpen(null)}>
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setFosOpen(null)} className="absolute top-3 right-3 w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center">
-              <Icon name="X" size={20} className="text-[#666]" />
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto"
+          onClick={() => setFosOpen(null)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-md p-6 md:p-8 relative my-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setFosOpen(null)}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              aria-label="Закрыть"
+            >
+              <Icon name="X" size={18} className="text-[#1A1A1A]" />
             </button>
-            <h3 className="text-2xl font-bold mb-2">Оставить заявку</h3>
-            {fosOpen.productName && <p className="text-sm text-[#666] mb-4">По модели: <span className="font-semibold">{fosOpen.productName}</span></p>}
-            <p className="text-sm text-[#666] mb-5">Менеджер свяжется в течение 15 минут</p>
 
-            <div className="space-y-3">
+            <h3 className="font-bold text-2xl text-[#1A1A1A] mb-2 pr-8">Оставить заявку</h3>
+            <p className="text-[15px] text-[#666] mb-5 leading-relaxed">
+              {fosOpen.productName
+                ? <>По товару: <span className="font-semibold text-[#1A1A1A]">{fosOpen.productName}</span></>
+                : "Менеджер свяжется в течение 15 минут."}
+            </p>
+
+            <div className="space-y-4">
               <div>
-                <input type="text" placeholder="Имя"
+                <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                  Имя <span style={{ color: "var(--orange)" }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Иван Петров"
                   value={fosData.name}
-                  onChange={e => setFosData({ ...fosData, name: e.target.value })}
-                  className={`w-full px-4 py-3 rounded-lg border ${fosErrors.name ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
+                  onChange={e => { setFosData({ ...fosData, name: e.target.value }); if (fosErrors.name) setFosErrors({ ...fosErrors, name: undefined }); }}
+                  className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                  style={{ borderColor: fosErrors.name ? "#E53935" : "#E0E0E0" }}
                 />
-                {fosErrors.name && <p className="text-xs text-red-500 mt-1">{fosErrors.name}</p>}
+                {fosErrors.name && <p className="text-[13px] text-red-500 mt-1">{fosErrors.name}</p>}
               </div>
+
               <div>
-                <input type="tel" placeholder="+7 (___) ___-__-__"
+                <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                  Телефон <span style={{ color: "var(--orange)" }}>*</span>
+                </label>
+                <input
+                  type="tel"
+                  placeholder="+7 (___) ___-__-__"
                   value={fosData.phone}
-                  onChange={e => setFosData({ ...fosData, phone: formatPhoneRu(e.target.value) })}
+                  onChange={e => { setFosData({ ...fosData, phone: formatPhoneRu(e.target.value) }); if (fosErrors.phone) setFosErrors({ ...fosErrors, phone: undefined }); }}
                   onFocus={e => { if (!e.target.value) setFosData({ ...fosData, phone: "+7 " }); }}
-                  className={`w-full px-4 py-3 rounded-lg border ${fosErrors.phone ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
+                  className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                  style={{ borderColor: fosErrors.phone ? "#E53935" : "#E0E0E0" }}
                 />
-                {fosErrors.phone && <p className="text-xs text-red-500 mt-1">{fosErrors.phone}</p>}
+                {fosErrors.phone && <p className="text-[13px] text-red-500 mt-1">{fosErrors.phone}</p>}
               </div>
+
               <div>
-                <input type="email" placeholder="your@email.com"
+                <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  placeholder="your@email.com"
                   value={fosData.email}
-                  onChange={e => setFosData({ ...fosData, email: e.target.value })}
-                  className={`w-full px-4 py-3 rounded-lg border ${fosErrors.email ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
+                  onChange={e => { setFosData({ ...fosData, email: e.target.value }); if (fosErrors.email) setFosErrors({ ...fosErrors, email: undefined }); }}
+                  className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                  style={{ borderColor: fosErrors.email ? "#E53935" : "#E0E0E0" }}
                 />
-                {fosErrors.email && <p className="text-xs text-red-500 mt-1">{fosErrors.email}</p>}
+                {fosErrors.email && <p className="text-[13px] text-red-500 mt-1">{fosErrors.email}</p>}
               </div>
+
               <label className="flex items-start gap-2.5 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -1226,9 +1261,14 @@ export default function Vacuum() {
                 />
                 <PolicyDisclaimer />
               </label>
-              {fosErrors.agree && <p className="text-xs text-red-500">{fosErrors.agree}</p>}
-              <button onClick={submitFos} disabled={fosSubmitting} className="btn-orange w-full text-base py-3.5 disabled:opacity-60">
-                {fosSubmitting ? "Отправляем..." : "Отправить"}
+              {fosErrors.agree && <p className="text-[13px] text-red-500 -mt-2">{fosErrors.agree}</p>}
+
+              <button
+                onClick={submitFos}
+                disabled={fosSubmitting}
+                className="btn-orange w-full py-3.5 text-base disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {fosSubmitting ? "Отправляем…" : "Отправить"}
               </button>
             </div>
           </div>

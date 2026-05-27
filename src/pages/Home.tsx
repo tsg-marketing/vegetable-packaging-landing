@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 import { captureUtm, readUtm } from "@/lib/utm";
+import PolicyDisclaimer from "@/components/PolicyDisclaimer";
+import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const HERO_IMG = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/6987fa02-cd88-4e57-944b-bcaecae0723b.png";
 const GROUPS_API = "https://functions.poehali.dev/ed4e9bba-a8d4-434c-af4e-52809800893d";
 
-const PHONE_RE = /^(\+7|7|8)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 type Param = { name: string; value: string };
@@ -98,7 +99,8 @@ export default function Home() {
   // Lead modal (ФОС — как на /vegetables)
   const [fosOpen, setFosOpen] = useState<null | { source: string; productName: string }>(null);
   const [fosData, setFosData] = useState({ name: "", phone: "", email: "" });
-  const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
+  const [fosAgree, setFosAgree] = useState(false);
+  const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string; agree?: string }>({});
   const [fosSubmitting, setFosSubmitting] = useState(false);
   const [thanksOpen, setThanksOpen] = useState(false);
 
@@ -180,13 +182,14 @@ export default function Home() {
   }, []);
 
   const validateFos = useCallback((): boolean => {
-    const errs: { name?: string; phone?: string; email?: string } = {};
+    const errs: { name?: string; phone?: string; email?: string; agree?: string } = {};
     if (fosData.name.trim().length < 2) errs.name = "Укажите имя";
-    if (!PHONE_RE.test(fosData.phone.trim())) errs.phone = "Укажите корректный телефон";
-    if (!EMAIL_RE.test(fosData.email.trim())) errs.email = "Укажите корректный e-mail";
+    if (!isValidPhoneRu(fosData.phone)) errs.phone = "Введите телефон в формате +7 и 10 цифр";
+    if (fosData.email.trim() && !EMAIL_RE.test(fosData.email.trim())) errs.email = "Укажите корректный e-mail";
+    if (!fosAgree) errs.agree = "Необходимо согласие";
     setFosErrors(errs);
     return Object.keys(errs).length === 0;
-  }, [fosData]);
+  }, [fosData, fosAgree]);
 
   const submitFos = useCallback(async () => {
     if (!validateFos() || fosSubmitting) return;
@@ -1053,7 +1056,8 @@ export default function Home() {
                   type="tel"
                   placeholder="+7 (___) ___-__-__"
                   value={fosData.phone}
-                  onChange={e => { setFosData({ ...fosData, phone: e.target.value }); if (fosErrors.phone) setFosErrors({ ...fosErrors, phone: undefined }); }}
+                  onChange={e => { setFosData({ ...fosData, phone: formatPhoneRu(e.target.value) }); if (fosErrors.phone) setFosErrors({ ...fosErrors, phone: undefined }); }}
+                  onFocus={e => { if (!e.target.value) setFosData({ ...fosData, phone: "+7 " }); }}
                   className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
                   style={{ borderColor: fosErrors.phone ? "#E53935" : "#E0E0E0" }}
                 />
@@ -1062,11 +1066,11 @@ export default function Home() {
 
               <div>
                 <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">
-                  E-mail <span style={{ color: "var(--orange)" }}>*</span>
+                  Email
                 </label>
                 <input
                   type="email"
-                  placeholder="ivan@company.ru"
+                  placeholder="your@email.com"
                   value={fosData.email}
                   onChange={e => { setFosData({ ...fosData, email: e.target.value }); if (fosErrors.email) setFosErrors({ ...fosErrors, email: undefined }); }}
                   className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
@@ -1075,6 +1079,17 @@ export default function Home() {
                 {fosErrors.email && <p className="text-[13px] text-red-500 mt-1">{fosErrors.email}</p>}
               </div>
 
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={fosAgree}
+                  onChange={e => { setFosAgree(e.target.checked); if (fosErrors.agree) setFosErrors({ ...fosErrors, agree: undefined }); }}
+                  className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
+                />
+                <PolicyDisclaimer />
+              </label>
+              {fosErrors.agree && <p className="text-[13px] text-red-500 -mt-2">{fosErrors.agree}</p>}
+
               <button
                 onClick={submitFos}
                 disabled={fosSubmitting}
@@ -1082,9 +1097,6 @@ export default function Home() {
               >
                 {fosSubmitting ? "Отправляем…" : "Отправить"}
               </button>
-              <p className="text-center text-[12px] text-[#AAA]">
-                Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности
-              </p>
             </div>
           </div>
         </div>

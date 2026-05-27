@@ -182,7 +182,7 @@ export default function Index() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "", pack: "", comment: "" });
-  const [formAgree, setFormAgree] = useState(true);
+  const [formAgree, setFormAgree] = useState(false);
 
   // Catalog
   const [products, setProducts] = useState<Product[]>([]);
@@ -205,7 +205,7 @@ export default function Index() {
   // Quick contact form (ФОС) — opened per product or generic
   const [fosOpen, setFosOpen] = useState<{ productName?: string } | null>(null);
   const [fosData, setFosData] = useState({ name: "", phone: "", email: "" });
-  const [fosAgree, setFosAgree] = useState(true);
+  const [fosAgree, setFosAgree] = useState(false);
   const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string; agree?: string }>({});
   const [fosSent, setFosSent] = useState(false);
   const [fosSubmitting, setFosSubmitting] = useState(false);
