@@ -413,8 +413,8 @@ export default function Index() {
 
           {/* Phone + CTA */}
           <div className="hidden md:flex items-center gap-4 ml-4">
-            <a href="tel:88005004054" className="text-sm font-semibold text-[#1A1A1A] hover:text-orange-600 transition-colors whitespace-nowrap">
-              8-800-500-40-54
+            <a href="tel:88005057831" className="text-sm font-semibold text-[#1A1A1A] hover:text-orange-600 transition-colors whitespace-nowrap">
+              8 800 505-78-31
             </a>
             <button onClick={() => openFos()} className="btn-orange text-sm py-2 px-5 whitespace-nowrap">
               Оставить заявку
@@ -436,7 +436,7 @@ export default function Index() {
                 {l.label}
               </button>
             ))}
-            <a href="tel:88005004054" className="text-base font-bold text-[#1A1A1A] py-2">8-800-500-40-54</a>
+            <a href="tel:88005057831" className="text-base font-bold text-[#1A1A1A] py-2">8 800 505-78-31</a>
             <button onClick={() => { setMobileOpen(false); openFos(); }} className="btn-orange w-full mt-1">Оставить заявку</button>
           </div>
         )}
@@ -925,8 +925,8 @@ export default function Index() {
               </p>
               <div className="space-y-4">
                 {[
-                  { icon: "Phone", label: "8-800-500-40-54", sub: "Бесплатно по РФ" },
-                  { icon: "Mail", label: "info@t-sib.ru", sub: "Ответ в течение часа" },
+                  { icon: "Phone", label: "8 800 505-78-31", sub: "Бесплатно по РФ" },
+                  { icon: "Mail", label: "pack@t-sib.ru", sub: "Ответ в течение часа" },
                   { icon: "MapPin", label: "Москва, ш. Энтузиастов, д. 56, стр. 32, офис 115", sub: "Офис в Москве" },
                   { icon: "MapPin", label: "Новосибирск, ул. Электрозаводская, 2 к1, офис 304, 314", sub: "Офис в Новосибирске" },
                 ].map((c, i) => (
@@ -1037,15 +1037,15 @@ export default function Index() {
               <p className="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Контакты</p>
               <ul className="space-y-3">
                 <li>
-                  <a href="tel:88005004054" className="text-sm text-white/65 hover:text-white transition-colors flex items-center gap-2">
+                  <a href="tel:88005057831" className="text-sm text-white/65 hover:text-white transition-colors flex items-center gap-2">
                     <Icon name="Phone" size={14} className="text-orange-500" />
-                    8-800-500-40-54
+                    8 800 505-78-31
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:info@t-sib.ru" className="text-[15px] text-white/65 hover:text-white transition-colors flex items-center gap-2">
+                  <a href="mailto:pack@t-sib.ru" className="text-[15px] text-white/65 hover:text-white transition-colors flex items-center gap-2">
                     <Icon name="Mail" size={14} className="text-orange-500" />
-                    info@t-sib.ru
+                    pack@t-sib.ru
                   </a>
                 </li>
                 <li className="flex items-start gap-2">

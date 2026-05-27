@@ -272,13 +272,13 @@ export default function Home() {
           </nav>
 
           <div className="hidden md:flex flex-col items-end gap-1 flex-shrink-0 leading-tight">
-            <a href="mailto:info@t-sib.ru" className="text-[13px] text-[#555] hover:text-[var(--orange)] flex items-center gap-1.5">
+            <a href="mailto:pack@t-sib.ru" className="text-[13px] text-[#555] hover:text-[var(--orange)] flex items-center gap-1.5">
               <Icon name="Mail" size={14} style={{ color: "var(--orange)" }} />
-              info@t-sib.ru
+              pack@t-sib.ru
             </a>
-            <a href="tel:88005004054" className="text-[15px] font-semibold text-[#1A1A1A] hover:text-[var(--orange)] flex items-center gap-1.5">
+            <a href="tel:88005057831" className="text-[15px] font-semibold text-[#1A1A1A] hover:text-[var(--orange)] flex items-center gap-1.5">
               <Icon name="Phone" size={15} style={{ color: "var(--orange)" }} />
-              8-800-500-40-54
+              8 800 505-78-31
             </a>
           </div>
 
@@ -340,13 +340,13 @@ export default function Home() {
             ))}
           </div>
           <div className="p-6 border-t border-gray-100 space-y-3">
-            <a href="tel:88005004054" className="flex items-center gap-2 text-[16px] font-semibold text-[#1A1A1A]">
+            <a href="tel:88005057831" className="flex items-center gap-2 text-[16px] font-semibold text-[#1A1A1A]">
               <Icon name="Phone" size={18} style={{ color: "var(--orange)" }} />
-              8-800-500-40-54
+              8 800 505-78-31
             </a>
-            <a href="mailto:info@t-sib.ru" className="flex items-center gap-2 text-[15px] text-[#555]">
+            <a href="mailto:pack@t-sib.ru" className="flex items-center gap-2 text-[15px] text-[#555]">
               <Icon name="Mail" size={18} style={{ color: "var(--orange)" }} />
-              info@t-sib.ru
+              pack@t-sib.ru
             </a>
           </div>
         </div>
@@ -802,15 +802,15 @@ export default function Home() {
               <p className="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Контакты</p>
               <ul className="space-y-3">
                 <li>
-                  <a href="tel:88005004054" className="text-sm text-white/65 hover:text-white transition-colors flex items-center gap-2">
+                  <a href="tel:88005057831" className="text-sm text-white/65 hover:text-white transition-colors flex items-center gap-2">
                     <Icon name="Phone" size={14} className="text-orange-500" />
-                    8-800-500-40-54
+                    8 800 505-78-31
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:info@t-sib.ru" className="text-[15px] text-white/65 hover:text-white transition-colors flex items-center gap-2">
+                  <a href="mailto:pack@t-sib.ru" className="text-[15px] text-white/65 hover:text-white transition-colors flex items-center gap-2">
                     <Icon name="Mail" size={14} className="text-orange-500" />
-                    info@t-sib.ru
+                    pack@t-sib.ru
                   </a>
                 </li>
                 <li className="flex items-start gap-2">
