@@ -3,6 +3,7 @@ import Icon from "@/components/ui/icon";
 import { captureUtm, readUtm } from "@/lib/utm";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
+import { ymGoal } from "@/lib/ym";
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
@@ -46,7 +47,9 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
     });
     if (!res.ok) return false;
     const j = await res.json().catch(() => ({ ok: true }));
-    return j?.ok !== false;
+    const ok = j?.ok !== false;
+    if (ok) ymGoal("FOS_send");
+    return ok;
   } catch {
     return false;
   }

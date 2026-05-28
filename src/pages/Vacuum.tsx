@@ -6,6 +6,7 @@ import VacuumQuiz, { VacuumQuizPayload } from "@/components/VacuumQuiz";
 import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
+import { ymGoal } from "@/lib/ym";
 
 // Страница вакуумного упаковочного оборудования /vacuum
 
@@ -149,7 +150,9 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
     });
     if (!res.ok) return false;
     const j = await res.json().catch(() => ({ ok: true }));
-    return j?.ok !== false;
+    const ok = j?.ok !== false;
+    if (ok) ymGoal("FOS_send");
+    return ok;
   } catch {
     return false;
   }
