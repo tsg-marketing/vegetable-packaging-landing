@@ -124,14 +124,14 @@ const ADVANTAGES = [
 ];
 
 const APPLICATIONS = [
-  { icon: "Candy", title: "Кондитерские изделия", desc: "Конфеты, печенье, вафли, батончики, зефир, шоколад" },
-  { icon: "Croissant", title: "Хлебобулочные изделия", desc: "Булочки, рулеты, лаваши, хлеб" },
-  { icon: "Snowflake", title: "Замороженные продукты", desc: "Мороженое, полуфабрикаты" },
-  { icon: "Salad", title: "Свежие овощи и зелень", desc: "Салаты, листовая зелень (нижняя подача)" },
-  { icon: "Sparkles", title: "Непищевые товары", desc: "Мыло, губки, бытовая химия, канцелярия, сувениры" },
-  { icon: "Pill", title: "Медицина и гигиена", desc: "Маски, салфетки, перчатки, гигиенические наборы" },
-  { icon: "Wrench", title: "Промышленные изделия", desc: "Трубы, профили, шланги, кабель (длинномер)" },
-  { icon: "BedDouble", title: "Текстиль и мягкие изделия", desc: "Подушки, спецодежда, пуховые изделия (вакуум-компрессия)" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/903d8360-d4f1-4511-bffb-54ac0e956bf9.jpg", title: "Кондитерские изделия", desc: "Конфеты, печенье, вафли, батончики, зефир, шоколад" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/305780b8-cbed-4064-9a7e-41bddb5bdb62.jpg", title: "Хлебобулочные изделия", desc: "Булочки, рулеты, лаваши, хлеб" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/558035ac-41bc-44de-874b-a2ee69a57a90.jpg", title: "Замороженные продукты", desc: "Мороженое, полуфабрикаты" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/0d1722a9-4f8e-49a4-a6b6-8eea41b2397d.jpg", title: "Свежие овощи и зелень", desc: "Салаты, листовая зелень (нижняя подача)" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/8ccc2cb5-8b47-4aff-b9cd-0e25c2c38e85.jpg", title: "Непищевые товары", desc: "Мыло, губки, бытовая химия, канцелярия, сувениры" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/9905c1a9-289a-4133-aadb-b6bfa7fd5eb6.jpg", title: "Медицина и гигиена", desc: "Маски, салфетки, перчатки, гигиенические наборы" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/d9c744b6-f0cb-457d-aa72-3be1833fc6c9.jpg", title: "Промышленные изделия", desc: "Трубы, профили, шланги, кабель (длинномер)" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/a9cea142-8b46-4299-a2a6-86fb9f1ad9e8.jpg", title: "Текстиль и мягкие изделия", desc: "Подушки, спецодежда, пуховые изделия (вакуум-компрессия)" },
 ];
 
 const SERIES = [
@@ -157,17 +157,6 @@ const PROCESS = [
   { num: 2, icon: "Layers", title: "Плёнка формируется в рукав", desc: "И сваривается продольным швом" },
   { num: 3, icon: "Scissors", title: "Формируются два поперечных шва", desc: "В начале и конце продукта" },
   { num: 4, icon: "Package", title: "Нож обрезает готовый пакет", desc: "Герметичная упаковка «подушка»" },
-];
-
-const OPTIONS_LIST = [
-  { icon: "Layers", text: "Корпус из нержавеющей стали" },
-  { icon: "Scissors", text: "Ножи прямые или зигзагообразные" },
-  { icon: "Printer", text: "Термотрансферный принтер (дата, маркировка)" },
-  { icon: "Flame", text: "Система газовой среды (МГС)" },
-  { icon: "Wind", text: "Вакуумирование / удаление воздуха, прокол пакета" },
-  { icon: "Tag", text: "Формирование еврослота для подвесной выкладки" },
-  { icon: "Forklift", text: "Системы автоматической подачи продукта" },
-  { icon: "Sticker", text: "Этикетировщик" },
 ];
 
 const GUARANTEES = [
@@ -197,7 +186,6 @@ const NAV = [
   { label: "Каталог", href: "#catalog" },
   { label: "Преимущества", href: "#advantages" },
   { label: "Применение", href: "#applications" },
-  { label: "Опции", href: "#options" },
   { label: "Сервис", href: "#service" },
   { label: "FAQ", href: "#faq" },
   { label: "Контакты", href: "#contacts" },
@@ -646,7 +634,10 @@ export default function Gorizontalnoe() {
                             <div className="space-y-2">
                               <button
                                 onClick={() => setDetailsProduct(p)}
-                                className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all bg-[#1A1A1A] hover:bg-black text-white inline-flex items-center justify-center gap-2"
+                                className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all inline-flex items-center justify-center gap-2"
+                                style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
+                                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.2)"; }}
+                                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.1)"; }}
                               >
                                 <Icon name="Eye" size={16} />
                                 Узнать подробнее
@@ -687,9 +678,26 @@ export default function Gorizontalnoe() {
               )}
 
               {catalog.length > 0 && (
-                <div className="mt-10 bg-[#F7F7F7] rounded-xl border border-gray-100 p-6 text-center">
-                  <p className="text-[#555] mb-4">Нужна индивидуальная конфигурация или подбор под задачу?</p>
-                  <button onClick={() => openFos()} className="btn-orange">Подобрать под задачу</button>
+                <div className="mt-12">
+                  <div
+                    className="rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:gap-6"
+                    style={{ background: "linear-gradient(135deg, rgba(255,102,0,0.08), rgba(255,102,0,0.02))", border: "1px solid rgba(255,102,0,0.18)" }}
+                  >
+                    <div className="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center" style={{ background: "var(--orange)" }}>
+                      <Icon name="ListChecks" size={26} className="text-white" />
+                    </div>
+                    <div className="flex-1 text-center sm:text-left">
+                      <h3 className="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-1">Нужна индивидуальная конфигурация или подбор под задачу?</h3>
+                      <p className="text-[#555] text-[15px] leading-relaxed">Ответьте на несколько вопросов — подберём подходящую машину flow-pack с ценами и видео работы.</p>
+                    </div>
+                    <button
+                      onClick={() => setQuizOpen(true)}
+                      className="px-6 py-3.5 rounded-lg font-semibold text-white text-base transition-opacity hover:opacity-90 whitespace-nowrap"
+                      style={{ background: "var(--orange)" }}
+                    >
+                      Подобрать под задачу
+                    </button>
+                  </div>
                 </div>
               )}
             </>
@@ -705,12 +713,14 @@ export default function Gorizontalnoe() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {APPLICATIONS.map((app, i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 card-hover">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.10)" }}>
-                  <Icon name={app.icon} fallback="Package" size={24} style={{ color: "var(--orange)" }} />
+              <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden card-hover flex flex-col">
+                <div className="aspect-[4/3] bg-[#F0F0F0] overflow-hidden">
+                  <img src={app.img} alt={app.title} loading="lazy" className="w-full h-full object-cover" />
                 </div>
-                <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{app.title}</h3>
-                <p className="text-[13px] text-[#666] leading-snug">{app.desc}</p>
+                <div className="p-5 flex-1">
+                  <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{app.title}</h3>
+                  <p className="text-[13px] text-[#666] leading-snug">{app.desc}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -748,58 +758,33 @@ export default function Gorizontalnoe() {
         </div>
       </section>
 
-      {/* PROCESS / HOW IT WORKS — DARK */}
-      <section id="process" className="py-20 text-white" style={{ background: "linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 50%, #1A1A1A 100%)" }}>
+      {/* PROCESS / HOW IT WORKS */}
+      <section id="process" className="py-20 bg-[#F7F7F7]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <h2 className="text-[clamp(26px,3.8vw,40px)] font-bold mb-3">Как работает flow-pack за 4 шага</h2>
+            <h2 className="section-title">Как работает flow-pack за 4 шага</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {PROCESS.map(p => (
-              <div key={p.num} className="bg-white/5 backdrop-blur rounded-xl border border-white/10 p-5">
+              <div key={p.num} className="bg-white rounded-xl border border-gray-100 p-5 card-hover">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0" style={{ background: "var(--orange)" }}>
                     {p.num}
                   </div>
-                  <Icon name={p.icon} fallback="Circle" size={22} className="text-white/80" />
+                  <Icon name={p.icon} fallback="Circle" size={22} style={{ color: "var(--orange)" }} />
                 </div>
-                <h3 className="font-bold text-white text-base mb-1 leading-snug">{p.title}</h3>
-                <p className="text-sm text-white/75 leading-snug">{p.desc}</p>
+                <h3 className="font-bold text-[#1A1A1A] text-base mb-1 leading-snug">{p.title}</h3>
+                <p className="text-sm text-[#666] leading-snug">{p.desc}</p>
               </div>
             ))}
           </div>
-          <p className="text-center text-white/80 max-w-2xl mx-auto mt-8 leading-relaxed">
+          <p className="text-center text-[#555] max-w-2xl mx-auto mt-8 leading-relaxed">
             Датчик длины продукта (LVA) автоматически подбирает размер пакета — без перерасхода плёнки.
           </p>
           <div className="mt-8 text-center">
-            <button onClick={() => openFos()} className="px-6 py-3 rounded-lg bg-white hover:bg-gray-100 text-[#1A1A1A] text-sm font-semibold inline-flex items-center gap-2 transition-colors">
-              <Icon name="FlaskConical" size={16} style={{ color: "var(--orange)" }} />
+            <button onClick={() => openFos()} className="btn-orange inline-flex items-center gap-2">
+              <Icon name="FlaskConical" size={16} className="text-white" />
               Заказать тест-упаковку вашего продукта
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* OPTIONS */}
-      <section id="options" className="py-16 bg-[#F7F7F7]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 className="section-title">Соберите машину под свой процесс</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {OPTIONS_LIST.map((op, i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 p-5 flex items-center gap-4 card-hover">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,102,0,0.10)" }}>
-                  <Icon name={op.icon} fallback="Check" size={22} style={{ color: "var(--orange)" }} />
-                </div>
-                <p className="text-[14px] font-semibold text-[#1A1A1A] leading-snug">{op.text}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-10 text-center">
-            <button onClick={() => openFos()} className="btn-orange">
-              <Icon name="Settings2" size={18} className="mr-2" />
-              Собрать комплектацию с менеджером
             </button>
           </div>
         </div>
@@ -877,14 +862,14 @@ export default function Gorizontalnoe() {
       </section>
 
       {/* CONTACT FORM */}
-      <section id="contacts" className="py-16 bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] text-white">
+      <section id="contacts" className="py-16 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="text-[clamp(26px,3.8vw,40px)] font-bold mb-3">Получить коммерческое предложение</h2>
-            <p className="text-white/70">Заполните форму — менеджер свяжется в течение 15 минут</p>
+            <h2 className="section-title mb-3">Получить коммерческое предложение</h2>
+            <p className="text-[#666]">Заполните форму — менеджер свяжется в течение 15 минут</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 sm:p-8 text-[#1A1A1A]">
+          <div className="bg-[#F7F7F7] rounded-2xl p-6 sm:p-8 text-[#1A1A1A] border border-gray-100">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium mb-1.5">Имя *</label>
@@ -952,25 +937,62 @@ export default function Gorizontalnoe() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-[#1A1A1A] text-white/70 py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
-          <div>
-            <img src={LOGO_URL} alt="ТЕХНОСИБ" className="h-9 w-auto mb-4 brightness-0 invert" />
-            <p>Промышленное упаковочное оборудование.<br />Поставка, пусконаладка, сервис под ключ.</p>
+      <footer className="py-10 bg-[#1A1A1A] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <div className="inline-block bg-white rounded-lg px-3 py-2 mb-4">
+                <img src={LOGO_URL} alt="ТЕХНОСИБ" className="h-8 w-auto" />
+              </div>
+              <p className="text-sm text-white/55 leading-relaxed max-w-xs">
+                Поставка и сервис упаковочного оборудования. 25 лет на рынке.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Навигация</p>
+              <ul className="space-y-2">
+                {NAV.map(l => (
+                  <li key={l.href}>
+                    <button onClick={() => scrollTo(l.href)}
+                      className="text-sm text-white/65 hover:text-white transition-colors">
+                      {l.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Контакты</p>
+              <ul className="space-y-3">
+                <li>
+                  <a href="tel:88005057831" className="text-sm text-white/65 hover:text-white transition-colors flex items-center gap-2">
+                    <Icon name="Phone" size={14} className="text-orange-500" />
+                    8 800 505-78-31
+                  </a>
+                </li>
+                <li>
+                  <a href="mailto:pack@t-sib.ru" className="text-[15px] text-white/65 hover:text-white transition-colors flex items-center gap-2">
+                    <Icon name="Mail" size={14} className="text-orange-500" />
+                    pack@t-sib.ru
+                  </a>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Icon name="MapPin" size={14} className="text-orange-500 mt-1 flex-shrink-0" />
+                  <span className="text-[14px] text-white/65 leading-relaxed">Москва, ш. Энтузиастов, д. 56, стр. 32, офис 115</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Icon name="MapPin" size={14} className="text-orange-500 mt-1 flex-shrink-0" />
+                  <span className="text-[14px] text-white/65 leading-relaxed">Новосибирск, ул. Электрозаводская, 2 к1, офис 304, 314</span>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div>
-            <p className="text-white font-semibold mb-3">Контакты</p>
-            <p><a href="tel:88005057831" className="hover:text-orange-500 transition-colors">8 800 505-78-31</a></p>
-            <p><a href="mailto:pack@t-sib.ru" className="hover:text-orange-500 transition-colors">pack@t-sib.ru</a></p>
+
+          <div className="border-t border-white/10 pt-6 text-center">
+            <p className="text-xs text-white/35">© {new Date().getFullYear()} Техно-Сиб. Все права защищены.</p>
           </div>
-          <div>
-            <p className="text-white font-semibold mb-3">Оборудование</p>
-            <p><a href="/vegetables" className="hover:text-orange-500 transition-colors">Упаковка овощей и фруктов</a></p>
-            <p><a href="/vacuum" className="hover:text-orange-500 transition-colors">Вакуумные упаковщики</a></p>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-white/10 text-xs text-white/50">
-          © {new Date().getFullYear()} ТЕХНОСИБ. Все права защищены.
         </div>
       </footer>
 

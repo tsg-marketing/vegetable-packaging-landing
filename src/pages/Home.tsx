@@ -78,6 +78,7 @@ type EquipmentItem = { label: string; href: string; external?: boolean };
 const EQUIPMENT_SUBMENU: EquipmentItem[] = [
   { label: "Оборудование для упаковки овощей", href: "/vegetables", external: true },
   { label: "Вакуум-упаковочное оборудование", href: "/vacuum", external: true },
+  { label: "Горизонтальное упаковочное оборудование", href: "/gorizontalnoe", external: true },
 ];
 // Категории, идущие к якорям группы на главной — заполняются динамически после загрузки
 
