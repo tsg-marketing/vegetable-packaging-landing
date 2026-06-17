@@ -111,12 +111,12 @@ const PROBLEMS = [
 ];
 
 const ADVANTAGES = [
-  { icon: "Gauge", title: "Скорость до 330 уп/мин", desc: "Высокоскоростные модели с 4-позиционным узлом поперечной сварки (DXDZ-250S)" },
-  { icon: "Maximize", title: "Универсальность форматов", desc: "Плёнка от 180 до 950 мм, длина пакета от 45 мм до неограниченной. Один тип машины под десятки продуктов" },
-  { icon: "Cpu", title: "Сервоприводы и PLC-управление", desc: "До 30 программ в памяти, переналадка за ~3 минуты, сенсорная панель" },
-  { icon: "PackageX", title: "«Нет продукта — нет пакета»", desc: "Машина не формирует пустую упаковку, экономит плёнку и исключает брак" },
-  { icon: "Settings2", title: "Гибкие опции", desc: "Газовая среда (МГС), вакуумирование, термоусадка, датировка, этикетировка, нержавейка" },
-  { icon: "ShieldCheck", title: "Надёжные комплектующие", desc: "Рама из углеродистой стали с защитным покрытием" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/24ddbcc5-501f-42db-943a-57ce6640b462.jpg", title: "Скорость до 330 уп/мин", desc: "Высокоскоростные модели с 4-позиционным узлом поперечной сварки (DXDZ-250S)" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/0fc9af56-97da-4560-9f26-8d7f2810cc8f.jpg", title: "Универсальность форматов", desc: "Плёнка от 180 до 950 мм, длина пакета от 45 мм до неограниченной. Один тип машины под десятки продуктов" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/3b0e5ab2-df31-4fed-83ad-da34316b0784.jpg", title: "Сервоприводы и PLC-управление", desc: "До 30 программ в памяти, переналадка за ~3 минуты, сенсорная панель" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/48cfea4e-e385-45db-8ce3-54cb28bbbefb.jpg", title: "«Нет продукта — нет пакета»", desc: "Машина не формирует пустую упаковку, экономит плёнку и исключает брак" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/6eb5cce0-db50-45c3-8d54-0ac102f110ac.jpg", title: "Гибкие опции", desc: "Газовая среда (МГС), вакуумирование, термоусадка, датировка, этикетировка, нержавейка" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/b52328f5-da09-436c-afa9-ec8f19d2d4da.jpg", title: "Надёжные комплектующие", desc: "Рама из углеродистой стали с защитным покрытием" },
 ];
 
 const APPLICATIONS = [
@@ -540,7 +540,7 @@ export default function Gorizontalnoe() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PROBLEMS.map((p, i) => (
-              <div key={i} className="card-hover rounded-2xl p-7 bg-white border border-gray-100 shadow-sm border-t-4" style={{ borderTopColor: "var(--orange)" }}>
+              <div key={i} className="card-hover rounded-2xl p-7 bg-white border-2 shadow-sm" style={{ borderColor: "var(--orange)" }}>
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
                   <Icon name={p.icon} fallback="AlertCircle" size={30} style={{ color: "var(--orange)" }} />
                 </div>
@@ -566,12 +566,14 @@ export default function Gorizontalnoe() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {ADVANTAGES.map((a, i) => (
-              <div key={i} className="card-hover rounded-2xl p-7 bg-white border border-gray-100 shadow-sm border-t-4" style={{ borderTopColor: "var(--orange)" }}>
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
-                  <Icon name={a.icon} fallback="CheckCircle" size={30} style={{ color: "var(--orange)" }} />
+              <div key={i} className="card-hover rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                <div className="aspect-[16/9] overflow-hidden bg-[#F0F0F0]">
+                  <img src={a.img} alt={a.title} loading="lazy" className="w-full h-full object-cover" />
                 </div>
-                <h3 className="font-bold text-[#1A1A1A] text-xl mb-3 leading-snug">{a.title}</h3>
-                <p className="text-[16px] text-[#555] leading-relaxed">{a.desc}</p>
+                <div className="p-7">
+                  <h3 className="font-bold text-[#1A1A1A] text-xl mb-3 leading-snug">{a.title}</h3>
+                  <p className="text-[16px] text-[#555] leading-relaxed">{a.desc}</p>
+                </div>
               </div>
             ))}
           </div>
