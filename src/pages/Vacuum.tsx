@@ -464,6 +464,7 @@ export default function Vacuum() {
                   <div className="bg-white border border-gray-100 shadow-lg rounded-lg py-2 min-w-[260px]">
                     <a href="/vegetables" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Упаковка овощей и фруктов</a>
                     <a href="/gorizontalnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Горизонтальные машины flow-pack</a>
+                    <a href="/kartonajnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Картонажное оборудование</a>
                   </div>
                 </div>
               )}
@@ -502,6 +503,7 @@ export default function Vacuum() {
               <p className="text-xs font-semibold text-[#999] uppercase mb-2">Оборудование</p>
               <a href="/vegetables" className="block text-base text-[#444] py-1.5 pl-2">Упаковка овощей и фруктов</a>
               <a href="/gorizontalnoe" className="block text-base text-[#444] py-1.5 pl-2">Горизонтальные машины flow-pack</a>
+              <a href="/kartonajnoe" className="block text-base text-[#444] py-1.5 pl-2">Картонажное оборудование</a>
             </div>
             {NAV.slice(2).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
