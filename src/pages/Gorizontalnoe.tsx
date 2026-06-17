@@ -134,21 +134,52 @@ const APPLICATIONS = [
   { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/a9cea142-8b46-4299-a2a6-86fb9f1ad9e8.jpg", title: "Текстиль и мягкие изделия", desc: "Подушки, спецодежда, пуховые изделия (вакуум-компрессия)" },
 ];
 
-const SERIES = [
+type SeriesBullet = { text: string; links?: string[] };
+type SeriesItem = {
+  icon: string;
+  title: string;
+  imageTokens: string[];
+  fallbackImg: string;
+  intro: string;
+  bullets: SeriesBullet[];
+};
+
+const SERIES: SeriesItem[] = [
   {
     icon: "Boxes",
     title: "Базовые автоматы DXDZ (серии 250–600)",
-    desc: "Самые востребованные, оптимальная цена. Шаговый/2-сервомотора, плёнка 250–600 мм. Для кондитерки, хлеба, непищёвки. От компактных DXDZ-250B до широких DXDZ-600D",
+    imageTokens: ["DXDZ-250", "DXDZ"],
+    fallbackImg: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg",
+    intro: "Самые востребованные, оптимальная цена.",
+    bullets: [
+      { text: "Шаговый или 2 сервомотора, плёнка 250–600 мм" },
+      { text: "Для кондитерки, хлеба и непищёвки" },
+      { text: "От компактных до широких моделей", links: ["DXDZ-250B", "DXDZ-600D"] },
+    ],
   },
   {
     icon: "Settings",
     title: "Машины со спецфункциями",
-    desc: "С нижней подачей плёнки (250X, 450X, 600DX, 520W) — для нестабильных продуктов: зелень, салаты, салфетки. С вакуумом (450XV, 600XV, 600XD-vac) — продление срока годности, компрессия текстиля. С термоусадкой (590A/180, 590B/180) — полиолефиновая плёнка",
+    imageTokens: ["450X", "600DX", "590B"],
+    fallbackImg: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg",
+    intro: "Под нестабильные продукты и особые задачи.",
+    bullets: [
+      { text: "Нижняя подача плёнки — зелень, салаты, салфетки", links: ["250X", "450X", "600DX", "520W"] },
+      { text: "С вакуумом — срок годности, компрессия текстиля", links: ["450XV", "600XV", "600XD"] },
+      { text: "С термоусадкой — полиолефиновая плёнка", links: ["590A/180", "590B/180"] },
+    ],
   },
   {
     icon: "Crown",
     title: "Премиум-серии (3 сервопривода)",
-    desc: "SWIFT, PEARL, SHAMAL, PULSAR, BORA, HURRICANE, FALCON — мгновенная переналадка по названию продукта, LVA, память на 30 программ, для высоконагруженных линий",
+    imageTokens: ["SWIFT", "PEARL", "FALCON"],
+    fallbackImg: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg",
+    intro: "Для высоконагруженных линий.",
+    bullets: [
+      { text: "Мгновенная переналадка по названию продукта" },
+      { text: "Датчик длины (LVA) и память на 30 программ" },
+      { text: "Модельный ряд премиум-серий", links: ["SWIFT", "PEARL", "SHAMAL", "PULSAR", "BORA", "HURRICANE", "FALCON"] },
+    ],
   },
 ];
 
@@ -166,10 +197,10 @@ const GUARANTEES = [
 ];
 
 const SERVICES = [
-  { icon: "MapPin", title: "Наличие на складах", desc: "В Новосибирске и Москве" },
-  { icon: "Truck", title: "Доставка РФ и СНГ", desc: "Экспресс-отправка со склада в день оплаты" },
-  { icon: "GraduationCap", title: "Обучение персонала", desc: "Инструктаж на объекте клиента включён" },
-  { icon: "CreditCard", title: "Лизинг и рассрочка", desc: "Гибкие условия оплаты и финансирования" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/fa477267-7521-4633-93b8-5ab3e6af1486.jpg", title: "Наличие на складах", desc: "В Новосибирске и Москве" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/5842e0f8-8e07-4d8b-862d-ea93be2b0686.jpg", title: "Доставка РФ и СНГ", desc: "Экспресс-отправка со склада в день оплаты" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/1282aae5-2da0-4623-990e-68750f676dd7.jpg", title: "Обучение персонала", desc: "Инструктаж на объекте клиента включён" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/6441e3aa-1d2f-40c2-8397-537fa22d6c2a.jpg", title: "Лизинг и рассрочка", desc: "Гибкие условия оплаты и финансирования" },
 ];
 
 const FAQS = [
@@ -186,6 +217,7 @@ const NAV = [
   { label: "Каталог", href: "#catalog" },
   { label: "Преимущества", href: "#advantages" },
   { label: "Применение", href: "#applications" },
+  { label: "О компании", href: "#about" },
   { label: "Сервис", href: "#service" },
   { label: "FAQ", href: "#faq" },
   { label: "Контакты", href: "#contacts" },
@@ -365,6 +397,33 @@ export default function Gorizontalnoe() {
     setMobileOpen(false);
     setEquipmentOpen(false);
   };
+
+  const findProduct = useCallback((token: string): CatalogProduct | undefined => {
+    const t = token.trim().toLowerCase().replace(/\s+/g, "");
+    return catalog.find(p => p.name.toLowerCase().replace(/\s+/g, "").includes(t));
+  }, [catalog]);
+
+  const seriesImage = useCallback((item: SeriesItem): string => {
+    for (const token of item.imageTokens) {
+      const prod = findProduct(token);
+      if (prod && prod.pictures.length > 0) return prod.pictures[0];
+    }
+    return item.fallbackImg;
+  }, [findProduct]);
+
+  const goToProduct = useCallback((token: string) => {
+    const prod = findProduct(token);
+    if (!prod) {
+      document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    setCatalogSearch("");
+    const idx = catalog.findIndex(p => p.id === prod.id);
+    if (idx >= 0 && idx + 1 > catalogShow) setCatalogShow(idx + 1);
+    window.setTimeout(() => {
+      document.getElementById(`product-${prod.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 60);
+  }, [findProduct, catalog, catalogShow]);
 
   return (
     <div className="min-h-screen bg-white text-[#1A1A1A]">
@@ -606,7 +665,7 @@ export default function Gorizontalnoe() {
                     const keyParams = pickParams(p.params);
                     const videoUrl = getVideoUrl(p.params);
                     return (
-                      <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
+                      <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24">
                         <ProductGallery
                           images={p.pictures}
                           alt={p.name}
@@ -742,14 +801,38 @@ export default function Gorizontalnoe() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {SERIES.map((s, i) => (
               <div key={i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover flex flex-col">
-                <div className="h-32 flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(255,102,0,0.12) 0%, rgba(255,102,0,0.04) 100%)" }}>
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "var(--orange)" }}>
-                    <Icon name={s.icon} fallback="Box" size={32} className="text-white" />
-                  </div>
+                <div className="aspect-[16/10] bg-[#F7F7F7] flex items-center justify-center overflow-hidden">
+                  <img src={seriesImage(s)} alt={s.title} loading="lazy" className="w-full h-full object-contain p-4" />
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="font-bold text-[#1A1A1A] text-lg mb-3 leading-snug">{s.title}</h3>
-                  <p className="text-[14px] text-[#666] leading-relaxed mb-5 flex-1">{s.desc}</p>
+                  <h3 className="font-bold text-[#1A1A1A] text-lg mb-2 leading-snug">{s.title}</h3>
+                  <p className="text-[14px] text-[#666] mb-4">{s.intro}</p>
+                  <ul className="space-y-2.5 mb-5 flex-1">
+                    {s.bullets.map((b, bi) => (
+                      <li key={bi} className="flex items-start gap-2 text-[14px] leading-snug">
+                        <Icon name="Check" size={15} className="mt-1 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                        <span className="text-[#444]">
+                          {b.text}
+                          {b.links && b.links.length > 0 && (
+                            <span className="block mt-1.5 flex flex-wrap gap-1.5">
+                              {b.links.map(link => (
+                                <button
+                                  key={link}
+                                  onClick={() => goToProduct(link)}
+                                  className="text-[12.5px] font-semibold px-2 py-0.5 rounded-md transition-colors"
+                                  style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
+                                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.2)"; }}
+                                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.1)"; }}
+                                >
+                                  {link}
+                                </button>
+                              ))}
+                            </span>
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                   <button onClick={() => openFos()} className="btn-outline-orange w-full">Подробнее</button>
                 </div>
               </div>
@@ -810,6 +893,77 @@ export default function Gorizontalnoe() {
         </div>
       </section>
 
+      {/* ABOUT COMPANY */}
+      <section id="about" className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-3">
+            <h2 className="section-title">О компании ТЕХНОСИБ</h2>
+            <div className="w-16 h-1 rounded-full mx-auto mt-3" style={{ background: "var(--orange)" }} />
+          </div>
+          <p className="text-center text-[#888] mb-10">Ваш надёжный партнёр с 2001 года</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+            {[
+              { icon: "Award", big: "25", title: "лет на рынке", desc: "Опыт и экспертиза в упаковочном оборудовании" },
+              { icon: "MapPin", title: "2 города", desc: "Офисы в Москве и Новосибирске" },
+              { icon: "Globe", title: "Проверенные партнёры", desc: "Из Европы, России и Китая" },
+            ].map((c, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 text-center card-hover">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "rgba(255,102,0,0.08)" }}>
+                  {c.big
+                    ? <span className="text-2xl font-bold" style={{ color: "var(--orange)" }}>{c.big}</span>
+                    : <Icon name={c.icon} fallback="Circle" size={26} style={{ color: "var(--orange)" }} />}
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-[17px] mb-1">{c.title}</h3>
+                <p className="text-[13px] text-[#888] leading-snug">{c.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8">
+            <p className="text-[15px] text-[#555] leading-relaxed mb-5">
+              Компания «Техно-Сиб» — надёжный поставщик и партнёр в сфере профессионального пищевого
+              и фасовочно-упаковочного оборудования. Мы работаем с 2001 года и уже 25 лет помогаем предприятиям
+              эффективно оснащать производства и склады пищевым и упаковочным оборудованием, предоставляем сервисное
+              обслуживание, а также реализуем упаковочные и расходные материалы.
+            </p>
+            <div className="rounded-lg px-4 py-3 mb-5" style={{ background: "rgba(255,102,0,0.07)", borderLeft: "3px solid var(--orange)" }}>
+              <p className="text-[15px] font-medium text-[#333]">
+                Мы сотрудничаем с ведущими заводами-производителями Европы, России и Китая, подбирая решения
+                под задачи и бюджет клиента.
+              </p>
+            </div>
+            <p className="text-[15px] text-[#555] leading-relaxed mb-4">
+              Собственные офисы продаж, склады, сервисная служба и отлаженная логистика в Москве и Новосибирске
+              позволяют нам оперативно выполнять поставки и поддерживать оборудование на территории России и стран СНГ.
+            </p>
+            <p className="text-[15px] text-[#555] leading-relaxed mb-6">
+              Экспертиза наших специалистов помогает решать задачи любого уровня сложности — от подбора единичной
+              позиции до комплексного оснащения. «Техно-Сиб» всегда предложит оптимальное решение для вашего бизнеса
+              и обеспечит надёжную поддержку на всех этапах работы.
+            </p>
+            <div className="border-t border-gray-100 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+              {[
+                { title: "Комплексные решения", desc: "От подбора оборудования до сервисного обслуживания" },
+                { title: "Быстрая доставка", desc: "Собственная логистика по всей России и СНГ" },
+                { title: "Сервисная поддержка", desc: "Гарантийное и постгарантийное обслуживание" },
+                { title: "Экспертная консультация", desc: "Помощь в выборе оптимального решения" },
+              ].map((f, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: "rgba(255,102,0,0.1)" }}>
+                    <Icon name="Check" size={15} style={{ color: "var(--orange)" }} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[#1A1A1A] text-[15px] mb-0.5">{f.title}</h4>
+                    <p className="text-[13px] text-[#888] leading-snug">{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SERVICE */}
       <section id="service" className="py-16 bg-[#F7F7F7]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -818,12 +972,14 @@ export default function Gorizontalnoe() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {SERVICES.map((s, i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 card-hover">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.10)" }}>
-                  <Icon name={s.icon} fallback="CheckCircle" size={22} style={{ color: "var(--orange)" }} />
+              <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden card-hover flex flex-col">
+                <div className="aspect-[4/3] bg-[#F0F0F0] overflow-hidden">
+                  <img src={s.img} alt={s.title} loading="lazy" className="w-full h-full object-cover" />
                 </div>
-                <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{s.title}</h3>
-                <p className="text-sm text-[#666] leading-relaxed">{s.desc}</p>
+                <div className="p-5 flex-1">
+                  <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{s.title}</h3>
+                  <p className="text-sm text-[#666] leading-relaxed">{s.desc}</p>
+                </div>
               </div>
             ))}
           </div>
