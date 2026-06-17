@@ -251,15 +251,17 @@ export default function Gorizontalnoe() {
 
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
   const [videoModal, setVideoModal] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
   const [quizOpen, setQuizOpen] = useState(false);
 
   useEffect(() => { setCatalogShow(9); }, [catalogSearch]);
 
   useEffect(() => {
-    if (detailsProduct || videoModal) document.body.style.overflow = "hidden";
-    else if (!fosOpen && !thanksOpen) document.body.style.overflow = "";
-  }, [detailsProduct, videoModal, fosOpen, thanksOpen]);
+    const anyOpen = detailsProduct || videoModal || lightbox || fosOpen || thanksOpen;
+    document.body.style.overflow = anyOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [detailsProduct, videoModal, lightbox, fosOpen, thanksOpen]);
 
   const filteredCatalog = catalog.filter(p => {
     const q = catalogSearch.trim().toLowerCase();
@@ -330,15 +332,11 @@ export default function Gorizontalnoe() {
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    if (fosOpen || thanksOpen) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
-    return () => { document.body.style.overflow = ""; };
-  }, [fosOpen, thanksOpen]);
-
   const openFos = useCallback((productName?: string) => {
     setFosData({ name: "", phone: "", email: "" });
     setFosErrors({});
+    setFosAgree(false);
+    setFosSubmitting(false);
     setFosOpen({ productName });
   }, []);
 
@@ -413,17 +411,12 @@ export default function Gorizontalnoe() {
 
   const goToProduct = useCallback((token: string) => {
     const prod = findProduct(token);
-    if (!prod) {
-      document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+    if (prod) {
+      setDetailsProduct(prod);
       return;
     }
-    setCatalogSearch("");
-    const idx = catalog.findIndex(p => p.id === prod.id);
-    if (idx >= 0 && idx + 1 > catalogShow) setCatalogShow(idx + 1);
-    window.setTimeout(() => {
-      document.getElementById(`product-${prod.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 60);
-  }, [findProduct, catalog, catalogShow]);
+    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+  }, [findProduct]);
 
   return (
     <div className="min-h-screen bg-white text-[#1A1A1A]">
@@ -672,6 +665,7 @@ export default function Gorizontalnoe() {
                           fallback={IMG_HERO}
                           className="aspect-[16/10] bg-white flex items-center justify-center overflow-hidden"
                           imgClassName="w-full h-full object-contain p-4"
+                          onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
                         />
                         <div className="p-5 flex-1 flex flex-col">
                           <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-3 leading-snug min-h-[44px]">{p.name}</h3>
@@ -1171,6 +1165,7 @@ export default function Gorizontalnoe() {
                   fallback={IMG_HERO}
                   className="bg-[#F7F7F7] rounded-xl aspect-square flex items-center justify-center overflow-hidden"
                   imgClassName="w-full h-full object-contain p-4"
+                  onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
                 />
                 <div>
                   <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,102,0,0.08)" }}>
@@ -1256,6 +1251,67 @@ export default function Gorizontalnoe() {
               })()}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* LIGHTBOX */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[115] bg-black/95 flex items-center justify-center"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            onClick={() => setLightbox(null)}
+            className="absolute top-5 right-5 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+            aria-label="Закрыть"
+          >
+            <Icon name="X" size={22} />
+          </button>
+
+          <div className="absolute top-5 left-5 text-white/80 text-sm font-medium">
+            {lightbox.idx + 1} / {lightbox.pictures.length}
+          </div>
+
+          {lightbox.pictures.length > 1 && (
+            <>
+              <button
+                onClick={e => { e.stopPropagation(); setLightbox(lb => lb ? { ...lb, idx: (lb.idx - 1 + lb.pictures.length) % lb.pictures.length } : lb); }}
+                className="absolute left-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                aria-label="Предыдущее"
+              >
+                <Icon name="ChevronLeft" size={26} />
+              </button>
+              <button
+                onClick={e => { e.stopPropagation(); setLightbox(lb => lb ? { ...lb, idx: (lb.idx + 1) % lb.pictures.length } : lb); }}
+                className="absolute right-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                aria-label="Следующее"
+              >
+                <Icon name="ChevronRight" size={26} />
+              </button>
+            </>
+          )}
+
+          <img
+            src={lightbox.pictures[lightbox.idx]}
+            alt=""
+            onClick={e => e.stopPropagation()}
+            className="max-w-[92vw] max-h-[88vh] object-contain"
+          />
+
+          {lightbox.pictures.length > 1 && (
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 max-w-[92vw] overflow-x-auto px-4">
+              {lightbox.pictures.map((src, i) => (
+                <button
+                  key={i}
+                  onClick={e => { e.stopPropagation(); setLightbox(lb => lb ? { ...lb, idx: i } : lb); }}
+                  className="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all"
+                  style={{ borderColor: i === lightbox.idx ? "var(--orange)" : "transparent", opacity: i === lightbox.idx ? 1 : 0.6 }}
+                >
+                  <img src={src} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

@@ -8,9 +8,10 @@ type Props = {
   className?: string;
   imgClassName?: string;
   enableLightbox?: boolean;
+  onImageClick?: (pictures: string[], idx: number) => void;
 };
 
-export default function ProductGallery({ images, alt, fallback, className, imgClassName, enableLightbox = true }: Props) {
+export default function ProductGallery({ images, alt, fallback, className, imgClassName, enableLightbox = true, onImageClick }: Props) {
   const list = images && images.length > 0 ? images : [fallback];
   const [idx, setIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -22,6 +23,11 @@ export default function ProductGallery({ images, alt, fallback, className, imgCl
   const goTo = (i: number, e: React.MouseEvent) => { e.stopPropagation(); setIdx(i); };
 
   const openLightbox = (e: React.MouseEvent) => {
+    if (onImageClick) {
+      e.stopPropagation();
+      onImageClick(list, idx);
+      return;
+    }
     if (!enableLightbox) return;
     e.stopPropagation();
     setLightboxOpen(true);
@@ -55,7 +61,7 @@ export default function ProductGallery({ images, alt, fallback, className, imgCl
           alt={alt}
           loading="lazy"
           onClick={openLightbox}
-          className={(imgClassName || "w-full h-full object-contain p-4") + (enableLightbox ? " cursor-zoom-in" : "")}
+          className={(imgClassName || "w-full h-full object-contain p-4") + ((enableLightbox || onImageClick) ? " cursor-zoom-in" : "")}
         />
       </picture>
 
