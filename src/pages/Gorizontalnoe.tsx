@@ -68,10 +68,6 @@ function stripHtml(html: string): string {
   return s.trim();
 }
 
-function pickParams(params: CatalogParam[]): CatalogParam[] {
-  return visibleParams(params).slice(0, 4);
-}
-
 function formatPrice(price: number): string {
   if (!price || price <= 0) return "По запросу";
   return new Intl.NumberFormat("ru-RU").format(price) + " руб";
@@ -503,15 +499,14 @@ export default function Gorizontalnoe() {
               Горизонтальные упаковочные машины <span style={{ color: "var(--orange)" }}>flow-pack</span> для любого производства
             </h1>
 
-            <p className="text-lg text-[#555] mb-8 max-w-xl leading-relaxed">
-              Более 50 моделей в наличии и под заказ — от компактных автоматов для конфет до промышленных линий
-              с вакуумом и газовой средой. До 330 упаковок в минуту.
+            <p className="text-[20px] sm:text-[22px] font-semibold text-[#1A1A1A] mb-8 max-w-xl leading-snug">
+              Более <span style={{ color: "var(--orange)" }}>50 моделей</span> в наличии и под заказ. До <span style={{ color: "var(--orange)" }}>330 упаковок</span> в минуту.
             </p>
 
-            <ul className="grid sm:grid-cols-2 gap-x-5 gap-y-3 mb-8 max-w-xl">
+            <ul className="grid sm:grid-cols-2 gap-x-5 gap-y-4 mb-8 max-w-2xl">
               {HERO_BULLETS.map((b, i) => (
-                <li key={i} className="flex items-start gap-2.5 text-[14px] text-[#444] leading-snug">
-                  <Icon name="CheckCircle2" size={18} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                <li key={i} className="flex items-start gap-3 text-[17px] font-medium text-[#1A1A1A] leading-snug">
+                  <Icon name="CheckCircle2" size={24} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
                   <span>{b}</span>
                 </li>
               ))}
@@ -527,10 +522,12 @@ export default function Gorizontalnoe() {
             </div>
           </div>
 
-          <div className="lg:col-span-6 fade-up">
-            <div className="rounded-2xl overflow-hidden bg-white shadow-sm">
-              <img src={IMG_HERO} alt="Горизонтальная упаковочная машина flow-pack" className="w-full h-full object-cover aspect-[4/3]" />
-            </div>
+          <div className="lg:col-span-6 fade-up flex items-center justify-center">
+            <img
+              src="https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/6987fa02-cd88-4e57-944b-bcaecae0723b.png"
+              alt="Горизонтальная упаковочная машина flow-pack"
+              className="w-full h-auto lg:h-[560px] xl:h-[620px] object-contain drop-shadow-2xl"
+            />
           </div>
         </div>
       </section>
@@ -543,12 +540,12 @@ export default function Gorizontalnoe() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PROBLEMS.map((p, i) => (
-              <div key={i} className="card-hover rounded-xl border border-gray-100 p-6 bg-white">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.08)" }}>
-                  <Icon name={p.icon} fallback="AlertCircle" size={24} style={{ color: "var(--orange)" }} />
+              <div key={i} className="card-hover rounded-2xl p-7 text-white" style={{ background: "linear-gradient(145deg, #FF7A1A 0%, #FF6600 60%, #E85800 100%)" }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-white/20">
+                  <Icon name={p.icon} fallback="AlertCircle" size={30} className="text-white" />
                 </div>
-                <h3 className="font-bold text-[#1A1A1A] text-base mb-2 leading-snug">{p.title}</h3>
-                <p className="text-sm text-[#666] leading-relaxed">{p.desc}</p>
+                <h3 className="font-bold text-white text-xl mb-3 leading-snug">{p.title}</h3>
+                <p className="text-[16px] text-white/90 leading-relaxed">{p.desc}</p>
               </div>
             ))}
           </div>
@@ -569,12 +566,12 @@ export default function Gorizontalnoe() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {ADVANTAGES.map((a, i) => (
-              <div key={i} className="card-hover rounded-xl border border-gray-100 p-6 bg-white">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.08)" }}>
-                  <Icon name={a.icon} fallback="CheckCircle" size={24} style={{ color: "var(--orange)" }} />
+              <div key={i} className="card-hover rounded-2xl p-7 text-white" style={{ background: "linear-gradient(145deg, #FF7A1A 0%, #FF6600 60%, #E85800 100%)" }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-white/20">
+                  <Icon name={a.icon} fallback="CheckCircle" size={30} className="text-white" />
                 </div>
-                <h3 className="font-bold text-[#1A1A1A] text-base mb-2">{a.title}</h3>
-                <p className="text-sm text-[#666] leading-relaxed">{a.desc}</p>
+                <h3 className="font-bold text-white text-xl mb-3 leading-snug">{a.title}</h3>
+                <p className="text-[16px] text-white/90 leading-relaxed">{a.desc}</p>
               </div>
             ))}
           </div>
@@ -655,7 +652,7 @@ export default function Gorizontalnoe() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredCatalog.slice(0, catalogShow).map(p => {
-                    const keyParams = pickParams(p.params);
+                    const keyParams = visibleParams(p.params);
                     const videoUrl = getVideoUrl(p.params);
                     return (
                       <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24">
@@ -795,8 +792,8 @@ export default function Gorizontalnoe() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {SERIES.map((s, i) => (
               <div key={i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover flex flex-col">
-                <div className="aspect-[16/10] bg-[#F7F7F7] flex items-center justify-center overflow-hidden">
-                  <img src={seriesImage(s)} alt={s.title} loading="lazy" className="w-full h-full object-contain p-4" />
+                <div className="aspect-square bg-white overflow-hidden">
+                  <img src={seriesImage(s)} alt={s.title} loading="lazy" className="w-full h-full object-cover" />
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
                   <h3 className="font-bold text-[#1A1A1A] text-lg mb-2 leading-snug">{s.title}</h3>
