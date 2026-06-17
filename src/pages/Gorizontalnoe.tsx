@@ -540,12 +540,12 @@ export default function Gorizontalnoe() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PROBLEMS.map((p, i) => (
-              <div key={i} className="card-hover rounded-2xl p-7 text-white" style={{ background: "linear-gradient(145deg, #FF7A1A 0%, #FF6600 60%, #E85800 100%)" }}>
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-white/20">
-                  <Icon name={p.icon} fallback="AlertCircle" size={30} className="text-white" />
+              <div key={i} className="card-hover rounded-2xl p-7 bg-white border border-gray-100 shadow-sm border-t-4" style={{ borderTopColor: "var(--orange)" }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name={p.icon} fallback="AlertCircle" size={30} style={{ color: "var(--orange)" }} />
                 </div>
-                <h3 className="font-bold text-white text-xl mb-3 leading-snug">{p.title}</h3>
-                <p className="text-[16px] text-white/90 leading-relaxed">{p.desc}</p>
+                <h3 className="font-bold text-[#1A1A1A] text-xl mb-3 leading-snug">{p.title}</h3>
+                <p className="text-[16px] text-[#555] leading-relaxed">{p.desc}</p>
               </div>
             ))}
           </div>
@@ -566,12 +566,12 @@ export default function Gorizontalnoe() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {ADVANTAGES.map((a, i) => (
-              <div key={i} className="card-hover rounded-2xl p-7 text-white" style={{ background: "linear-gradient(145deg, #FF7A1A 0%, #FF6600 60%, #E85800 100%)" }}>
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-white/20">
-                  <Icon name={a.icon} fallback="CheckCircle" size={30} className="text-white" />
+              <div key={i} className="card-hover rounded-2xl p-7 bg-white border border-gray-100 shadow-sm border-t-4" style={{ borderTopColor: "var(--orange)" }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name={a.icon} fallback="CheckCircle" size={30} style={{ color: "var(--orange)" }} />
                 </div>
-                <h3 className="font-bold text-white text-xl mb-3 leading-snug">{a.title}</h3>
-                <p className="text-[16px] text-white/90 leading-relaxed">{a.desc}</p>
+                <h3 className="font-bold text-[#1A1A1A] text-xl mb-3 leading-snug">{a.title}</h3>
+                <p className="text-[16px] text-[#555] leading-relaxed">{a.desc}</p>
               </div>
             ))}
           </div>
