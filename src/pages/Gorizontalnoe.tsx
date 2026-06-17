@@ -1,20 +1,19 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 import { captureUtm, readUtm } from "@/lib/utm";
 import QuizSideTab from "@/components/QuizSideTab";
-import VacuumQuiz, { VacuumQuizPayload } from "@/components/VacuumQuiz";
+import FlowpackQuiz, { FlowpackQuizPayload } from "@/components/FlowpackQuiz";
 import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
 
-// Страница вакуумного упаковочного оборудования /vacuum
+// Страница горизонтальных упаковочных машин flow-pack /gorizontalnoe
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
-const CATALOG_ENDPOINT = "https://functions.poehali.dev/981263b7-3a88-449e-abf8-f61fbd2b5289";
+const CATALOG_ENDPOINT = "https://functions.poehali.dev/645b9ab5-57b6-4cb1-909a-3e9f160f751e";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
-const IMG_HERO = "https://cdn.poehali.dev/files/4636d5a7-aed0-42a8-9883-c7efdaac6536.png";
-const IMG_GUARANTEE = "https://cdn.poehali.dev/files/a4eac8fe-dca9-4118-87d7-6de8054161e3.jpg";
+const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg";
 
 type CatalogParam = { name: string; value: string };
 type CatalogProduct = {
@@ -31,21 +30,11 @@ type CatalogProduct = {
   params: CatalogParam[];
 };
 
-const KEY_PARAMS = [
-  "Производительность вакуумного насоса",
-  "Размер вакуумной камеры",
-  "Длина запайки",
-  "Тип",
-  "Мощность",
-  "Габариты",
-  "Вес",
-];
-
-const HIDDEN_PARAM_NAMES = ["guid", "видео (ссылка)", "видео(ссылка)", "видео"];
-
 function isHiddenParam(name: string): boolean {
   const n = name.trim().toLowerCase();
-  return HIDDEN_PARAM_NAMES.some(h => n === h);
+  if (n === "guid") return true;
+  if (/видео/i.test(name)) return true;
+  return false;
 }
 
 function visibleParams(params: CatalogParam[]): CatalogParam[] {
@@ -53,7 +42,7 @@ function visibleParams(params: CatalogParam[]): CatalogParam[] {
 }
 
 function getVideoUrl(params: CatalogParam[]): string | null {
-  const p = params.find(x => /видео.*ссылк/i.test(x.name) || /^видео$/i.test(x.name.trim()));
+  const p = params.find(x => /видео.*ссылк/i.test(x.name) || /^видео\s*\(ссылка\)$/i.test(x.name.trim()));
   if (!p) return null;
   const raw = (p.value || "").trim();
   if (!raw) return null;
@@ -61,26 +50,6 @@ function getVideoUrl(params: CatalogParam[]): string | null {
   if (!first) return null;
   if (!/(rutube\.ru|youtube\.com|youtu\.be)/i.test(first)) return null;
   return first;
-}
-
-function getEmbedUrl(url: string): string {
-  const rt = url.match(/rutube\.ru\/video\/([\w-]+)/i);
-  if (rt) return `https://rutube.ru/play/embed/${rt[1]}/?autoplay=1`;
-  const yt1 = url.match(/youtu\.be\/([\w-]+)/i);
-  if (yt1) return `https://www.youtube.com/embed/${yt1[1]}?autoplay=1`;
-  const yt2 = url.match(/[?&]v=([\w-]+)/i);
-  if (yt2) return `https://www.youtube.com/embed/${yt2[1]}?autoplay=1`;
-  return url;
-}
-
-function getVideoThumb(url: string): string | null {
-  const rt = url.match(/rutube\.ru\/video\/([\w-]+)/i);
-  if (rt) return `https://rutube.ru/api/video/${rt[1]}/thumbnail/?redirect=1`;
-  const yt1 = url.match(/youtu\.be\/([\w-]+)/i);
-  if (yt1) return `https://img.youtube.com/vi/${yt1[1]}/hqdefault.jpg`;
-  const yt2 = url.match(/[?&]v=([\w-]+)/i);
-  if (yt2) return `https://img.youtube.com/vi/${yt2[1]}/hqdefault.jpg`;
-  return null;
 }
 
 function stripHtml(html: string): string {
@@ -100,40 +69,13 @@ function stripHtml(html: string): string {
 }
 
 function pickParams(params: CatalogParam[]): CatalogParam[] {
-  const filtered = visibleParams(params);
-  const found: CatalogParam[] = [];
-  for (const key of KEY_PARAMS) {
-    const p = filtered.find(x => x.name.toLowerCase() === key.toLowerCase());
-    if (p) found.push(p);
-    if (found.length >= 4) break;
-  }
-  if (found.length < 4) {
-    for (const p of filtered) {
-      if (found.length >= 4) break;
-      if (!found.find(f => f.name === p.name)) found.push(p);
-    }
-  }
-  return found;
+  return visibleParams(params).slice(0, 4);
 }
 
 function formatPrice(price: number): string {
   if (!price || price <= 0) return "По запросу";
   return new Intl.NumberFormat("ru-RU").format(price) + " руб";
 }
-
-type TabKey = "all" | "291" | "294" | "292" | "290";
-const CATALOG_TABS: { key: TabKey; label: string; categoryId?: string }[] = [
-  { key: "all", label: "Вакуум-упаковочное" },
-  { key: "291", label: "Бескамерные", categoryId: "291" },
-  { key: "294", label: "Однокамерные", categoryId: "294" },
-  { key: "292", label: "Двухкамерные", categoryId: "292" },
-  { key: "290", label: "Вакуумные упаковщики", categoryId: "290" },
-];
-
-const EXTRA_VIDEOS: { id: string; name: string; url: string }[] = [
-  { id: "extra-1", name: "Вакуумная упаковка продуктов — демонстрация", url: "https://rutube.ru/video/00227bfba52f39f035dd131ecaa0adef/" },
-  { id: "extra-2", name: "Работа промышленного вакуумного упаковщика", url: "https://rutube.ru/video/968cbe87c330f29ea7bdce80355a916b/" },
-];
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -158,51 +100,74 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
   }
 }
 
+const HERO_BULLETS = [
+  "Бренд от ведущих азиатских и европейских производителей",
+  "Плёнка от 180 до 950 мм — под любой размер продукта",
+  "Точная электроника и быстрая переналадка",
+  "Опции под задачу: вакуум, газовая среда, термоусадка, нержавейка",
+];
+
 const PROBLEMS = [
-  { icon: "Timer", title: "Короткий срок годности", desc: "Скоропортящаяся продукция теряет товарный вид и списывается из ассортимента" },
-  { icon: "ClipboardX", title: "Не проходит аудит сетей", desc: "Сети требуют вакуум, газонаполнение и герметичный шов под товарный знак" },
-  { icon: "TrendingDown", title: "Высокий расход плёнки", desc: "Ручная и плохая запайка даёт развакуум, перерасход материалов до 25%" },
-  { icon: "AlertTriangle", title: "Длинная пусконаладка", desc: "Машины без поддержки простаивают неделями из-за нехватки расходников" },
+  { icon: "Timer", title: "Медленная ручная фасовка, нехватка людей", desc: "Автомат до 330 уп/мин — заменяет бригаду упаковщиков" },
+  { icon: "ClipboardX", title: "Неравномерные швы, негерметичность, возвраты", desc: "ПИД-контроль температуры + сервопривод = стабильный герметичный шов" },
+  { icon: "TrendingDown", title: "Перерасход плёнки", desc: "Датчик длины продукта (LVA) формирует пакет точно по изделию" },
+  { icon: "AlertTriangle", title: "Непрезентабельный вид на полке сети", desc: "Упаковка «подушка» с точным совмещением рисунка по фотометке" },
 ];
 
 const ADVANTAGES = [
-  { icon: "Boxes", title: "В наличии", desc: "Отгрузка со склада в Новосибирске и Москве в день оплаты" },
-  { icon: "Layers", title: "Линейка моделей", desc: "Настольные и напольные, 1 или 2 камеры, под любой объём" },
-  { icon: "ShieldCheck", title: "До 3-х лет гарантия", desc: "На всё оборудование с бесплатной пусконаладкой" },
-  { icon: "Package", title: "Полная комплектация", desc: "Пакеты, ленты, тефлон и масло уже в комплекте" },
-  { icon: "Droplets", title: "Герметичный пакет", desc: "Двойной шов 3,5 мм исключает развакуум при транспортировке" },
-  { icon: "Sparkles", title: "Универсальность", desc: "Пищевые, медицинские, косметические и промышленные товары" },
-  { icon: "Settings2", title: "Автопрограммы", desc: "Быстрая настройка цикла под продукт — обучение оператора за 1 день" },
-  { icon: "Wrench", title: "Оперативный сервис", desc: "Расходники на складе, замена планки и плёнки за 1 рабочий день" },
-  { icon: "Gauge", title: "Мощные насосы", desc: "От 12 до 100 м³/ч — Busch и Becker для тяжёлых нагрузок" },
-  { icon: "Minus", title: "Двойной шов", desc: "Две струны 3,5 мм — товарный вид и 100% герметичность" },
-  { icon: "Award", title: "Сертификация", desc: "CE, ISO 9001, декларация ТР ТС для работы в РФ и СНГ" },
-  { icon: "Clock", title: "Работа 24/7", desc: "Промышленный ресурс для непрерывного производства" },
+  { icon: "Gauge", title: "Скорость до 330 уп/мин", desc: "Высокоскоростные модели с 4-позиционным узлом поперечной сварки (DXDZ-250S)" },
+  { icon: "Maximize", title: "Универсальность форматов", desc: "Плёнка от 180 до 950 мм, длина пакета от 45 мм до неограниченной. Один тип машины под десятки продуктов" },
+  { icon: "Cpu", title: "Сервоприводы и PLC-управление", desc: "До 30 программ в памяти, переналадка за ~3 минуты, сенсорная панель" },
+  { icon: "PackageX", title: "«Нет продукта — нет пакета»", desc: "Машина не формирует пустую упаковку, экономит плёнку и исключает брак" },
+  { icon: "Settings2", title: "Гибкие опции", desc: "Газовая среда (МГС), вакуумирование, термоусадка, датировка, этикетировка, нержавейка" },
+  { icon: "ShieldCheck", title: "Надёжные комплектующие", desc: "Рама из углеродистой стали с защитным покрытием" },
 ];
 
 const APPLICATIONS = [
-  { icon: "Beef", title: "Идеально для мяса", items: ["Увеличение срока хранения до 3х", "Защита от окисления", "Презентабельный вид", "Сохранение вкуса и структуры"] },
-  { icon: "Fish", title: "Идеально для рыбы", items: ["Защита от обветривания", "Герметичная упаковка", "Сохранение свежести", "Удобная презентация"] },
-  { icon: "Cake", title: "Идеально для сыра", items: ["Контроль созревания", "Защита от плесени", "Товарный вид", "Длительное хранение"] },
-  { icon: "Nut", title: "Идеально для орехов", items: ["Прекращение доступа кислорода", "Защита от влаги", "Защита от пыли и загрязнений", "Предотвращение засыхания ядер"] },
-  { icon: "Package", title: "Для непищевых товаров", items: ["Защита от влаги и пыли", "Презентация продукции", "Сохранность при транспортировке", "Универсальность"] },
-  { icon: "HeartPulse", title: "Для медицинских товаров", items: ["Стерильность упаковки", "Длительное хранение", "Защита от загрязнений", "Соответствие стандартам"] },
-  { icon: "Sparkles", title: "Для косметических товаров", items: ["Сохранение свойств", "Защита от окисления", "Презентабельный вид", "Увеличение срока годности"] },
-  { icon: "PawPrint", title: "Для товаров для животных", items: ["Свежесть корма", "Защита от влаги", "Удобная фасовка", "Длительное хранение"] },
+  { icon: "Candy", title: "Кондитерские изделия", desc: "Конфеты, печенье, вафли, батончики, зефир, шоколад" },
+  { icon: "Croissant", title: "Хлебобулочные изделия", desc: "Булочки, рулеты, лаваши, хлеб" },
+  { icon: "Snowflake", title: "Замороженные продукты", desc: "Мороженое, полуфабрикаты" },
+  { icon: "Salad", title: "Свежие овощи и зелень", desc: "Салаты, листовая зелень (нижняя подача)" },
+  { icon: "Sparkles", title: "Непищевые товары", desc: "Мыло, губки, бытовая химия, канцелярия, сувениры" },
+  { icon: "Pill", title: "Медицина и гигиена", desc: "Маски, салфетки, перчатки, гигиенические наборы" },
+  { icon: "Wrench", title: "Промышленные изделия", desc: "Трубы, профили, шланги, кабель (длинномер)" },
+  { icon: "BedDouble", title: "Текстиль и мягкие изделия", desc: "Подушки, спецодежда, пуховые изделия (вакуум-компрессия)" },
 ];
 
-const OPTIONS = [
-  { icon: "Flame", title: "Газонаполнение (MAP)", desc: "Модифицированная атмосфера с инертным газом увеличивает срок годности в 3–5 раз", bullets: ["Снижение окисления на 90%", "Сохранение цвета мяса", "Защита от бактерий"] },
-  { icon: "Scissors", title: "Автоматическая запайка/обрезка", desc: "Двойной шов и чистая обрезка края пакета за один цикл", bullets: ["Идеальный товарный вид", "Экономия времени", "100% герметичность"] },
+const SERIES = [
+  {
+    icon: "Boxes",
+    title: "Базовые автоматы DXDZ (серии 250–600)",
+    desc: "Самые востребованные, оптимальная цена. Шаговый/2-сервомотора, плёнка 250–600 мм. Для кондитерки, хлеба, непищёвки. От компактных DXDZ-250B до широких DXDZ-600D",
+  },
+  {
+    icon: "Settings",
+    title: "Машины со спецфункциями",
+    desc: "С нижней подачей плёнки (250X, 450X, 600DX, 520W) — для нестабильных продуктов: зелень, салаты, салфетки. С вакуумом (450XV, 600XV, 600XD-vac) — продление срока годности, компрессия текстиля. С термоусадкой (590A/180, 590B/180) — полиолефиновая плёнка",
+  },
+  {
+    icon: "Crown",
+    title: "Премиум-серии (3 сервопривода)",
+    desc: "SWIFT, PEARL, SHAMAL, PULSAR, BORA, HURRICANE, FALCON — мгновенная переналадка по названию продукта, LVA, память на 30 программ, для высоконагруженных линий",
+  },
 ];
 
 const PROCESS = [
-  { num: 1, icon: "PackageOpen", title: "Загрузка", desc: "Размещение продукта в камере" },
-  { num: 2, icon: "Sliders", title: "Настройка", desc: "Выбор программы на панели" },
-  { num: 3, icon: "Wind", title: "Вакуумирование", desc: "Откачка воздуха из пакета" },
-  { num: 4, icon: "Flame", title: "Газонаполнение", desc: "MAP - замена воздуха газом (опция)" },
-  { num: 5, icon: "Zap", title: "Запайка", desc: "Двойная запайка, широкая запайка, запайка-обрезка" },
-  { num: 6, icon: "CheckCircle2", title: "Контроль", desc: "Проверка герметичности шва" },
+  { num: 1, icon: "PackageOpen", title: "Продукт подаётся на конвейер", desc: "Вручную или автоподатчиком" },
+  { num: 2, icon: "Layers", title: "Плёнка формируется в рукав", desc: "И сваривается продольным швом" },
+  { num: 3, icon: "Scissors", title: "Формируются два поперечных шва", desc: "В начале и конце продукта" },
+  { num: 4, icon: "Package", title: "Нож обрезает готовый пакет", desc: "Герметичная упаковка «подушка»" },
+];
+
+const OPTIONS_LIST = [
+  { icon: "Layers", text: "Корпус из нержавеющей стали" },
+  { icon: "Scissors", text: "Ножи прямые или зигзагообразные" },
+  { icon: "Printer", text: "Термотрансферный принтер (дата, маркировка)" },
+  { icon: "Flame", text: "Система газовой среды (МГС)" },
+  { icon: "Wind", text: "Вакуумирование / удаление воздуха, прокол пакета" },
+  { icon: "Tag", text: "Формирование еврослота для подвесной выкладки" },
+  { icon: "Forklift", text: "Системы автоматической подачи продукта" },
+  { icon: "Sticker", text: "Этикетировщик" },
 ];
 
 const GUARANTEES = [
@@ -219,15 +184,12 @@ const SERVICES = [
 ];
 
 const FAQS = [
-  { q: "Насколько надёжен двойной шов?", a: "Двойная запайка состоит из двух 3,5 мм выпуклых струн. Это позволяет быть уверенным, что остатки продукта или жидкости будут вытеснены с зоны шва во время запаечного цикла. Обеспечивает максимальную герметичность и исключает развакуум пакета при транспортировке." },
-  { q: "Какие пакеты подходят и как выбрать размер?", a: "Используются специальные вакуумные пакеты с рифлением или гладкие плёнки. Размер выбирается исходя из габаритов продукта + 5–7 см запаса на запайку. Наши специалисты помогут подобрать оптимальный тип." },
-  { q: "Сроки поставки и условия гарантии?", a: "Оборудование в наличии на складе — отгрузка в день оплаты. Доставка по РФ 2–7 дней. Гарантия до 3 лет на оборудование, консультация по подключению и эксплуатации." },
-  { q: "Как организована пусконаладка и обучение?", a: "Инженер проводит установку, настройку оборудования и обучение персонала на объекте клиента в течение 1 дня. Услуга включена в стоимость, за исключением командировочных расходов сервисного инженера." },
-  { q: "Как обслуживать насос и планку запайки?", a: "Регламент обслуживания включает: проверку уровня масла в насосе раз в месяц, очистку планки запайки после смены, замену тефлоновой ленты раз в 3–6 месяцев. Обучение включено, сервис по договору." },
-  { q: "Какие есть сертификаты?", a: "Все модели имеют сертификаты CE (европейский стандарт безопасности), ISO 9001 (система менеджмента качества), декларацию соответствия ТР ТС для работы в РФ и СНГ." },
-  { q: "Есть ли лизинг и рассрочка?", a: "Да, работаем с ведущими лизинговыми компаниями. Возможна рассрочка на индивидуальных условиях. Оформление от 1 дня." },
-  { q: "Сколько стоит оборудование?", a: "Стоимость нашего оборудования от 50 тыс. руб. Точная цена зависит от характеристик модели, условий доставки, наличия товара на складе. Оставьте заявку, менеджер свяжется и предоставит детальную информацию." },
-  { q: "Какую модель выбрать?", a: "Выбор зависит от ваших задач: объёма упаковки, типа продукции, размеров продукта. Наш менеджер поможет подобрать оптимальное оборудование под ваши потребности." },
+  { q: "Какую машину выбрать под мой продукт и объём?", a: "Выбор зависит от размера и формы изделия, требуемой производительности и нужных опций. Для мелкоштучки правильной формы подходят базовые серии 250–400, для крупных и высоких изделий — серия 600 и выше. Оставьте заявку — инженер подберёт оптимальную модель под ваш продукт и объём." },
+  { q: "Чем отличается верхняя подача плёнки от нижней?", a: "При верхней подаче рулон расположен над конвейером — это классический вариант для продуктов стабильной формы (кондитерка, хлеб). Нижняя подача формирует рукав снизу и подходит для нестабильных и мягких изделий — зелени, салатов, салфеток, которые удобнее укладывать на плёнку." },
+  { q: "Какую плёнку использовать?", a: "Для большинства задач применяется термосвариваемая полипропиленовая (БОПП) или ламинированная плёнка шириной от 180 до 950 мм. Для термоусадки используется полиолефиновая плёнка. Подбор материала зависит от продукта и требований к упаковке — поможем определиться." },
+  { q: "Нужен ли компрессор?", a: "Для базовых моделей компрессор не требуется. Для машин с вакуумированием, газовой средой или термоусадкой нужен компрессор, обеспечивающий давление около 0,6 МПа. Точные требования зависят от конкретной комплектации." },
+  { q: "Сроки поставки и пусконаладки?", a: "Модели в наличии отгружаются со склада в Новосибирске или Москве в день оплаты, остальное — под заказ. Пусконаладку и настройку проводит инженер на объекте клиента, обычно в течение 1 дня после доставки." },
+  { q: "Есть ли обучение операторов?", a: "Да, обучение операторов входит в пусконаладку. Инженер настраивает оборудование и обучает персонал работе, смене программ и базовому обслуживанию на месте установки." },
 ];
 
 const NAV = [
@@ -241,9 +203,9 @@ const NAV = [
   { label: "Контакты", href: "#contacts" },
 ];
 
-const PACK_TYPES = ["Мясо и мясопродукты", "Рыба и морепродукты", "Сыры и молочка", "Колбасные изделия", "Полуфабрикаты", "Медицина и косметика", "Промышленные товары", "Другое"];
+const PACK_TYPES = ["Кондитерские изделия", "Хлебобулочные изделия", "Замороженные продукты", "Свежие овощи и зелень", "Непищевые товары", "Медицина и гигиена", "Промышленные изделия (длинномер)", "Текстиль и мягкие изделия", "Другое"];
 
-export default function Vacuum() {
+export default function Gorizontalnoe() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -265,21 +227,14 @@ export default function Vacuum() {
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState(false);
   const [catalogShow, setCatalogShow] = useState(9);
-  const [catalogTab, setCatalogTab] = useState<TabKey>("all");
   const [catalogSearch, setCatalogSearch] = useState("");
 
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
   const [videoModal, setVideoModal] = useState<string | null>(null);
 
-  const catalogCounts = (() => {
-    const counts: Record<string, number> = { all: catalog.length };
-    for (const t of CATALOG_TABS) {
-      if (t.categoryId) counts[t.key] = catalog.filter(p => p.categoryId === t.categoryId).length;
-    }
-    return counts;
-  })();
+  const [quizOpen, setQuizOpen] = useState(false);
 
-  useEffect(() => { setCatalogShow(9); }, [catalogTab, catalogSearch]);
+  useEffect(() => { setCatalogShow(9); }, [catalogSearch]);
 
   useEffect(() => {
     if (detailsProduct || videoModal) document.body.style.overflow = "hidden";
@@ -288,41 +243,26 @@ export default function Vacuum() {
 
   const filteredCatalog = catalog.filter(p => {
     const q = catalogSearch.trim().toLowerCase();
-    if (q) {
-      return p.name.toLowerCase().includes(q);
-    }
-    const tab = CATALOG_TABS.find(t => t.key === catalogTab);
-    if (tab?.categoryId && p.categoryId !== tab.categoryId) return false;
+    if (q) return p.name.toLowerCase().includes(q);
     return true;
   });
 
-  const catalogVideos = useMemo(() => {
-    const seen = new Set<string>();
-    const out: { id: string; name: string; url: string; image: string }[] = [];
-    for (const v of EXTRA_VIDEOS) {
-      seen.add(v.url);
-      out.push({ id: v.id, name: v.name, url: v.url, image: IMG_HERO });
-    }
-    return out;
-  }, [catalog]);
-  const [quizOpen, setQuizOpen] = useState(false);
-
-  const submitQuiz = useCallback(async (data: VacuumQuizPayload): Promise<boolean> => {
+  const submitQuiz = useCallback(async (data: FlowpackQuizPayload): Promise<boolean> => {
     return sendLead({
       source: "quiz",
-      page: "vacuum",
+      page: "gorizontalnoe",
       name: data.name,
       phone: data.phone,
       email: data.email,
       product: data.product,
       size: data.size,
-      volume: data.volume,
-      budget: data.budget,
+      speed: data.speed,
+      options: data.options.join(", "),
       quizAnswers: {
         product: data.product,
         size: data.size,
-        volume: data.volume,
-        budget: data.budget,
+        speed: data.speed,
+        options: data.options.join(", "),
       },
     });
   }, []);
@@ -330,10 +270,10 @@ export default function Vacuum() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      if (sessionStorage.getItem("vacuumQuizAutoShown") === "1") return;
+      if (sessionStorage.getItem("gorizQuizAutoShown") === "1") return;
     } catch { /* ignore */ }
     const t = window.setTimeout(() => {
-      try { sessionStorage.setItem("vacuumQuizAutoShown", "1"); } catch { /* ignore */ }
+      try { sessionStorage.setItem("gorizQuizAutoShown", "1"); } catch { /* ignore */ }
       setQuizOpen(true);
     }, 30000);
     return () => window.clearTimeout(t);
@@ -398,7 +338,7 @@ export default function Vacuum() {
     await sendLead({
       source: "fos",
       product: fosOpen?.productName || "",
-      page: "vacuum",
+      page: "gorizontalnoe",
       name: fosData.name.trim(),
       phone: fosData.phone.trim(),
       email: fosData.email.trim(),
@@ -420,7 +360,7 @@ export default function Vacuum() {
     setFormSubmitting(true);
     await sendLead({
       source: "main_form",
-      page: "vacuum",
+      page: "gorizontalnoe",
       name: formData.name,
       phone: formData.phone,
       pack: formData.pack,
@@ -463,7 +403,7 @@ export default function Vacuum() {
                 <div className="absolute left-0 top-full pt-2 z-50">
                   <div className="bg-white border border-gray-100 shadow-lg rounded-lg py-2 min-w-[260px]">
                     <a href="/vegetables" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Упаковка овощей и фруктов</a>
-                    <a href="/gorizontalnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Горизонтальные машины flow-pack</a>
+                    <a href="/vacuum" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Вакуумные упаковщики</a>
                   </div>
                 </div>
               )}
@@ -501,7 +441,7 @@ export default function Vacuum() {
             <div className="border-b border-gray-100 pb-2">
               <p className="text-xs font-semibold text-[#999] uppercase mb-2">Оборудование</p>
               <a href="/vegetables" className="block text-base text-[#444] py-1.5 pl-2">Упаковка овощей и фруктов</a>
-              <a href="/gorizontalnoe" className="block text-base text-[#444] py-1.5 pl-2">Горизонтальные машины flow-pack</a>
+              <a href="/vacuum" className="block text-base text-[#444] py-1.5 pl-2">Вакуумные упаковщики</a>
             </div>
             {NAV.slice(2).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
@@ -518,50 +458,39 @@ export default function Vacuum() {
       {/* HERO */}
       <section id="hero" className="pt-16 min-h-[88vh] flex items-center bg-[#F7F7F7] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-12 lg:py-0">
-          <div className="lg:col-span-5 pr-0 lg:pr-4 fade-up">
-            <h1 className="text-[clamp(28px,4.5vw,52px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
-              Промышленные<br />
-              <span style={{ color: "var(--orange)" }}>вакуумные упаковщики</span><br />
-              по доступным ценам
+          <div className="lg:col-span-6 pr-0 lg:pr-4 fade-up">
+            <h1 className="text-[clamp(26px,4vw,46px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
+              Горизонтальные упаковочные машины <span style={{ color: "var(--orange)" }}>flow-pack</span> для любого производства
             </h1>
 
             <p className="text-lg text-[#555] mb-8 max-w-xl leading-relaxed">
-              Гарантия до 3 лет. Мощные насосы. Двойной шов. Газонаполнение.
-              Настольные и напольные модели. Бесплатное тестирование в демозале.
+              Более 50 моделей в наличии и под заказ — от компактных автоматов для конфет до промышленных линий
+              с вакуумом и газовой средой. До 330 упаковок в минуту.
             </p>
 
-            <div className="flex flex-wrap gap-3 mb-10">
-              <button onClick={() => openFos()} className="btn-orange text-base px-8 py-3.5">
-                Получить КП
-              </button>
-              <button onClick={() => scrollTo("#catalog")} className="btn-outline-orange text-base px-8 py-3.5">
-                Смотреть модели
-              </button>
-            </div>
-
-            <ul className="space-y-3">
-              {[
-                "1, 2 камеры — настольные и напольные",
-                "Корпус из нержавеющей стали SUS304",
-                "Подбор модели за 15 минут",
-              ].map(t => (
-                <li key={t} className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: "var(--orange)" }}>
-                    <Icon name="Check" size={14} className="text-white" />
-                  </div>
-                  <span className="text-[17px] text-[#1A1A1A] font-medium leading-snug">{t}</span>
+            <ul className="grid sm:grid-cols-2 gap-x-5 gap-y-3 mb-8 max-w-xl">
+              {HERO_BULLETS.map((b, i) => (
+                <li key={i} className="flex items-start gap-2.5 text-[14px] text-[#444] leading-snug">
+                  <Icon name="CheckCircle2" size={18} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                  <span>{b}</span>
                 </li>
               ))}
             </ul>
+
+            <div className="flex flex-wrap gap-3">
+              <button onClick={() => openFos()} className="btn-orange text-base px-8 py-3.5">
+                Подобрать оборудование
+              </button>
+              <button onClick={() => scrollTo("#catalog")} className="btn-outline-orange text-base px-8 py-3.5">
+                Смотреть каталог
+              </button>
+            </div>
           </div>
 
-          <div className="lg:col-span-7 relative fade-up-1 flex items-center justify-center">
-            <img
-              src={IMG_HERO}
-              alt="Промышленный вакуумный упаковщик"
-              loading="lazy"
-              className="w-full h-auto lg:h-[640px] xl:h-[720px] object-contain drop-shadow-2xl"
-            />
+          <div className="lg:col-span-6 fade-up">
+            <div className="rounded-2xl overflow-hidden bg-white shadow-sm">
+              <img src={IMG_HERO} alt="Горизонтальная упаковочная машина flow-pack" className="w-full h-full object-cover aspect-[4/3]" />
+            </div>
           </div>
         </div>
       </section>
@@ -570,7 +499,7 @@ export default function Vacuum() {
       <section id="problems" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title">С чем сталкиваются производители</h2>
+            <h2 className="section-title">Какие проблемы решают наши горизонтальные упаковочные машины</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PROBLEMS.map((p, i) => (
@@ -578,23 +507,55 @@ export default function Vacuum() {
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.08)" }}>
                   <Icon name={p.icon} fallback="AlertCircle" size={24} style={{ color: "var(--orange)" }} />
                 </div>
-                <h3 className="font-bold text-[#1A1A1A] text-base mb-2">{p.title}</h3>
+                <h3 className="font-bold text-[#1A1A1A] text-base mb-2 leading-snug">{p.title}</h3>
                 <p className="text-sm text-[#666] leading-relaxed">{p.desc}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-10 text-center">
+            <button onClick={() => openFos()} className="btn-orange">
+              <Icon name="Calculator" size={18} className="mr-2" />
+              Рассчитать экономию на упаковке
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ADVANTAGES */}
+      <section id="advantages" className="py-16 bg-[#F7F7F7]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Почему наши flow-pack машины выбирают производства</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {ADVANTAGES.map((a, i) => (
+              <div key={i} className="card-hover rounded-xl border border-gray-100 p-6 bg-white">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.08)" }}>
+                  <Icon name={a.icon} fallback="CheckCircle" size={24} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-base mb-2">{a.title}</h3>
+                <p className="text-sm text-[#666] leading-relaxed">{a.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <button onClick={() => openFos()} className="btn-outline-orange">
+              <Icon name="Headset" size={18} className="mr-2" />
+              Получить техническую консультацию
+            </button>
           </div>
         </div>
       </section>
 
       {/* CATALOG */}
-      <section id="catalog" className="py-16 bg-[#F7F7F7]">
+      <section id="catalog" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-8">
             <h2 className="section-title">Каталог оборудования</h2>
-            <p className="text-[#666] mt-2 max-w-xl mx-auto">Выберите подходящее вакуумно-упаковочное оборудование для вашего производства</p>
+            <p className="text-[#666] mt-2 max-w-xl mx-auto">Подберите горизонтальную упаковочную машину flow-pack для вашего производства</p>
           </div>
 
-          <div className="max-w-md mx-auto mb-6 relative">
+          <div className="max-w-md mx-auto mb-8 relative">
             <Icon name="Search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#999] pointer-events-none" />
             <input
               type="text"
@@ -612,24 +573,6 @@ export default function Vacuum() {
                 <Icon name="X" size={14} className="text-[#999]" />
               </button>
             )}
-          </div>
-
-          <div className="bg-white rounded-lg border border-gray-200 p-1 mb-8 flex flex-wrap gap-1 overflow-x-auto">
-            {CATALOG_TABS.filter(tab => (catalogCounts[tab.key] ?? 0) > 0).map(tab => {
-              const active = catalogTab === tab.key;
-              const count = catalogCounts[tab.key] ?? 0;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setCatalogTab(tab.key)}
-                  className={`flex-1 min-w-[140px] px-4 py-3 rounded-md text-[13px] sm:text-[14px] font-semibold transition-all whitespace-nowrap ${
-                    active ? "bg-[#F7F7F7] text-[#1A1A1A] shadow-sm" : "text-[#888] hover:text-[#1A1A1A]"
-                  }`}
-                >
-                  {tab.label} <span className={active ? "text-[#1A1A1A]" : "text-[#aaa]"}>({count})</span>
-                </button>
-              );
-            })}
           </div>
 
           {catalogLoading && (
@@ -664,15 +607,16 @@ export default function Vacuum() {
                 <div className="bg-white rounded-xl border border-gray-100 p-10 text-center">
                   <Icon name="SearchX" size={32} className="mx-auto mb-3 text-[#888]" />
                   <p className="text-[#1A1A1A] font-semibold mb-1">Ничего не найдено</p>
-                  <p className="text-sm text-[#666] mb-4">Попробуйте изменить запрос или выбрать другую категорию</p>
-                  <button onClick={() => { setCatalogSearch(""); setCatalogTab("all"); }} className="btn-outline-orange">
-                    Сбросить фильтры
+                  <p className="text-sm text-[#666] mb-4">Попробуйте изменить запрос</p>
+                  <button onClick={() => setCatalogSearch("")} className="btn-outline-orange">
+                    Сбросить поиск
                   </button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredCatalog.slice(0, catalogShow).map(p => {
                     const keyParams = pickParams(p.params);
+                    const videoUrl = getVideoUrl(p.params);
                     return (
                       <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
                         <ProductGallery
@@ -698,15 +642,24 @@ export default function Vacuum() {
                             </ul>
                           )}
                           <div className="mt-auto pt-3">
-                            <div className="font-bold text-xl mb-3 text-[#3897FF]">{formatPrice(p.price)}</div>
+                            <div className="font-bold text-xl mb-3" style={{ color: "var(--orange)" }}>{formatPrice(p.price)}</div>
                             <div className="space-y-2">
                               <button
                                 onClick={() => setDetailsProduct(p)}
-                                className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all bg-[#3897FF] hover:bg-[#2980E0] text-white inline-flex items-center justify-center gap-2"
+                                className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all bg-[#1A1A1A] hover:bg-black text-white inline-flex items-center justify-center gap-2"
                               >
                                 <Icon name="Eye" size={16} />
                                 Узнать подробнее
                               </button>
+                              {videoUrl && (
+                                <button
+                                  onClick={() => setVideoModal(videoUrl)}
+                                  className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all border border-gray-200 hover:border-orange-300 text-[#1A1A1A] inline-flex items-center justify-center gap-2"
+                                >
+                                  <Icon name="Play" size={16} style={{ color: "var(--orange)" }} />
+                                  Смотреть видео
+                                </button>
+                              )}
                               <button
                                 onClick={() => openFos(p.name)}
                                 className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all text-white inline-flex items-center justify-center gap-2"
@@ -715,7 +668,6 @@ export default function Vacuum() {
                                 <Icon name="MessageSquare" size={16} />
                                 Оставить заявку
                               </button>
-
                             </div>
                           </div>
                         </div>
@@ -735,7 +687,7 @@ export default function Vacuum() {
               )}
 
               {catalog.length > 0 && (
-                <div className="mt-10 bg-white rounded-xl border border-gray-100 p-6 text-center">
+                <div className="mt-10 bg-[#F7F7F7] rounded-xl border border-gray-100 p-6 text-center">
                   <p className="text-[#555] mb-4">Нужна индивидуальная конфигурация или подбор под задачу?</p>
                   <button onClick={() => openFos()} className="btn-orange">Подобрать под задачу</button>
                 </div>
@@ -745,94 +697,84 @@ export default function Vacuum() {
         </div>
       </section>
 
-      {/* VIDEO */}
-      {catalogVideos.length > 0 && (
-        <section id="video" className="py-16 bg-[#F7F7F7]">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <div className="text-center mb-8">
-              <h2 className="section-title">Посмотрите как работает наше оборудование</h2>
-              <p className="text-[#888] mt-2">Видео с реальной работой вакуумных упаковщиков</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {catalogVideos.map(v => {
-                const thumb = getVideoThumb(v.url) || v.image;
-                return (
-                  <button
-                    key={v.id}
-                    onClick={() => setVideoModal(v.url)}
-                    className="group relative bg-[#1A1A1A] rounded-xl overflow-hidden aspect-video shadow-md hover:shadow-xl transition-shadow text-left"
-                  >
-                    <img src={thumb || v.image} alt={v.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform" style={{ background: "var(--orange)" }}>
-                        <Icon name="Play" size={24} className="text-white ml-0.5" />
-                      </div>
-                    </div>
-                    <p className="absolute bottom-0 left-0 right-0 px-3 py-2.5 text-white text-[13px] font-semibold leading-snug line-clamp-2">{v.name}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ADVANTAGES */}
-      <section id="advantages" className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 className="section-title">Почему выбирают наше оборудование</h2>
-            <p className="text-[#888] mt-2 max-w-2xl mx-auto">12 причин, по которым производители выбирают вакуум-упаковщики ТЕХНОСИБ</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {ADVANTAGES.map((a, i) => (
-              <div key={i} className="card-hover rounded-xl border border-gray-100 p-6 bg-white">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.08)" }}>
-                  <Icon name={a.icon} fallback="CheckCircle" size={24} style={{ color: "var(--orange)" }} />
-                </div>
-                <h3 className="font-bold text-[#1A1A1A] text-base mb-2">{a.title}</h3>
-                <p className="text-sm text-[#666] leading-relaxed">{a.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-10 text-center">
-            <button onClick={() => openFos()} className="btn-outline-orange">
-              <Icon name="Settings" size={18} className="mr-2" />
-              Подобрать модель под вашу задачу
-            </button>
-          </div>
-        </div>
-      </section>
-
       {/* APPLICATIONS */}
       <section id="applications" className="py-16 bg-[#F7F7F7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title">Применение</h2>
+            <h2 className="section-title">Что можно упаковывать</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {APPLICATIONS.map((app, i) => (
               <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 card-hover">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(56,151,255,0.10)" }}>
-                  <Icon name={app.icon} fallback="Package" size={24} className="text-[#3897FF]" />
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.10)" }}>
+                  <Icon name={app.icon} fallback="Package" size={24} style={{ color: "var(--orange)" }} />
                 </div>
-                <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-3">{app.title}</h3>
-                <ul className="space-y-1.5">
-                  {app.items.map((it, k) => (
-                    <li key={k} className="flex items-start gap-2 text-[13px] text-[#555] leading-snug">
-                      <Icon name="Check" size={14} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                      <span>{it}</span>
-                    </li>
-                  ))}
-                </ul>
+                <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{app.title}</h3>
+                <p className="text-[13px] text-[#666] leading-snug">{app.desc}</p>
               </div>
             ))}
           </div>
           <div className="mt-10 text-center">
             <button onClick={() => openFos()} className="btn-outline-orange">
               <Icon name="MessageSquare" size={18} className="mr-2" />
-              Получить рекомендации по упаковке вашего продукта
+              Не нашли свой продукт? Спросите инженера
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* SERIES */}
+      <section id="series" className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">3 класса машин — под бюджет и задачу</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {SERIES.map((s, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover flex flex-col">
+                <div className="h-32 flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(255,102,0,0.12) 0%, rgba(255,102,0,0.04) 100%)" }}>
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "var(--orange)" }}>
+                    <Icon name={s.icon} fallback="Box" size={32} className="text-white" />
+                  </div>
+                </div>
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="font-bold text-[#1A1A1A] text-lg mb-3 leading-snug">{s.title}</h3>
+                  <p className="text-[14px] text-[#666] leading-relaxed mb-5 flex-1">{s.desc}</p>
+                  <button onClick={() => openFos()} className="btn-outline-orange w-full">Подробнее</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PROCESS / HOW IT WORKS — DARK */}
+      <section id="process" className="py-20 text-white" style={{ background: "linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 50%, #1A1A1A 100%)" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-[clamp(26px,3.8vw,40px)] font-bold mb-3">Как работает flow-pack за 4 шага</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {PROCESS.map(p => (
+              <div key={p.num} className="bg-white/5 backdrop-blur rounded-xl border border-white/10 p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0" style={{ background: "var(--orange)" }}>
+                    {p.num}
+                  </div>
+                  <Icon name={p.icon} fallback="Circle" size={22} className="text-white/80" />
+                </div>
+                <h3 className="font-bold text-white text-base mb-1 leading-snug">{p.title}</h3>
+                <p className="text-sm text-white/75 leading-snug">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-white/80 max-w-2xl mx-auto mt-8 leading-relaxed">
+            Датчик длины продукта (LVA) автоматически подбирает размер пакета — без перерасхода плёнки.
+          </p>
+          <div className="mt-8 text-center">
+            <button onClick={() => openFos()} className="px-6 py-3 rounded-lg bg-white hover:bg-gray-100 text-[#1A1A1A] text-sm font-semibold inline-flex items-center gap-2 transition-colors">
+              <Icon name="FlaskConical" size={16} style={{ color: "var(--orange)" }} />
+              Заказать тест-упаковку вашего продукта
             </button>
           </div>
         </div>
@@ -842,67 +784,22 @@ export default function Vacuum() {
       <section id="options" className="py-16 bg-[#F7F7F7]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title">Опции и расходные материалы</h2>
+            <h2 className="section-title">Соберите машину под свой процесс</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {OPTIONS.map((op, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-7 card-hover">
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.10)" }}>
-                  <Icon name={op.icon} fallback="Sparkles" size={28} style={{ color: "var(--orange)" }} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {OPTIONS_LIST.map((op, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 p-5 flex items-center gap-4 card-hover">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,102,0,0.10)" }}>
+                  <Icon name={op.icon} fallback="Check" size={22} style={{ color: "var(--orange)" }} />
                 </div>
-                <h3 className="font-bold text-[#1A1A1A] text-xl mb-2">{op.title}</h3>
-                <p className="text-[14px] text-[#666] mb-4 leading-relaxed">{op.desc}</p>
-                <ul className="space-y-2">
-                  {op.bullets.map((b, k) => (
-                    <li key={k} className="flex items-start gap-2 text-[14px] text-[#1A1A1A]">
-                      <Icon name="Check" size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
+                <p className="text-[14px] font-semibold text-[#1A1A1A] leading-snug">{op.text}</p>
               </div>
             ))}
           </div>
           <div className="mt-10 text-center">
-            <button onClick={() => openFos()} className="px-6 py-3 rounded-lg bg-white border border-gray-200 hover:border-orange-300 text-[#1A1A1A] font-semibold text-sm inline-flex items-center gap-2 transition-colors">
-              <Icon name="Package" size={18} style={{ color: "var(--orange)" }} />
-              Заказать расходники со склада
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* PROCESS / HOW IT WORKS — DARK BLUE */}
-      <section id="process" className="py-20 text-white" style={{ background: "linear-gradient(135deg, #1E5A8A 0%, #2A6FA8 50%, #1E5A8A 100%)" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-[clamp(26px,3.8vw,40px)] font-bold mb-3">Как это работает</h2>
-            <p className="text-white/80 max-w-2xl mx-auto">Полный цикл вакуумной упаковки с автоматическими программами и контролем качества</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {PROCESS.map(p => (
-              <div key={p.num} className="bg-white/5 backdrop-blur rounded-xl border border-white/10 p-5 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0" style={{ background: "var(--orange)" }}>
-                  {p.num}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon name={p.icon} fallback="Circle" size={18} className="text-white/80" />
-                    <h3 className="font-bold text-white text-base">{p.title}</h3>
-                  </div>
-                  <p className="text-sm text-white/75 leading-snug">{p.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <button onClick={() => document.getElementById("video")?.scrollIntoView({ behavior: "smooth" })} className="px-6 py-3 rounded-lg bg-[#1A1A1A] hover:bg-black text-white text-sm font-semibold inline-flex items-center gap-2 transition-colors">
-              <Icon name="Play" size={16} />
-              Посмотреть демонстрацию
-            </button>
-            <button onClick={() => openFos()} className="px-6 py-3 rounded-lg bg-white hover:bg-gray-100 text-[#1A1A1A] text-sm font-semibold inline-flex items-center gap-2 transition-colors">
-              <Icon name="Calendar" size={16} />
-              Записаться в демозал
+            <button onClick={() => openFos()} className="btn-orange">
+              <Icon name="Settings2" size={18} className="mr-2" />
+              Собрать комплектацию с менеджером
             </button>
           </div>
         </div>
@@ -910,30 +807,20 @@ export default function Vacuum() {
 
       {/* GUARANTEES */}
       <section id="guarantees" className="py-14 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div>
-            <h2 className="text-[clamp(24px,3.2vw,34px)] font-bold text-[#1A1A1A] mb-6 leading-tight">Гарантии и сертификаты</h2>
-            <ul className="space-y-4">
-              {GUARANTEES.map((g, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgba(56,151,255,0.10)" }}>
-                    <Icon name={g.icon} fallback="ShieldCheck" size={18} className="text-[#3897FF]" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-0.5 leading-tight">{g.title}</h3>
-                    <p className="text-[13px] text-[#888] leading-snug">{g.desc}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Гарантии и сертификаты</h2>
           </div>
-          <div className="rounded-2xl overflow-hidden bg-[#F7F7F7] shadow-sm">
-            <img
-              src={IMG_GUARANTEE}
-              alt="Продукты в вакуумной упаковке"
-              className="w-full h-full object-cover aspect-[4/3]"
-              loading="lazy"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {GUARANTEES.map((g, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 card-hover">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.10)" }}>
+                  <Icon name={g.icon} fallback="ShieldCheck" size={22} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-1 leading-tight">{g.title}</h3>
+                <p className="text-[13px] text-[#888] leading-snug">{g.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -947,8 +834,8 @@ export default function Vacuum() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {SERVICES.map((s, i) => (
               <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 card-hover">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(56,151,255,0.10)" }}>
-                  <Icon name={s.icon} fallback="CheckCircle" size={22} className="text-[#3897FF]" />
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.10)" }}>
+                  <Icon name={s.icon} fallback="CheckCircle" size={22} style={{ color: "var(--orange)" }} />
                 </div>
                 <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{s.title}</h3>
                 <p className="text-sm text-[#666] leading-relaxed">{s.desc}</p>
@@ -1043,7 +930,7 @@ export default function Vacuum() {
                 onChange={e => setFormData({ ...formData, comment: e.target.value })}
                 rows={3}
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:border-orange-500 resize-none"
-                placeholder="Объём, особенности упаковки, требования..."
+                placeholder="Объём, размер продукта, нужные опции..."
               />
             </div>
 
@@ -1108,26 +995,35 @@ export default function Vacuum() {
                   imgClassName="w-full h-full object-contain p-4"
                 />
                 <div>
-                  <div className="bg-[#EEF6FF] rounded-xl p-4 mb-4">
+                  <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,102,0,0.08)" }}>
                     <p className="text-xs uppercase tracking-wider text-[#666] mb-1">Цена</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-[#3897FF]">{formatPrice(detailsProduct.price)}</p>
+                    <p className="text-2xl sm:text-3xl font-bold" style={{ color: "var(--orange)" }}>{formatPrice(detailsProduct.price)}</p>
                   </div>
                   {detailsProduct.vendor && (
                     <p className="text-sm text-[#666] mb-2"><span className="text-[#999]">Производитель: </span><span className="text-[#1A1A1A] font-semibold">{detailsProduct.vendor}</span></p>
+                  )}
+                  {getVideoUrl(detailsProduct.params) && (
+                    <button
+                      onClick={() => setVideoModal(getVideoUrl(detailsProduct.params) as string)}
+                      className="mt-2 w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all border border-gray-200 hover:border-orange-300 text-[#1A1A1A] inline-flex items-center justify-center gap-2"
+                    >
+                      <Icon name="Play" size={16} style={{ color: "var(--orange)" }} />
+                      Смотреть видео
+                    </button>
                   )}
                 </div>
               </div>
 
               {detailsProduct.description && stripHtml(detailsProduct.description) && (
                 <div className="mb-6">
-                  <h4 className="font-bold text-[#3897FF] text-[13px] uppercase tracking-wider mb-2">Описание</h4>
+                  <h4 className="font-bold text-[13px] uppercase tracking-wider mb-2" style={{ color: "var(--orange)" }}>Описание</h4>
                   <p className="text-[14px] text-[#444] leading-relaxed whitespace-pre-line">{stripHtml(detailsProduct.description)}</p>
                 </div>
               )}
 
               {visibleParams(detailsProduct.params).length > 0 && (
                 <div>
-                  <h4 className="font-bold text-[#3897FF] text-[13px] uppercase tracking-wider mb-3">Характеристики</h4>
+                  <h4 className="font-bold text-[13px] uppercase tracking-wider mb-3" style={{ color: "var(--orange)" }}>Характеристики</h4>
                   <div className="rounded-xl border border-gray-100 divide-y divide-gray-100">
                     {visibleParams(detailsProduct.params).map((pr, i) => (
                       <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 px-4 py-2.5 odd:bg-[#FAFAFA]">
@@ -1315,7 +1211,7 @@ export default function Vacuum() {
 
       {/* QUIZ SIDE TAB + MODAL */}
       <QuizSideTab onClick={() => setQuizOpen(true)} />
-      <VacuumQuiz open={quizOpen} onClose={() => setQuizOpen(false)} onSubmit={submitQuiz} />
+      <FlowpackQuiz open={quizOpen} onClose={() => setQuizOpen(false)} onSubmit={submitQuiz} />
     </div>
   );
 }

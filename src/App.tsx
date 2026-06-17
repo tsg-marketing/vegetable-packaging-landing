@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Vegetables from "./pages/Vegetables";
 import Vacuum from "./pages/Vacuum";
+import Gorizontalnoe from "./pages/Gorizontalnoe";
 import NotFound from "./pages/NotFound";
 import { ymGoal } from "@/lib/ym";
 
@@ -38,6 +39,7 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/vegetables" element={<Vegetables />} />
             <Route path="/vacuum" element={<Vacuum />} />
+            <Route path="/gorizontalnoe" element={<Gorizontalnoe />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
