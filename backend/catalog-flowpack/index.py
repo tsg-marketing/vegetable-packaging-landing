@@ -1,6 +1,6 @@
 """
 Business: Загружает YML-фид t-sib.ru, отдаёт товары горизонтального упаковочного оборудования (category 306).
-Кэш: данные обновляются один раз в сутки в 11:45 по Новосибирску (UTC+7).
+Кэш: данные обновляются 2 раза в сутки в 11:00 и 17:00 по Новосибирску (UTC+7).
 Args: event с httpMethod (GET/OPTIONS); context — объект с request_id.
 Returns: JSON {products: [...], updatedAt, nextUpdate} с фото, параметрами и описанием.
 """
@@ -14,8 +14,8 @@ FEED_URL = "https://t-sib.ru/upload/catalog.xml"
 TARGET_CATEGORIES = {"306"}
 
 NSK_TZ = timezone(timedelta(hours=7))
-REFRESH_HOUR_NSK = 11
-REFRESH_MINUTE_NSK = 45
+# Слоты обновления кэша по новосибирскому времени (часы, минуты)
+REFRESH_TIMES_NSK = [(11, 0), (17, 0)]
 
 _CACHE: dict = {
     'payload': None,
@@ -25,10 +25,16 @@ _CACHE: dict = {
 
 
 def _next_refresh_after(now_utc: datetime) -> datetime:
+    """Ближайший момент в UTC, соответствующий одному из слотов обновления в Новосибирске."""
     now_nsk = now_utc.astimezone(NSK_TZ)
-    target_nsk = now_nsk.replace(hour=REFRESH_HOUR_NSK, minute=REFRESH_MINUTE_NSK, second=0, microsecond=0)
-    if now_nsk >= target_nsk:
-        target_nsk = target_nsk + timedelta(days=1)
+    candidates = []
+    for day_offset in (0, 1):
+        base = now_nsk + timedelta(days=day_offset)
+        for hour, minute in REFRESH_TIMES_NSK:
+            slot = base.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            if slot > now_nsk:
+                candidates.append(slot)
+    target_nsk = min(candidates)
     return target_nsk.astimezone(timezone.utc)
 
 

@@ -13,9 +13,10 @@ from typing import Any
 FEED_URL = "https://t-sib.ru/upload/catalog.xml"
 TARGET_CATEGORY = "405"
 
-# Новосибирское время (UTC+7) — обновление в 12:00 local
+# Новосибирское время (UTC+7) — обновление 2 раза в сутки: 11:00 и 17:00 local
 NSK_TZ = timezone(timedelta(hours=7))
-REFRESH_HOUR_NSK = 12
+# Слоты обновления кэша по новосибирскому времени (часы, минуты)
+REFRESH_TIMES_NSK = [(11, 0), (17, 0)]
 
 # In-memory cache between warm invocations
 _CACHE: dict = {
@@ -26,11 +27,16 @@ _CACHE: dict = {
 
 
 def _next_refresh_after(now_utc: datetime) -> datetime:
-    """Ближайший момент в UTC, когда в Новосибирске 12:00."""
+    """Ближайший момент в UTC, соответствующий одному из слотов обновления в Новосибирске."""
     now_nsk = now_utc.astimezone(NSK_TZ)
-    target_nsk = now_nsk.replace(hour=REFRESH_HOUR_NSK, minute=0, second=0, microsecond=0)
-    if now_nsk >= target_nsk:
-        target_nsk = target_nsk + timedelta(days=1)
+    candidates = []
+    for day_offset in (0, 1):
+        base = now_nsk + timedelta(days=day_offset)
+        for hour, minute in REFRESH_TIMES_NSK:
+            slot = base.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            if slot > now_nsk:
+                candidates.append(slot)
+    target_nsk = min(candidates)
     return target_nsk.astimezone(timezone.utc)
 
 
