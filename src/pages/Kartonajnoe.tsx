@@ -100,6 +100,9 @@ const NAV = [
   { label: "Главная", href: "/" },
   { label: "Каталог", href: "#catalog" },
   { label: "Преимущества", href: "#advantages" },
+  { label: "Решения", href: "#solutions" },
+  { label: "Подбор", href: "#selector" },
+  { label: "О компании", href: "#about" },
   { label: "Контакты", href: "#contacts" },
 ];
 
@@ -121,7 +124,114 @@ const ADVANTAGES = [
   { icon: "Move", title: "Мобильность", desc: "Конструкция на колёсах с фиксаторами — легко перемещать по цеху." },
 ];
 
+const SOLUTIONS = [
+  { icon: "ShoppingCart", branch: "Маркетплейсы и e-commerce", solve: "Быстрая упаковка посылок в пик сезона, форматы «самолёт»" },
+  { icon: "Warehouse", branch: "Склады и фулфилмент", solve: "Формирование тары на потоке, интеграция с маркетплейсами, весами, сканерами" },
+  { icon: "UtensilsCrossed", branch: "Пищевое производство", solve: "Стабильная заклейка транспортной тары, нержавеющие узлы" },
+  { icon: "Pill", branch: "Фармацевтика, косметика", solve: "Аккуратная упаковка, защита от вскрытия" },
+  { icon: "Truck", branch: "Логистика и дистрибуция", solve: "Высокая скорость на крупнотоннажных потоках до 50 коробов/мин" },
+  { icon: "Boxes", branch: "Производство FMCG, бытовой химии", solve: "Серийная упаковка однотипной продукции без участия оператора" },
+];
+
+const SOLUTION_PROBLEMS = [
+  { icon: "Clock", text: "Не успеваете упаковывать в пик сезона", result: "автоматизация ускоряет поток в 2–3 раза" },
+  { icon: "Wallet", text: "Высокие затраты на ручной труд", result: "один аппарат заменяет бригаду" },
+  { icon: "Frown", text: "Нестабильное качество упаковки", result: "ровный шов и защита от деформации" },
+  { icon: "Lock", text: "Кражи в пути", result: "надёжная заклейка с заметными следами вскрытия" },
+];
+
+type SeriesRow = { series: string; perf: string; size: string; note: string };
+type SelectorTab = {
+  key: string;
+  label: string;
+  icon: string;
+  subtitle: string;
+  columns: [string, string, string, string];
+  rows: SeriesRow[];
+  tips: string[];
+};
+
+const SELECTOR_TABS: SelectorTab[] = [
+  {
+    key: "formers",
+    label: "Формирователи",
+    icon: "Box",
+    subtitle: "Собирают короб из плоской заготовки и заклеивают дно",
+    columns: ["Серия", "Производительность", "Размер короба", "Под что"],
+    rows: [
+      { series: "CXJ (4030C, 5035C, 6040A/C, 8560A, 4540D)", perf: "8–24 кор/мин", size: "от 200×150 до 850×600", note: "Базовое формирование, пищёвка, логистика" },
+      { series: "GPK-E (40E, 50E, 60)", perf: "8–12 кор/мин", size: "средние и крупные", note: "Экономичные, цена на ~50% ниже аналогов" },
+      { series: "GPK-H (30H15/20, 40H18/30/50, 50H20)", perf: "15–50 кор/мин", size: "от малых e-commerce до средних", note: "Высокоскоростные горизонтальные, для потока" },
+      { series: "D-1500", perf: "до 1600 кор/час", size: "300×200 до 600×600", note: "Премиум, память настроек, удалённый контроль" },
+    ],
+    tips: [
+      "Малые короба для маркетплейсов → GPK-30H15 / 30H20",
+      "Высокий поток на складе → GPK-40H30 / 40H50 (до 30–50 кор/мин)",
+      "Крупная тара → GPK-60, CXJ-8560A",
+      "Бюджет ограничен → серия GPK-E",
+    ],
+  },
+  {
+    key: "sealers",
+    label: "Заклейщики",
+    icon: "PackageCheck",
+    subtitle: "Заклеивают верх и низ собранного короба",
+    columns: ["Серия", "Тип", "Производительность", "Особенность"],
+    rows: [
+      { series: "FXJ (4030A, 5050A/AS/B/L/Q/QS/Z/ZX, 2550X, 6050, 6050С, 8070B)", perf: "Полуавтомат / авто", size: "18–45 кор/мин", note: "Самая широкая линейка, любой размер" },
+      { series: "EC-60", perf: "Полуавтомат", size: "25–40 кор/мин", note: "Бюджетный для малого/среднего бизнеса" },
+      { series: "FXW-6050", perf: "Автомат", size: "до 15 кор/мин", note: "Водоактивируемая крафт-лента (эко)" },
+      { series: "GPA (30, 50E, 50P)", perf: "Полуавтомат", size: "до 20 кор/мин", note: "Для маркетплейсов, короба №1–12" },
+      { series: "GPB-56", perf: "Полуавтомат", size: "до 20 кор/мин", note: "Высокие, узкие и тяжёлые короба" },
+      { series: "GPC (50, 50D)", perf: "Автомат", size: "поток", note: "С автозакрытием клапанов" },
+      { series: "GPE (50, 50P)", perf: "Автомат", size: "8–12 кор/мин", note: "Автонастройка под размер, частая смена тары" },
+    ],
+    tips: [
+      "Посылки для маркетплейсов → GPA-30, GPE-50",
+      "Тяжёлые/габаритные короба → FXJ-8070B (до 50 кг), GPB-56",
+      "Эко-упаковка крафт-лентой → FXW-6050",
+      "Полная автоматика без оператора → GPC-50D, GPE-50P",
+    ],
+  },
+  {
+    key: "combo",
+    label: "Комбо и спец.",
+    icon: "Combine",
+    subtitle: "Формирование + заклейка дна, фальцовка, клей-расплав",
+    columns: ["Модель", "Функция", "", ""],
+    rows: [
+      { series: "CXJ-6040A / 6040C", perf: "Формирование + заклейка дна за один цикл", size: "", note: "" },
+      { series: "DZF-5050 / 5050A", perf: "Складывание и заклейка дна, укладка товара", size: "", note: "" },
+      { series: "FXJ-5050Z", perf: "Фальцовка верхних ушей + заклейка сверху/снизу", size: "", note: "" },
+      { series: "FXJ-5050ZBR", perf: "Заклейка термоклеем-расплавом (защита от вскрытия)", size: "", note: "" },
+      { series: "JFX-5050B / 5060", perf: "Заклейка углов/стыков клапанов", size: "", note: "" },
+    ],
+    tips: [],
+  },
+];
+
+const LINE_STEPS = [
+  { icon: "Box", title: "Формирователь" },
+  { icon: "Hand", title: "Укладка продукции" },
+  { icon: "PackageCheck", title: "Заклейщик" },
+  { icon: "Truck", title: "Отгрузка" },
+];
+
+const GUARANTEES = [
+  { icon: "ShieldCheck", title: "Гарантия 12 месяцев", desc: "На всё оборудование с пусконаладкой" },
+  { icon: "Award", title: "Сертификация CE, ISO 9001", desc: "Соответствие международным стандартам качества" },
+  { icon: "FileCheck", title: "Декларация соответствия", desc: "Документы для работы на территории РФ и СНГ" },
+];
+
+const SERVICES = [
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/fa477267-7521-4633-93b8-5ab3e6af1486.jpg", title: "Наличие на складах", desc: "В Новосибирске и Москве" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/5842e0f8-8e07-4d8b-862d-ea93be2b0686.jpg", title: "Доставка РФ и СНГ", desc: "Экспресс-отправка со склада в день оплаты" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/1282aae5-2da0-4623-990e-68750f676dd7.jpg", title: "Обучение персонала", desc: "Инструктаж на объекте клиента включён" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/6441e3aa-1d2f-40c2-8397-537fa22d6c2a.jpg", title: "Лизинг и рассрочка", desc: "Гибкие условия оплаты и финансирования" },
+];
+
 export default function Kartonajnoe() {
+  const [selectorTab, setSelectorTab] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
@@ -533,6 +643,265 @@ export default function Kartonajnoe() {
               )}
             </>
           )}
+        </div>
+      </section>
+
+      {/* SOLUTIONS — Экран 4 */}
+      <section id="solutions" className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Решения под вашу задачу</h2>
+            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Подберём оборудование под отрасль, объём и формат упаковки</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+            {SOLUTIONS.map((s, i) => (
+              <div key={i} className="card-hover bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name={s.icon} fallback="Boxes" size={26} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-[16px] mb-2 leading-snug">{s.branch}</h3>
+                <p className="text-[14px] text-[#555] leading-relaxed">{s.solve}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-center font-bold text-[#1A1A1A] text-xl mb-6">Проблемы, которые закрываем</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {SOLUTION_PROBLEMS.map((p, i) => (
+                <div key={i} className="flex items-start gap-4 bg-[#F7F7F7] rounded-xl p-5 border border-gray-100">
+                  <div className="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: "rgba(255,102,0,0.1)" }}>
+                    <Icon name={p.icon} fallback="AlertCircle" size={22} style={{ color: "var(--orange)" }} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-[#1A1A1A] text-[15px] leading-snug mb-1">{p.text}</p>
+                    <p className="text-[14px] text-[#555] leading-snug flex items-start gap-1.5">
+                      <Icon name="ArrowRight" size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                      <span>{p.result}</span>
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SELECTOR — Экран 5 */}
+      <section id="selector" className="py-16 bg-[#F7F7F7]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8">
+            <h2 className="section-title">Какой формирователь коробов выбрать</h2>
+            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Три типа оборудования — выберите вкладку и сравните серии</p>
+          </div>
+
+          {/* Line scheme */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-7 mb-8">
+            <p className="text-center text-[13px] uppercase tracking-wider font-semibold mb-5" style={{ color: "var(--orange)" }}>Схема линии</p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-2">
+              {LINE_STEPS.map((step, i) => (
+                <div key={i} className="flex flex-col sm:flex-row items-center gap-3 sm:gap-2">
+                  <div className="flex flex-col items-center text-center w-full sm:w-32">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-2" style={{ background: "rgba(255,102,0,0.1)" }}>
+                      <Icon name={step.icon} fallback="Box" size={26} style={{ color: "var(--orange)" }} />
+                    </div>
+                    <span className="text-[14px] font-semibold text-[#1A1A1A] leading-snug">{step.title}</span>
+                  </div>
+                  {i < LINE_STEPS.length - 1 && (
+                    <Icon name="ArrowRight" size={22} className="rotate-90 sm:rotate-0 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
+            {SELECTOR_TABS.map((t, i) => (
+              <button
+                key={t.key}
+                onClick={() => setSelectorTab(i)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold transition-all border"
+                style={selectorTab === i
+                  ? { background: "var(--orange)", color: "#fff", borderColor: "var(--orange)" }
+                  : { background: "#fff", color: "#444", borderColor: "#E5E5E5" }}
+              >
+                <Icon name={t.icon} fallback="Box" size={18} />
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          {(() => {
+            const tab = SELECTOR_TABS[selectorTab];
+            const visibleCols = tab.columns.filter(c => c !== "");
+            return (
+              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <div className="px-5 sm:px-7 pt-5 pb-3 border-b border-gray-100">
+                  <h3 className="font-bold text-[#1A1A1A] text-lg">{tab.label} коробов</h3>
+                  <p className="text-[14px] text-[#666] mt-0.5">{tab.subtitle}</p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-[640px]">
+                    <thead>
+                      <tr className="bg-[#FAFAFA]">
+                        {visibleCols.map((c, i) => (
+                          <th key={i} className="px-4 sm:px-6 py-3 text-[12px] uppercase tracking-wider font-bold text-[#888]">{c}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tab.rows.map((r, i) => (
+                        <tr key={i} className="border-t border-gray-100 hover:bg-[#FFF8F3] transition-colors">
+                          <td className="px-4 sm:px-6 py-3.5 text-[14px] font-semibold text-[#1A1A1A] align-top">{r.series}</td>
+                          <td className="px-4 sm:px-6 py-3.5 text-[14px] text-[#444] align-top">{r.perf}</td>
+                          {visibleCols.length > 2 && <td className="px-4 sm:px-6 py-3.5 text-[14px] text-[#444] align-top">{r.size}</td>}
+                          {visibleCols.length > 3 && <td className="px-4 sm:px-6 py-3.5 text-[14px] text-[#444] align-top">{r.note}</td>}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {tab.tips.length > 0 && (
+                  <div className="px-5 sm:px-7 py-5 border-t border-gray-100" style={{ background: "rgba(255,102,0,0.04)" }}>
+                    <p className="font-bold text-[14px] mb-3" style={{ color: "var(--orange)" }}>Подсказка по выбору</p>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5">
+                      {tab.tips.map((tip, i) => (
+                        <li key={i} className="flex items-start gap-2 text-[14px] text-[#444] leading-snug">
+                          <Icon name="Check" size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                          <span>{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          <div className="mt-8 text-center">
+            <button onClick={() => openFos()} className="btn-orange">
+              <Icon name="Headset" size={18} className="mr-2" />
+              Помочь с выбором серии
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* GUARANTEES */}
+      <section id="guarantees" className="py-14 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Гарантии и сертификаты</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {GUARANTEES.map((g, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 card-hover">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.10)" }}>
+                  <Icon name={g.icon} fallback="ShieldCheck" size={22} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-1 leading-tight">{g.title}</h3>
+                <p className="text-[13px] text-[#888] leading-snug">{g.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ABOUT COMPANY */}
+      <section id="about" className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-3">
+            <h2 className="section-title">О компании ТЕХНОСИБ</h2>
+            <div className="w-16 h-1 rounded-full mx-auto mt-3" style={{ background: "var(--orange)" }} />
+          </div>
+          <p className="text-center text-[#888] mb-10">Ваш надёжный партнёр с 2001 года</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+            {[
+              { icon: "Award", big: "25", title: "лет на рынке", desc: "Опыт и экспертиза в упаковочном оборудовании" },
+              { icon: "MapPin", title: "2 города", desc: "Офисы в Москве и Новосибирске" },
+              { icon: "Globe", title: "Проверенные партнёры", desc: "Из Европы, России и Китая" },
+            ].map((c, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 text-center card-hover">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "rgba(255,102,0,0.08)" }}>
+                  {c.big
+                    ? <span className="text-2xl font-bold" style={{ color: "var(--orange)" }}>{c.big}</span>
+                    : <Icon name={c.icon} fallback="Circle" size={26} style={{ color: "var(--orange)" }} />}
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-[17px] mb-1">{c.title}</h3>
+                <p className="text-[13px] text-[#888] leading-snug">{c.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8">
+            <p className="text-[15px] text-[#555] leading-relaxed mb-5">
+              Компания «Техно-Сиб» — надёжный поставщик и партнёр в сфере профессионального пищевого
+              и фасовочно-упаковочного оборудования. Мы работаем с 2001 года и уже 25 лет помогаем предприятиям
+              эффективно оснащать производства и склады пищевым и упаковочным оборудованием, предоставляем сервисное
+              обслуживание, а также реализуем упаковочные и расходные материалы.
+            </p>
+            <div className="rounded-lg px-4 py-3 mb-5" style={{ background: "rgba(255,102,0,0.07)", borderLeft: "3px solid var(--orange)" }}>
+              <p className="text-[15px] font-medium text-[#333]">
+                Мы сотрудничаем с ведущими заводами-производителями Европы, России и Китая, подбирая решения
+                под задачи и бюджет клиента.
+              </p>
+            </div>
+            <p className="text-[15px] text-[#555] leading-relaxed mb-4">
+              Собственные офисы продаж, склады, сервисная служба и отлаженная логистика в Москве и Новосибирске
+              позволяют нам оперативно выполнять поставки и поддерживать оборудование на территории России и стран СНГ.
+            </p>
+            <p className="text-[15px] text-[#555] leading-relaxed mb-6">
+              Экспертиза наших специалистов помогает решать задачи любого уровня сложности — от подбора единичной
+              позиции до комплексного оснащения. «Техно-Сиб» всегда предложит оптимальное решение для вашего бизнеса
+              и обеспечит надёжную поддержку на всех этапах работы.
+            </p>
+            <div className="border-t border-gray-100 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+              {[
+                { title: "Комплексные решения", desc: "От подбора оборудования до сервисного обслуживания" },
+                { title: "Быстрая доставка", desc: "Собственная логистика по всей России и СНГ" },
+                { title: "Сервисная поддержка", desc: "Гарантийное и постгарантийное обслуживание" },
+                { title: "Экспертная консультация", desc: "Помощь в выборе оптимального решения" },
+              ].map((f, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: "rgba(255,102,0,0.1)" }}>
+                    <Icon name="Check" size={15} style={{ color: "var(--orange)" }} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[#1A1A1A] text-[15px] mb-0.5">{f.title}</h4>
+                    <p className="text-[13px] text-[#888] leading-snug">{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SERVICE */}
+      <section id="service" className="py-16 bg-[#F7F7F7]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Сервис и доставка</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {SERVICES.map((s, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden card-hover flex flex-col">
+                <div className="aspect-[4/3] bg-[#F0F0F0] overflow-hidden">
+                  <img src={s.img} alt={s.title} loading="lazy" className="w-full h-full object-cover" />
+                </div>
+                <div className="p-5 flex-1">
+                  <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{s.title}</h3>
+                  <p className="text-sm text-[#666] leading-relaxed">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
