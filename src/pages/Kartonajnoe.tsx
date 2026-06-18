@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 import { captureUtm, readUtm } from "@/lib/utm";
 import ProductGallery from "@/components/ProductGallery";
+import QuizSideTab from "@/components/QuizSideTab";
+import CartonQuiz, { type CartonQuizPayload } from "@/components/CartonQuiz";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
@@ -103,7 +105,19 @@ const NAV = [
   { label: "Решения", href: "#solutions" },
   { label: "Подбор", href: "#selector" },
   { label: "О компании", href: "#about" },
+  { label: "FAQ", href: "#faq" },
   { label: "Контакты", href: "#contacts" },
+];
+
+const FAQS = [
+  { q: "Чем формирователь отличается от заклейщика?", a: "Формирователь собирает короб из плоской заготовки и заклеивает дно. Заклейщик закрывает уже наполненный короб сверху и снизу. Часто их используют в паре с укладкой продукции между ними." },
+  { q: "Полуавтомат или автомат — что выбрать?", a: "Полуавтомат требует оператора (придержать клапаны, подать короб) — это дешевле и подходит для небольших объёмов. Автомат работает без участия человека — для потока и крупных производств." },
+  { q: "Нужен ли компрессор?", a: "Зависит от модели. Многим заклейщикам компрессор не нужен (работают от сети). Формирователям и пневматическим моделям требуется давление 0,4–0,6 МПа. У некоторых моделей (например, CXJ-6040C) компрессор приобретается отдельно." },
+  { q: "Какую ленту можно использовать?", a: "БОПП, ПВХ, крафт, бумажную, водоактивируемую (на FXW-6050), а также брендированный скотч с логотипом. Стандартная ширина — 48, 60, 76 мм." },
+  { q: "Можно ли встроить в существующую линию?", a: "Да. Большинство моделей работают автономно или интегрируются в упаковочную линию, в том числе с весами, сканерами и системами учёта WMS." },
+  { q: "Подойдёт ли для маркетплейсов?", a: "Да — есть специальные модели под малые короба и форматы «самолёт» №1–13 (GPA-30, GPK-30H15/20, GPE-50)." },
+  { q: "Что с гарантией и сервисом?", a: "Официальная гарантия производителя 12 месяцев, пусконаладка, гарантийное и послегарантийное обслуживание, доставка по РФ и странам ТС." },
+  { q: "Какой срок поставки?", a: "Зависит от наличия на складе. Уточняйте у менеджера — часть моделей доступна к отгрузке сразу." },
 ];
 
 const HERO_BULLETS = [
@@ -235,6 +249,13 @@ export default function Kartonajnoe() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [quizOpen, setQuizOpen] = useState(false);
+
+  const [kpData, setKpData] = useState({ name: "", phone: "", email: "", details: "" });
+  const [kpAgree, setKpAgree] = useState(false);
+  const [kpErrors, setKpErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
+  const [kpSubmitting, setKpSubmitting] = useState(false);
 
   const [fosOpen, setFosOpen] = useState<{ productName?: string } | null>(null);
   const [fosData, setFosData] = useState({ name: "", phone: "", email: "" });
@@ -331,6 +352,48 @@ export default function Kartonajnoe() {
     setFosOpen(null);
     setThanksOpen(true);
   }, [fosData, fosOpen, fosSubmitting, validateFos]);
+
+  const submitQuiz = useCallback(async (data: CartonQuizPayload): Promise<boolean> => {
+    return sendLead({
+      source: "quiz",
+      page: "kartonajnoe",
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      task: data.task,
+      size: data.size,
+      speed: data.speed,
+      options: data.options.join(", "),
+      quizAnswers: {
+        task: data.task,
+        size: data.size,
+        speed: data.speed,
+        options: data.options.join(", "),
+      },
+    });
+  }, []);
+
+  const submitKp = useCallback(async () => {
+    const errs: { name?: string; phone?: string; agree?: string } = {};
+    if (kpData.name.trim().length < 2) errs.name = "Укажите имя";
+    if (!isValidPhoneRu(kpData.phone)) errs.phone = "Введите телефон в формате +7 и 10 цифр";
+    if (!kpAgree) errs.agree = "Необходимо согласие";
+    setKpErrors(errs);
+    if (Object.keys(errs).length > 0 || kpSubmitting) return;
+    setKpSubmitting(true);
+    await sendLead({
+      source: "kp_form",
+      page: "kartonajnoe",
+      name: kpData.name.trim(),
+      phone: kpData.phone.trim(),
+      email: kpData.email.trim(),
+      comment: kpData.details.trim(),
+    });
+    setKpSubmitting(false);
+    setKpData({ name: "", phone: "", email: "", details: "" });
+    setKpAgree(false);
+    setThanksOpen(true);
+  }, [kpData, kpAgree, kpSubmitting]);
 
   const scrollTo = (href: string) => {
     if (href.startsWith("/")) { window.location.href = href; return; }
@@ -442,7 +505,7 @@ export default function Kartonajnoe() {
             </ul>
 
             <div className="flex flex-wrap gap-3">
-              <button onClick={() => openFos()} className="btn-orange text-base px-8 py-3.5">
+              <button onClick={() => setQuizOpen(true)} className="btn-orange text-base px-8 py-3.5">
                 Подобрать оборудование
               </button>
               <button onClick={() => openFos()} className="btn-outline-orange text-base px-8 py-3.5">
@@ -784,7 +847,7 @@ export default function Kartonajnoe() {
           })()}
 
           <div className="mt-8 text-center">
-            <button onClick={() => openFos()} className="btn-orange">
+            <button onClick={() => setQuizOpen(true)} className="btn-orange">
               <Icon name="Headset" size={18} className="mr-2" />
               Помочь с выбором серии
             </button>
@@ -905,20 +968,142 @@ export default function Kartonajnoe() {
         </div>
       </section>
 
-      {/* CONTACTS / CTA */}
-      <section id="contacts" className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="section-title mb-3">Подберём оборудование под вашу задачу</h2>
-          <p className="text-[#666] mb-8 max-w-xl mx-auto">Оставьте заявку — менеджер свяжется в течение 15 минут, рассчитает стоимость и пришлёт КП.</p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <button onClick={() => openFos()} className="btn-orange text-base px-8 py-3.5">
-              <Icon name="MessageSquare" size={18} className="mr-2" />
-              Получить КП
+      {/* QUIZ CTA */}
+      <section id="quiz" className="py-16 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div
+            className="rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden"
+            style={{ background: "linear-gradient(135deg, var(--orange), #ff8c3a)" }}
+          >
+            <div className="relative z-10">
+              <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-5">
+                <Icon name="ListChecks" size={32} className="text-white" />
+              </div>
+              <h2 className="text-[clamp(24px,3.5vw,36px)] font-bold text-white mb-3 leading-tight">
+                Подберём оборудование за 4 шага
+              </h2>
+              <p className="text-white/90 text-[17px] mb-7 max-w-xl mx-auto leading-snug">
+                Ответьте на 4 вопроса — инженер подберёт 2–3 модели под ваши параметры и пришлёт цены
+              </p>
+              <button
+                onClick={() => setQuizOpen(true)}
+                className="bg-white text-[#1A1A1A] font-bold text-base px-9 py-4 rounded-xl hover:bg-white/90 transition-colors inline-flex items-center gap-2"
+              >
+                <Icon name="Smile" size={20} style={{ color: "var(--orange)" }} />
+                Пройти квиз
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-16 bg-[#F7F7F7]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Частые вопросы</h2>
+          </div>
+          <div className="space-y-3">
+            {FAQS.map((f, i) => (
+              <div key={i} className="border border-gray-100 rounded-xl bg-white overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full text-left px-5 py-4 flex items-center justify-between gap-4 hover:bg-[#FFF5EE] transition-colors"
+                >
+                  <span className="font-semibold text-[#1A1A1A] text-[16px] leading-snug">{f.q}</span>
+                  <Icon name={openFaq === i ? "Minus" : "Plus"} size={20} className="flex-shrink-0" style={{ color: "var(--orange)" }} />
+                </button>
+                {openFaq === i && (
+                  <div className="px-5 pb-5 text-[15px] text-[#555] leading-relaxed">{f.a}</div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <button onClick={() => openFos()} className="btn-outline-orange">
+              <Icon name="HelpCircle" size={18} className="mr-2" />
+              Задать свой вопрос
             </button>
-            <a href="tel:88005057831" className="btn-outline-orange text-base px-8 py-3.5 inline-flex items-center">
-              <Icon name="Phone" size={18} className="mr-2" />
-              8 800 505-78-31
-            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* CONTACTS / KP FORM */}
+      <section id="contacts" className="py-16 bg-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title mb-3">Получите подборку и цены под вашу задачу</h2>
+            <p className="text-[#666] max-w-2xl mx-auto leading-relaxed">
+              Оставьте контакты — инженер подберёт 2–3 модели, рассчитает комплектацию и пришлёт коммерческое
+              предложение в течение рабочего дня. При необходимости проведём тест на вашем коробе.
+            </p>
+          </div>
+
+          <div className="bg-[#F7F7F7] rounded-2xl p-6 sm:p-8 text-[#1A1A1A] border border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Имя</label>
+                <input
+                  type="text"
+                  value={kpData.name}
+                  onChange={e => { setKpData({ ...kpData, name: e.target.value }); if (kpErrors.name) setKpErrors({ ...kpErrors, name: undefined }); }}
+                  className="w-full px-4 py-3 rounded-lg border bg-white focus:outline-none focus:border-orange-500"
+                  style={{ borderColor: kpErrors.name ? "#E53935" : "#E0E0E0" }}
+                  placeholder="Иван Петров"
+                />
+                {kpErrors.name && <p className="text-xs text-red-500 mt-1">{kpErrors.name}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Телефон *</label>
+                <input
+                  type="tel"
+                  value={kpData.phone}
+                  onChange={e => { setKpData({ ...kpData, phone: formatPhoneRu(e.target.value) }); if (kpErrors.phone) setKpErrors({ ...kpErrors, phone: undefined }); }}
+                  onFocus={e => { if (!e.target.value) setKpData({ ...kpData, phone: "+7 " }); }}
+                  className="w-full px-4 py-3 rounded-lg border bg-white focus:outline-none focus:border-orange-500"
+                  style={{ borderColor: kpErrors.phone ? "#E53935" : "#E0E0E0" }}
+                  placeholder="+7 (___) ___-__-__"
+                />
+                {kpErrors.phone && <p className="text-xs text-red-500 mt-1">{kpErrors.phone}</p>}
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1.5">Email или мессенджер</label>
+              <input
+                type="text"
+                value={kpData.email}
+                onChange={e => setKpData({ ...kpData, email: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:border-orange-500"
+                placeholder="your@email.com / @telegram"
+              />
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-sm font-medium mb-1.5">Объём упаковки в смену / тип короба</label>
+              <textarea
+                value={kpData.details}
+                onChange={e => setKpData({ ...kpData, details: e.target.value })}
+                rows={3}
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:border-orange-500 resize-none"
+                placeholder="Например: 5000 коробов в смену, размер 400×300×200, нужна автоматика"
+              />
+            </div>
+
+            <label className="flex items-start gap-2.5 cursor-pointer select-none mb-4">
+              <input
+                type="checkbox"
+                checked={kpAgree}
+                onChange={e => { setKpAgree(e.target.checked); if (kpErrors.agree) setKpErrors({ ...kpErrors, agree: undefined }); }}
+                className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
+              />
+              <PolicyDisclaimer />
+            </label>
+            {kpErrors.agree && <p className="text-xs text-red-500 mb-2">{kpErrors.agree}</p>}
+
+            <button onClick={submitKp} disabled={kpSubmitting} className="btn-orange w-full text-base py-4 disabled:opacity-60">
+              {kpSubmitting ? "Отправляем..." : "Получить КП с ценами"}
+            </button>
           </div>
         </div>
       </section>
@@ -1279,6 +1464,10 @@ export default function Kartonajnoe() {
           </div>
         </div>
       )}
+
+      {/* QUIZ SIDE TAB + MODAL */}
+      <QuizSideTab onClick={() => setQuizOpen(true)} />
+      <CartonQuiz open={quizOpen} onClose={() => setQuizOpen(false)} onSubmit={submitQuiz} />
     </div>
   );
 }
