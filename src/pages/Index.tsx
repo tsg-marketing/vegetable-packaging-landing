@@ -16,6 +16,7 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        page: typeof window !== "undefined" ? window.location.pathname : "",
         ...payload,
         utm: readUtm(),
         pageUrl: typeof window !== "undefined" ? window.location.href : "",
@@ -237,7 +238,6 @@ export default function Index() {
   const submitQuiz = useCallback(async (data: QuizPayload): Promise<boolean> => {
     return sendLead({
       source: "quiz",
-      page: "vegetables",
       name: data.name,
       phone: data.phone,
       email: data.email,

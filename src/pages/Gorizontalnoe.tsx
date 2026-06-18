@@ -81,6 +81,7 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        page: typeof window !== "undefined" ? window.location.pathname : "",
         ...payload,
         utm: readUtm(),
         pageUrl: typeof window !== "undefined" ? window.location.href : "",
@@ -268,7 +269,6 @@ export default function Gorizontalnoe() {
   const submitQuiz = useCallback(async (data: FlowpackQuizPayload): Promise<boolean> => {
     return sendLead({
       source: "quiz",
-      page: "gorizontalnoe",
       name: data.name,
       phone: data.phone,
       email: data.email,
@@ -352,7 +352,6 @@ export default function Gorizontalnoe() {
     await sendLead({
       source: "fos",
       product: fosOpen?.productName || "",
-      page: "gorizontalnoe",
       name: fosData.name.trim(),
       phone: fosData.phone.trim(),
       email: fosData.email.trim(),
@@ -374,7 +373,6 @@ export default function Gorizontalnoe() {
     setFormSubmitting(true);
     await sendLead({
       source: "main_form",
-      page: "gorizontalnoe",
       name: formData.name,
       phone: formData.phone,
       pack: formData.pack,

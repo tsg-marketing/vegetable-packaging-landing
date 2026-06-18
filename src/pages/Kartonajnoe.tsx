@@ -79,6 +79,7 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        page: typeof window !== "undefined" ? window.location.pathname : "",
         ...payload,
         utm: readUtm(),
         pageUrl: typeof window !== "undefined" ? window.location.href : "",
@@ -342,7 +343,6 @@ export default function Kartonajnoe() {
     await sendLead({
       source: "fos",
       product: fosOpen?.productName || "",
-      page: "kartonajnoe",
       name: fosData.name.trim(),
       phone: fosData.phone.trim(),
       email: fosData.email.trim(),
@@ -355,7 +355,6 @@ export default function Kartonajnoe() {
   const submitQuiz = useCallback(async (data: CartonQuizPayload): Promise<boolean> => {
     return sendLead({
       source: "quiz",
-      page: "kartonajnoe",
       name: data.name,
       phone: data.phone,
       email: data.email,
@@ -382,7 +381,6 @@ export default function Kartonajnoe() {
     setKpSubmitting(true);
     await sendLead({
       source: "kp_form",
-      page: "kartonajnoe",
       name: kpData.name.trim(),
       phone: kpData.phone.trim(),
       email: kpData.email.trim(),

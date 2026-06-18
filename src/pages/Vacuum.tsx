@@ -143,6 +143,7 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        page: typeof window !== "undefined" ? window.location.pathname : "",
         ...payload,
         utm: readUtm(),
         pageUrl: typeof window !== "undefined" ? window.location.href : "",
@@ -310,7 +311,6 @@ export default function Vacuum() {
   const submitQuiz = useCallback(async (data: VacuumQuizPayload): Promise<boolean> => {
     return sendLead({
       source: "quiz",
-      page: "vacuum",
       name: data.name,
       phone: data.phone,
       email: data.email,
@@ -398,7 +398,6 @@ export default function Vacuum() {
     await sendLead({
       source: "fos",
       product: fosOpen?.productName || "",
-      page: "vacuum",
       name: fosData.name.trim(),
       phone: fosData.phone.trim(),
       email: fosData.email.trim(),
@@ -420,7 +419,6 @@ export default function Vacuum() {
     setFormSubmitting(true);
     await sendLead({
       source: "main_form",
-      page: "vacuum",
       name: formData.name,
       phone: formData.phone,
       pack: formData.pack,
