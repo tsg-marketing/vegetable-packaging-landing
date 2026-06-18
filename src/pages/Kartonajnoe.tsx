@@ -117,10 +117,10 @@ const FAQS = [
 ];
 
 const HERO_BULLETS = [
-  { icon: "Zap", text: "Производительность до 50 коробов/мин — под любой объём упаковки" },
-  { icon: "Package", text: "Короба от 130×80 мм до 850×600 мм — мелкие посылки и крупная тара" },
-  { icon: "Wrench", text: "Быстрая переналадка под новый типоразмер без остановки линии" },
-  { icon: "ShieldCheck", text: "Официальная гарантия 12 месяцев + сервис и пусконаладка" },
+  { icon: "Zap", bold: "Производительность до 50 коробов/мин", rest: " — под любой объём упаковки" },
+  { icon: "Package", bold: "Короба от 130×80 мм до 850×600 мм", rest: " — мелкие посылки и крупная тара" },
+  { icon: "Wrench", bold: "Быстрая переналадка под новый типоразмер", rest: " без остановки линии" },
+  { icon: "ShieldCheck", bold: "Официальная гарантия 12 месяцев", rest: " + сервис и пусконаладка" },
 ];
 
 const ADVANTAGES = [
@@ -141,13 +141,6 @@ const SOLUTIONS = [
   { icon: "Pill", branch: "Фармацевтика, косметика", solve: "Аккуратная упаковка, защита от вскрытия" },
   { icon: "Truck", branch: "Логистика и дистрибуция", solve: "Высокая скорость на крупнотоннажных потоках до 50 коробов/мин" },
   { icon: "Boxes", branch: "Производство FMCG, бытовой химии", solve: "Серийная упаковка однотипной продукции без участия оператора" },
-];
-
-const SOLUTION_PROBLEMS = [
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/0d5712ae-e222-4287-ba19-d24f7d07678a.jpg", text: "Не успеваете упаковывать в пик сезона", result: "автоматизация ускоряет поток в 2–3 раза" },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/52aaaef3-3241-4c5c-a4fb-51c27e219c6d.jpg", text: "Высокие затраты на ручной труд", result: "один аппарат заменяет бригаду" },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/c681054c-edd8-4920-b3a3-411b08707a30.jpg", text: "Нестабильное качество упаковки", result: "ровный шов и защита от деформации" },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/cc4594f6-5822-4678-b49b-cd0b1d12bb9a.jpg", text: "Кражи в пути", result: "надёжная заклейка с заметными следами вскрытия" },
 ];
 
 type SeriesRow = { series: string; perf: string; size: string; note: string };
@@ -544,9 +537,9 @@ export default function Kartonajnoe() {
 
             <ul className="grid gap-y-4 mb-8 max-w-2xl mt-2">
               {HERO_BULLETS.map((b, i) => (
-                <li key={i} className="flex items-start gap-3 text-[18px] sm:text-[20px] font-semibold text-[#1A1A1A] leading-snug">
+                <li key={i} className="flex items-start gap-3 text-[18px] sm:text-[20px] text-[#1A1A1A] leading-snug">
                   <Icon name={b.icon} fallback="CheckCircle2" size={28} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                  <span>{b.text}</span>
+                  <span><span className="font-bold">{b.bold}</span>{b.rest}</span>
                 </li>
               ))}
             </ul>
@@ -795,35 +788,8 @@ export default function Kartonajnoe() {
         </div>
       </section>
 
-      {/* PROBLEMS — отдельное окно с фото */}
-      <section id="problems" className="py-16 bg-[#F7F7F7]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 className="section-title">Проблемы, которые закрываем</h2>
-            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Что меняется на производстве после установки картонажного оборудования</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {SOLUTION_PROBLEMS.map((p, i) => (
-              <div key={i} className="card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col">
-                <div className="aspect-[16/10] overflow-hidden bg-[#F0F0F0] relative">
-                  <img src={p.img} alt={p.text} loading="lazy" className="w-full h-full object-cover" />
-                  <div className="absolute top-3 left-3 w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-[15px]" style={{ background: "var(--orange)" }}>{i + 1}</div>
-                </div>
-                <div className="p-5 flex-1 flex flex-col">
-                  <p className="font-bold text-[#1A1A1A] text-[16px] leading-snug mb-3">{p.text}</p>
-                  <p className="text-[15px] text-[#444] leading-snug flex items-start gap-2 mt-auto">
-                    <Icon name="ArrowRight" size={18} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                    <span>{p.result}</span>
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* SELECTOR — Экран 5 */}
-      <section id="selector" className="py-16 bg-white">
+      <section id="selector" className="py-16 bg-[#F7F7F7]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-8">
             <h2 className="section-title">Какой формирователь коробов выбрать</h2>
@@ -1139,13 +1105,13 @@ export default function Kartonajnoe() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1.5">Email или мессенджер</label>
+              <label className="block text-sm font-medium mb-1.5">Email</label>
               <input
-                type="text"
+                type="email"
                 value={kpData.email}
                 onChange={e => setKpData({ ...kpData, email: e.target.value })}
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:border-orange-500"
-                placeholder="your@email.com / @telegram"
+                placeholder="your@email.com"
               />
             </div>
 
