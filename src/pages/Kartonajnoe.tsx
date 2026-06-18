@@ -13,7 +13,7 @@ import { ymGoal } from "@/lib/ym";
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/714167da-e3c6-45bc-9647-de3991debd61";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
-const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/3f451a5d-76ce-413b-badc-9014c7813c45.jpg";
+const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/e080e415-acc2-4182-8331-888da44fa6e4.jpg";
 const IMG_ECONOMY = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/16cb5e57-202a-4804-ab44-fee5b37c87ff.jpg";
 const IMG_ECONOMY2 = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/d0ed6706-0fde-4593-b025-0e2a76f55e33.jpg";
 
