@@ -14,8 +14,6 @@ const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/714167da-e3c6-45bc-9647-de3991debd61";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/e080e415-acc2-4182-8331-888da44fa6e4.jpg";
-const IMG_ECONOMY = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/16cb5e57-202a-4804-ab44-fee5b37c87ff.jpg";
-const IMG_ECONOMY2 = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/d0ed6706-0fde-4593-b025-0e2a76f55e33.jpg";
 
 type CatalogParam = { name: string; value: string };
 type CatalogProduct = {
@@ -44,14 +42,12 @@ function visibleParams(params: CatalogParam[]): CatalogParam[] {
 }
 
 function getVideoUrl(params: CatalogParam[]): string | null {
-  const p = params.find(x => /видео.*ссылк/i.test(x.name) || /^видео\s*\(ссылка\)$/i.test(x.name.trim()));
+  const p = params.find(x => /видео|video/i.test(x.name));
   if (!p) return null;
   const raw = (p.value || "").trim();
   if (!raw) return null;
-  const first = raw.split(/[,\s;]+/).find(s => /^https?:\/\//i.test(s));
-  if (!first) return null;
-  if (!/(rutube\.ru|youtube\.com|youtu\.be)/i.test(first)) return null;
-  return first;
+  const first = raw.split(/[\s,;]+/).find(s => /^https?:\/\//i.test(s));
+  return first || null;
 }
 
 function stripHtml(html: string): string {
@@ -128,14 +124,14 @@ const HERO_BULLETS = [
 ];
 
 const ADVANTAGES = [
-  { icon: "Users", title: "Меньше ручного труда", desc: "Один аппарат заменяет несколько упаковщиков — высвобождаете персонал в пиковые сезоны." },
-  { icon: "CheckCircle2", title: "Стабильное качество шва", desc: "Лента ложится ровно, без пузырей и перекосов — упаковка выглядит аккуратно при отгрузке." },
-  { icon: "Scissors", title: "Экономный расход скотча", desc: "Автоматическая обрезка ленты и экономный расход скотча — снижение операционных затрат." },
-  { icon: "Layers", title: "Работа с любой лентой", desc: "БОПП, ПВХ, крафт, водоактивируемая, брендированный скотч с логотипом." },
-  { icon: "Cog", title: "Надёжные комплектующие", desc: "Ресурс выключателей до 100 000 циклов." },
-  { icon: "Workflow", title: "Автономно или в линии", desc: "Каждая машина работает отдельно или встраивается в упаковочный конвейер." },
-  { icon: "BellRing", title: "Сигнализация расходников", desc: "Оповещение об окончании ленты или заготовок — меньше простоев." },
-  { icon: "Move", title: "Мобильность", desc: "Конструкция на колёсах с фиксаторами — легко перемещать по цеху." },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/cf0bf663-bfb9-4d53-872d-62209c73d899.jpg", title: "Меньше ручного труда", desc: "Один аппарат заменяет несколько упаковщиков — высвобождаете персонал в пиковые сезоны." },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/2b22d063-5d1c-471d-a0ec-97f86a8f2676.jpg", title: "Стабильное качество шва", desc: "Лента ложится ровно, без пузырей и перекосов — упаковка выглядит аккуратно при отгрузке." },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/27c4d987-50f9-46b4-8358-7cd878c7a78a.jpg", title: "Экономный расход скотча", desc: "Автоматическая обрезка ленты и экономный расход скотча — снижение операционных затрат." },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/6e2a2a41-3895-482e-9082-ff6d8e3a3591.jpg", title: "Работа с любой лентой", desc: "БОПП, ПВХ, крафт, водоактивируемая, брендированный скотч с логотипом." },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/29e73a6c-b7c8-474c-9b7a-3742c4596249.jpg", title: "Надёжные комплектующие", desc: "Ресурс выключателей до 100 000 циклов." },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/f3c658b8-c17d-45da-80d3-fc66a54c6d0b.jpg", title: "Автономно или в линии", desc: "Каждая машина работает отдельно или встраивается в упаковочный конвейер." },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/34719d32-a546-4589-b35b-5df105d8923c.jpg", title: "Сигнализация расходников", desc: "Оповещение об окончании ленты или заготовок — меньше простоев." },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/cce423ce-5ac9-4143-b933-35380ad32f93.jpg", title: "Мобильность", desc: "Конструкция на колёсах с фиксаторами — легко перемещать по цеху." },
 ];
 
 const SOLUTIONS = [
@@ -148,10 +144,10 @@ const SOLUTIONS = [
 ];
 
 const SOLUTION_PROBLEMS = [
-  { icon: "Clock", text: "Не успеваете упаковывать в пик сезона", result: "автоматизация ускоряет поток в 2–3 раза" },
-  { icon: "Wallet", text: "Высокие затраты на ручной труд", result: "один аппарат заменяет бригаду" },
-  { icon: "Frown", text: "Нестабильное качество упаковки", result: "ровный шов и защита от деформации" },
-  { icon: "Lock", text: "Кражи в пути", result: "надёжная заклейка с заметными следами вскрытия" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/0d5712ae-e222-4287-ba19-d24f7d07678a.jpg", text: "Не успеваете упаковывать в пик сезона", result: "автоматизация ускоряет поток в 2–3 раза" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/52aaaef3-3241-4c5c-a4fb-51c27e219c6d.jpg", text: "Высокие затраты на ручной труд", result: "один аппарат заменяет бригаду" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/c681054c-edd8-4920-b3a3-411b08707a30.jpg", text: "Нестабильное качество упаковки", result: "ровный шов и защита от деформации" },
+  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/cc4594f6-5822-4678-b49b-cd0b1d12bb9a.jpg", text: "Кражи в пути", result: "надёжная заклейка с заметными следами вскрытия" },
 ];
 
 type SeriesRow = { series: string; perf: string; size: string; note: string };
@@ -269,12 +265,13 @@ export default function Kartonajnoe() {
   const [catalogError, setCatalogError] = useState(false);
   const [catalogShow, setCatalogShow] = useState(9);
   const [catalogSearch, setCatalogSearch] = useState("");
+  const [catalogCat, setCatalogCat] = useState("all");
 
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
   const [videoModal, setVideoModal] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
-  useEffect(() => { setCatalogShow(9); }, [catalogSearch]);
+  useEffect(() => { setCatalogShow(9); }, [catalogSearch, catalogCat]);
 
   useEffect(() => {
     const anyOpen = detailsProduct || videoModal || lightbox || fosOpen || thanksOpen;
@@ -282,7 +279,16 @@ export default function Kartonajnoe() {
     return () => { document.body.style.overflow = ""; };
   }, [detailsProduct, videoModal, lightbox, fosOpen, thanksOpen]);
 
+  const CATEGORY_TABS = [
+    { id: "all", label: "Все" },
+    { id: "559", label: "Формирователи коробов" },
+    { id: "558", label: "Заклейщики коробов" },
+    { id: "325", label: "Картонажное оборудование" },
+  ];
+  const catCount = (id: string) => id === "all" ? catalog.length : catalog.filter(p => p.categoryId === id).length;
+
   const filteredCatalog = catalog.filter(p => {
+    if (catalogCat !== "all" && p.categoryId !== catalogCat) return false;
     const q = catalogSearch.trim().toLowerCase();
     if (q) return p.name.toLowerCase().includes(q);
     return true;
@@ -402,6 +408,51 @@ export default function Kartonajnoe() {
     setEquipmentOpen(false);
   };
 
+  const findProduct = useCallback((token: string): CatalogProduct | undefined => {
+    const t = token.trim().toLowerCase().replace(/[\s-]+/g, "");
+    if (!t) return undefined;
+    return catalog.find(p => p.name.toLowerCase().replace(/[\s-]+/g, "").includes(t));
+  }, [catalog]);
+
+  const goToModel = useCallback((token: string) => {
+    const prod = findProduct(token);
+    if (prod) { setDetailsProduct(prod); return; }
+    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+  }, [findProduct]);
+
+  // Разбивает строку серии на кликабельные модели: "CXJ (4030C, 5035C)" → ссылки
+  const renderModels = (text: string) => {
+    const m = text.match(/^(.*?)\(([^)]*)\)(.*)$/);
+    if (!m) {
+      return (
+        <button onClick={() => goToModel(text)} className="font-semibold text-left hover:underline" style={{ color: "var(--orange)" }}>
+          {text}
+        </button>
+      );
+    }
+    const prefix = m[1].trim();
+    const tokens = m[2].split(/[,/]/).map(s => s.trim()).filter(Boolean);
+    return (
+      <span className="leading-relaxed">
+        {prefix && <span className="text-[#1A1A1A]">{prefix} </span>}
+        <span className="inline-flex flex-wrap gap-1.5 align-middle">
+          {tokens.map((tok, i) => (
+            <button
+              key={i}
+              onClick={() => goToModel(prefix ? `${prefix.split(" ")[0]}-${tok}` : tok)}
+              className="text-[12.5px] font-semibold px-2 py-0.5 rounded-md transition-colors"
+              style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.22)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.1)"; }}
+            >
+              {tok}
+            </button>
+          ))}
+        </span>
+      </span>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-white text-[#1A1A1A]">
       {/* HEADER */}
@@ -491,14 +542,10 @@ export default function Kartonajnoe() {
               Формирователи и заклейщики коробов от ведущих <span style={{ color: "var(--orange)" }}>Азиатских и Европейских</span> производителей
             </h1>
 
-            <p className="text-[18px] sm:text-[20px] font-medium text-[#333] mb-8 max-w-xl leading-snug">
-              Оборудование для формирования и заклейки коробов — от <span className="font-bold" style={{ color: "var(--orange)" }}>8 до 50 коробов</span> в минуту. Поставка и сервис по всей России.
-            </p>
-
-            <ul className="grid sm:grid-cols-2 gap-x-5 gap-y-4 mb-8 max-w-2xl">
+            <ul className="grid gap-y-4 mb-8 max-w-2xl mt-2">
               {HERO_BULLETS.map((b, i) => (
-                <li key={i} className="flex items-start gap-3 text-[16px] font-medium text-[#1A1A1A] leading-snug">
-                  <Icon name={b.icon} fallback="CheckCircle2" size={24} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                <li key={i} className="flex items-start gap-3 text-[18px] sm:text-[20px] font-semibold text-[#1A1A1A] leading-snug">
+                  <Icon name={b.icon} fallback="CheckCircle2" size={28} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
                   <span>{b.text}</span>
                 </li>
               ))}
@@ -532,23 +579,16 @@ export default function Kartonajnoe() {
             <p className="text-[#666] mt-2 max-w-2xl mx-auto">Автоматизация формирования и заклейки коробов снижает затраты на персонал, материалы и простои</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-10">
-            <div className="rounded-2xl overflow-hidden h-64 sm:h-80">
-              <img src={IMG_ECONOMY} alt="Автоматическая упаковка коробов" loading="lazy" className="w-full h-full object-cover" />
-            </div>
-            <div className="rounded-2xl overflow-hidden h-64 sm:h-80">
-              <img src={IMG_ECONOMY2} alt="Качественный шов заклейки короба" loading="lazy" className="w-full h-full object-cover" />
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {ADVANTAGES.map((a, i) => (
-              <div key={i} className="card-hover rounded-2xl p-6 bg-white border border-gray-100 shadow-sm flex flex-col">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.1)" }}>
-                  <Icon name={a.icon} fallback="CheckCircle2" size={26} style={{ color: "var(--orange)" }} />
+              <div key={i} className="card-hover rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col overflow-hidden">
+                <div className="aspect-[16/10] overflow-hidden bg-[#F0F0F0]">
+                  <img src={a.img} alt={a.title} loading="lazy" className="w-full h-full object-cover" />
                 </div>
-                <h3 className="font-bold text-[#1A1A1A] text-[16px] mb-2 leading-snug">{a.title}</h3>
-                <p className="text-[14px] text-[#555] leading-relaxed">{a.desc}</p>
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="font-bold text-[#1A1A1A] text-[18px] mb-2 leading-snug">{a.title}</h3>
+                  <p className="text-[16px] text-[#444] leading-relaxed">{a.desc}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -589,6 +629,29 @@ export default function Kartonajnoe() {
               </button>
             )}
           </div>
+
+          {!catalogLoading && !catalogError && (
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+              {CATEGORY_TABS.map(t => {
+                const active = catalogCat === t.id;
+                const cnt = catCount(t.id);
+                if (t.id !== "all" && cnt === 0) return null;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setCatalogCat(t.id)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold transition-all border"
+                    style={active
+                      ? { background: "var(--orange)", color: "#fff", borderColor: "var(--orange)" }
+                      : { background: "#fff", color: "#444", borderColor: "#E5E5E5" }}
+                  >
+                    {t.label}
+                    <span className="text-[12px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: active ? "rgba(255,255,255,0.25)" : "#F0F0F0", color: active ? "#fff" : "#888" }}>{cnt}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {catalogLoading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -646,7 +709,7 @@ export default function Kartonajnoe() {
                           <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-3 leading-snug min-h-[44px]">{p.name}</h3>
                           {keyParams.length > 0 && (
                             <ul className="mb-4 space-y-1.5">
-                              {keyParams.slice(0, 4).map((pr, i) => (
+                              {keyParams.map((pr, i) => (
                                 <li key={i} className="flex items-start gap-2 text-[13px] leading-snug">
                                   <span className="text-[#888] mt-1">·</span>
                                   <span className="text-[#444]">
@@ -729,30 +792,38 @@ export default function Kartonajnoe() {
             ))}
           </div>
 
-          <div className="max-w-4xl mx-auto">
-            <h3 className="text-center font-bold text-[#1A1A1A] text-xl mb-6">Проблемы, которые закрываем</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {SOLUTION_PROBLEMS.map((p, i) => (
-                <div key={i} className="flex items-start gap-4 bg-[#F7F7F7] rounded-xl p-5 border border-gray-100">
-                  <div className="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: "rgba(255,102,0,0.1)" }}>
-                    <Icon name={p.icon} fallback="AlertCircle" size={22} style={{ color: "var(--orange)" }} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[#1A1A1A] text-[15px] leading-snug mb-1">{p.text}</p>
-                    <p className="text-[14px] text-[#555] leading-snug flex items-start gap-1.5">
-                      <Icon name="ArrowRight" size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                      <span>{p.result}</span>
-                    </p>
-                  </div>
+        </div>
+      </section>
+
+      {/* PROBLEMS — отдельное окно с фото */}
+      <section id="problems" className="py-16 bg-[#F7F7F7]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Проблемы, которые закрываем</h2>
+            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Что меняется на производстве после установки картонажного оборудования</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {SOLUTION_PROBLEMS.map((p, i) => (
+              <div key={i} className="card-hover bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col">
+                <div className="aspect-[16/10] overflow-hidden bg-[#F0F0F0] relative">
+                  <img src={p.img} alt={p.text} loading="lazy" className="w-full h-full object-cover" />
+                  <div className="absolute top-3 left-3 w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-[15px]" style={{ background: "var(--orange)" }}>{i + 1}</div>
                 </div>
-              ))}
-            </div>
+                <div className="p-5 flex-1 flex flex-col">
+                  <p className="font-bold text-[#1A1A1A] text-[16px] leading-snug mb-3">{p.text}</p>
+                  <p className="text-[15px] text-[#444] leading-snug flex items-start gap-2 mt-auto">
+                    <Icon name="ArrowRight" size={18} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                    <span>{p.result}</span>
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* SELECTOR — Экран 5 */}
-      <section id="selector" className="py-16 bg-[#F7F7F7]">
+      <section id="selector" className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-8">
             <h2 className="section-title">Какой формирователь коробов выбрать</h2>
@@ -819,7 +890,7 @@ export default function Kartonajnoe() {
                     <tbody>
                       {tab.rows.map((r, i) => (
                         <tr key={i} className="border-t border-gray-100 hover:bg-[#FFF8F3] transition-colors">
-                          <td className="px-4 sm:px-6 py-3.5 text-[14px] font-semibold text-[#1A1A1A] align-top">{r.series}</td>
+                          <td className="px-4 sm:px-6 py-3.5 text-[14px] font-semibold text-[#1A1A1A] align-top">{renderModels(r.series)}</td>
                           <td className="px-4 sm:px-6 py-3.5 text-[14px] text-[#444] align-top">{r.perf}</td>
                           {visibleCols.length > 2 && <td className="px-4 sm:px-6 py-3.5 text-[14px] text-[#444] align-top">{r.size}</td>}
                           {visibleCols.length > 3 && <td className="px-4 sm:px-6 py-3.5 text-[14px] text-[#444] align-top">{r.note}</td>}
@@ -971,25 +1042,24 @@ export default function Kartonajnoe() {
       {/* QUIZ CTA */}
       <section id="quiz" className="py-16 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div
-            className="rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden"
-            style={{ background: "linear-gradient(135deg, var(--orange), #ff8c3a)" }}
-          >
+          <div className="rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden bg-[#1A1A1A]">
+            <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full" style={{ background: "rgba(255,102,0,0.18)" }} />
+            <div className="absolute -bottom-20 -left-10 w-56 h-56 rounded-full" style={{ background: "rgba(255,102,0,0.10)" }} />
             <div className="relative z-10">
-              <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-5">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: "var(--orange)" }}>
                 <Icon name="ListChecks" size={32} className="text-white" />
               </div>
               <h2 className="text-[clamp(24px,3.5vw,36px)] font-bold text-white mb-3 leading-tight">
                 Подберём оборудование за 4 шага
               </h2>
-              <p className="text-white/90 text-[17px] mb-7 max-w-xl mx-auto leading-snug">
+              <p className="text-white/70 text-[17px] mb-7 max-w-xl mx-auto leading-snug">
                 Ответьте на 4 вопроса — инженер подберёт 2–3 модели под ваши параметры и пришлёт цены
               </p>
               <button
                 onClick={() => setQuizOpen(true)}
-                className="bg-white text-[#1A1A1A] font-bold text-base px-9 py-4 rounded-xl hover:bg-white/90 transition-colors inline-flex items-center gap-2"
+                className="btn-orange text-base px-9 py-4 inline-flex items-center gap-2"
               >
-                <Icon name="Smile" size={20} style={{ color: "var(--orange)" }} />
+                <Icon name="Smile" size={20} className="text-white" />
                 Пройти квиз
               </button>
             </div>
@@ -1210,9 +1280,9 @@ export default function Kartonajnoe() {
               </div>
 
               {detailsProduct.description && stripHtml(detailsProduct.description) && (
-                <div className="mb-6">
+                <div className="mb-5">
                   <h4 className="font-bold text-[13px] uppercase tracking-wider mb-2" style={{ color: "var(--orange)" }}>Описание</h4>
-                  <p className="text-[14px] text-[#444] leading-relaxed whitespace-pre-line">{stripHtml(detailsProduct.description)}</p>
+                  <p className="text-[14px] text-[#444] leading-relaxed whitespace-pre-line line-clamp-4">{stripHtml(detailsProduct.description)}</p>
                 </div>
               )}
 
@@ -1261,14 +1331,13 @@ export default function Kartonajnoe() {
                 if (rtMatch) {
                   return <iframe className="absolute inset-0 w-full h-full" src={`https://rutube.ru/play/embed/${rtMatch[1]}`} title="Видео" allow="autoplay" allowFullScreen />;
                 }
+                if (/vk\.com|vkvideo\.ru/i.test(videoModal)) {
+                  return <iframe className="absolute inset-0 w-full h-full" src={videoModal.replace(/\/video/, "/video_ext.php?oid=").includes("video_ext") ? videoModal : videoModal} title="Видео" allow="autoplay; encrypted-media; fullscreen" allowFullScreen />;
+                }
                 return (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center gap-3">
-                    <Icon name="Film" size={48} className="opacity-60" />
-                    <p>Видео доступно по внешней ссылке</p>
-                    <a href={videoModal} target="_blank" rel="noopener noreferrer" className="btn-orange inline-flex items-center gap-2 px-5 py-2.5">
-                      <Icon name="ExternalLink" size={16} />Открыть видео
-                    </a>
-                  </div>
+                  <video className="absolute inset-0 w-full h-full" src={videoModal} controls autoPlay playsInline>
+                    <a href={videoModal} target="_blank" rel="noopener noreferrer">Открыть видео</a>
+                  </video>
                 );
               })()}
             </div>
