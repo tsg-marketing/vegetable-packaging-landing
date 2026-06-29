@@ -124,9 +124,10 @@ if (!empty($utmClean)) {
 }
 $commentText = implode("\n", $commentLines);
 
-// Имя для CRM: "{имя} — {url страницы}" (например "Иван — https://pack.t-sib.ru/gorizontalnoe")
+// Имя для CRM. URL страницы добавляется на фронте в формате "{имя} — {url}".
+// Если фронт по какой-то причине не добавил URL — подставим его здесь.
 $nameForCrm = $name;
-if ($leadUrl !== '') {
+if ($leadUrl !== '' && mb_strpos($name, $leadUrl) === false) {
     $nameForCrm = $name . ' — ' . $leadUrl;
 }
 

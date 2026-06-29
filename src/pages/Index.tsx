@@ -12,14 +12,18 @@ const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21d
 
 async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
   try {
+    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+    const baseName = String(payload.name ?? "").trim();
+    const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
     const res = await fetch(LEAD_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         page: currentPagePath(),
         ...payload,
+        name: nameWithUrl,
         utm: readUtm(),
-        pageUrl: typeof window !== "undefined" ? window.location.href : "",
+        pageUrl,
       }),
     });
     if (!res.ok) return false;

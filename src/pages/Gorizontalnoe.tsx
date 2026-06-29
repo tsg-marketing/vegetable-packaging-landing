@@ -77,14 +77,18 @@ const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
   try {
+    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+    const baseName = String(payload.name ?? "").trim();
+    const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
     const res = await fetch(LEAD_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         page: currentPagePath(),
         ...payload,
+        name: nameWithUrl,
         utm: readUtm(),
-        pageUrl: typeof window !== "undefined" ? window.location.href : "",
+        pageUrl,
       }),
     });
     if (!res.ok) return false;
