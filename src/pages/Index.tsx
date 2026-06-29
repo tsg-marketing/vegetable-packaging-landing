@@ -6,6 +6,7 @@ import QuizSideTab from "@/components/QuizSideTab";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
+import { useSeo } from "@/lib/seo";
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
@@ -225,6 +226,11 @@ export default function Index() {
 
   // Quiz
   const [quizOpen, setQuizOpen] = useState(false);
+
+  useSeo({
+    title: "Оборудование для упаковки овощей и фруктов в сетку и лотки — Техно-Сиб",
+    description: "Клипсаторы и автоматические линии для упаковки овощей и фруктов в сетку, плёнку и лотки. Встроенная маркировка для сетей. Подбор за 1 день, гарантия 12 мес., окупаемость 4–8 мес.",
+  });
 
   // Авто-открытие квиза: 1 раз за сессию, через 30 секунд после начала
   useEffect(() => {

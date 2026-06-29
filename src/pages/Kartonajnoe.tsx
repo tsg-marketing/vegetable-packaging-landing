@@ -7,6 +7,7 @@ import CartonQuiz, { type CartonQuizPayload } from "@/components/CartonQuiz";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
+import { useSeo } from "@/lib/seo";
 
 // Страница картонажного упаковочного оборудования /kartonajnoe
 
@@ -322,6 +323,11 @@ export default function Kartonajnoe() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  useSeo({
+    title: "Картонажное оборудование — формирователи и заклейщики коробов | Техно-Сиб",
+    description: "Картонажное упаковочное оборудование: формирователи и заклейщики коробов до 50 коробов/мин. Короба от 130×80 до 850×600 мм. Для маркетплейсов, e-commerce, логистики и пищевых производств.",
+  });
 
   const openFos = useCallback((productName?: string) => {
     setFosData({ name: "", phone: "", email: "" });

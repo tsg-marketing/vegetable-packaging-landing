@@ -4,6 +4,7 @@ import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
+import { useSeo } from "@/lib/seo";
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
@@ -121,6 +122,11 @@ export default function Home() {
   const [cardSlideIdx, setCardSlideIdx] = useState<Record<string, number>>({});
   // Лайтбокс (просмотр фото в полноэкранном окне)
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
+
+  useSeo({
+    title: "Техно-Сиб — упаковочное оборудование для пищевых производств",
+    description: "Производство и поставка упаковочного оборудования: вакуумные, горизонтальные, картонажные машины и оборудование для упаковки овощей. Подбор за 1 день, гарантия, сервис. 20 лет на рынке.",
+  });
 
   useEffect(() => {
     captureUtm();
