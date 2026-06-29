@@ -124,6 +124,12 @@ if (!empty($utmClean)) {
 }
 $commentText = implode("\n", $commentLines);
 
+// Имя для CRM: "{имя} — {url страницы}" (например "Иван — https://pack.t-sib.ru/gorizontalnoe")
+$nameForCrm = $name;
+if ($leadUrl !== '') {
+    $nameForCrm = $name . ' — ' . $leadUrl;
+}
+
 // ── Логирование на диск (на случай сбоя webhook) ────────────
 $logDir  = __DIR__ . '/leads';
 if (!is_dir($logDir)) @mkdir($logDir, 0775, true);
@@ -163,7 +169,7 @@ if ($B24_WEBHOOK_URL === '') {
 $fields = [
     'fields' => [
         'TITLE'        => $title,
-        'NAME'         => $name,
+        'NAME'         => $nameForCrm,
         'PHONE'        => [['VALUE' => $phone, 'VALUE_TYPE' => 'WORK']],
         'EMAIL'        => $email !== '' ? [['VALUE' => $email, 'VALUE_TYPE' => 'WORK']] : [],
         'COMMENTS'     => $commentText,
