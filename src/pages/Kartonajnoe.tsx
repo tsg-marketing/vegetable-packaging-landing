@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
-import { captureUtm, readUtm } from "@/lib/utm";
+import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
 import ProductGallery from "@/components/ProductGallery";
 import QuizSideTab from "@/components/QuizSideTab";
 import CartonQuiz, { type CartonQuizPayload } from "@/components/CartonQuiz";
@@ -79,7 +79,7 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        page: typeof window !== "undefined" ? window.location.pathname : "",
+        page: currentPagePath(),
         ...payload,
         utm: readUtm(),
         pageUrl: typeof window !== "undefined" ? window.location.href : "",

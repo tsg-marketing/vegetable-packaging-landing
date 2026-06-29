@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
-import { captureUtm, readUtm } from "@/lib/utm";
+import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
@@ -40,7 +40,7 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        page: typeof window !== "undefined" ? window.location.pathname : "",
+        page: currentPagePath(),
         ...payload,
         utm: readUtm(),
         pageUrl: typeof window !== "undefined" ? window.location.href : "",

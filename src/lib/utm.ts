@@ -46,3 +46,11 @@ export function readUtm(): UtmMap {
   });
   return out;
 }
+
+// Относительный URL текущей страницы лендинга (например "/gorizontalnoe", корень → "/")
+export function currentPagePath(): string {
+  if (typeof window === "undefined") return "";
+  let path = window.location.pathname || "/";
+  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
+  return path || "/";
+}
