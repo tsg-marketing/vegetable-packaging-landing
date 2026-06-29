@@ -57,6 +57,22 @@ $comment = trim((string)($data['comment'] ?? ''));
 $pack    = trim((string)($data['pack']    ?? ''));
 $source  = trim((string)($data['source']  ?? 'site'));
 $pageUrl = trim((string)($data['pageUrl'] ?? ''));
+$page    = trim((string)($data['page']    ?? ''));
+
+// Полный URL страницы, откуда пришла заявка (например https://pack.t-sib.ru/gorizontalnoe)
+$leadUrl = $pageUrl;
+if ($leadUrl === '' && $page !== '') {
+    $leadUrl = 'https://pack.t-sib.ru' . ($page[0] === '/' ? $page : '/' . $page);
+}
+
+// Ответы квиза (произвольный набор полей: товар, размер, скорость, объём и т.д.)
+$quizAnswers = isset($data['quizAnswers']) && is_array($data['quizAnswers']) ? $data['quizAnswers'] : [];
+$quizClean = [];
+foreach ($quizAnswers as $k => $v) {
+    if (is_scalar($v) && trim((string)$v) !== '') {
+        $quizClean[(string)$k] = mb_substr((string)$v, 0, 500);
+    }
+}
 
 // UTM
 $utm = isset($data['utm']) && is_array($data['utm']) ? $data['utm'] : [];
@@ -76,12 +92,30 @@ if ($product !== '') {
     $title .= ' — ' . mb_substr($pack, 0, 150);
 }
 
+$quizLabels = [
+    'product'    => 'Что упаковываете',
+    'packaging'  => 'Тип упаковки',
+    'volume'     => 'Объём',
+    'automation' => 'Автоматизация',
+    'size'       => 'Размер',
+    'speed'      => 'Скорость',
+    'budget'     => 'Бюджет',
+    'task'       => 'Задача',
+    'options'    => 'Доп. опции',
+];
+
 $commentLines = [];
 if ($product !== '')  $commentLines[] = 'Товар: ' . $product;
 if ($pack !== '')     $commentLines[] = 'Что упаковывают: ' . $pack;
 if ($comment !== '')  $commentLines[] = 'Комментарий: ' . $comment;
 if ($email !== '')    $commentLines[] = 'E-mail: ' . $email;
-if ($pageUrl !== '')  $commentLines[] = 'Страница: ' . $pageUrl;
+if (!empty($quizClean)) {
+    $commentLines[] = '— Ответы квиза —';
+    foreach ($quizClean as $k => $v) {
+        $commentLines[] = ($quizLabels[$k] ?? $k) . ': ' . $v;
+    }
+}
+if ($leadUrl !== '')  $commentLines[] = 'Страница: ' . $leadUrl;
 if (!empty($utmClean)) {
     $commentLines[] = '— UTM —';
     foreach ($utmClean as $k => $v) {
@@ -95,15 +129,18 @@ $logDir  = __DIR__ . '/leads';
 if (!is_dir($logDir)) @mkdir($logDir, 0775, true);
 $logFile = $logDir . '/' . date('Y-m') . '.log';
 $logLine = '[' . date('Y-m-d H:i:s') . '] ' . json_encode([
-    'name'    => $name,
-    'phone'   => $phone,
-    'email'   => $email,
-    'product' => $product,
-    'pack'    => $pack,
-    'comment' => $comment,
-    'pageUrl' => $pageUrl,
-    'utm'     => $utmClean,
-    'ip'      => $_SERVER['REMOTE_ADDR'] ?? '',
+    'name'        => $name,
+    'phone'       => $phone,
+    'email'       => $email,
+    'source'      => $source,
+    'product'     => $product,
+    'pack'        => $pack,
+    'comment'     => $comment,
+    'quizAnswers' => $quizClean,
+    'url'         => $leadUrl,
+    'page'        => $page,
+    'utm'         => $utmClean,
+    'ip'          => $_SERVER['REMOTE_ADDR'] ?? '',
 ], JSON_UNESCAPED_UNICODE) . "\n";
 @file_put_contents($logFile, $logLine, FILE_APPEND | LOCK_EX);
 
