@@ -8,6 +8,7 @@ import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
 import { useSeo } from "@/lib/seo";
+import LegalInfo from "@/components/LegalInfo";
 
 // Страница горизонтальных упаковочных машин flow-pack /gorizontalnoe
 
@@ -1149,7 +1150,8 @@ export default function Gorizontalnoe() {
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-6 text-center">
+          <div className="border-t border-white/10 pt-6 text-center space-y-3">
+            <LegalInfo className="max-w-3xl mx-auto" />
             <p className="text-xs text-white/35">© {new Date().getFullYear()} Техно-Сиб. Все права защищены.</p>
           </div>
         </div>

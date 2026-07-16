@@ -8,6 +8,7 @@ import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
 import { useSeo } from "@/lib/seo";
+import LegalInfo from "@/components/LegalInfo";
 
 // Страница вакуумного упаковочного оборудования /vacuum
 
@@ -1092,8 +1093,9 @@ export default function Vacuum() {
             <p><a href="/vacuum" className="hover:text-orange-500 transition-colors">Вакуумные упаковщики</a></p>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-white/10 text-xs text-white/50">
-          © {new Date().getFullYear()} ТЕХНОСИБ. Все права защищены.
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-white/10 text-xs text-white/50 space-y-3">
+          <LegalInfo />
+          <p>© {new Date().getFullYear()} ТЕХНОСИБ. Все права защищены.</p>
         </div>
       </footer>
 

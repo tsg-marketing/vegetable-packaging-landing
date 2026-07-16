@@ -7,6 +7,7 @@ import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
 import { useSeo } from "@/lib/seo";
+import LegalInfo from "@/components/LegalInfo";
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
@@ -1121,7 +1122,8 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-6 text-center">
+          <div className="border-t border-white/10 pt-6 text-center space-y-3">
+            <LegalInfo className="max-w-3xl mx-auto" />
             <p className="text-xs text-white/35">© 2026 Техно-Сиб. Все права защищены.</p>
           </div>
         </div>
