@@ -58,6 +58,9 @@ $pack    = trim((string)($data['pack']    ?? ''));
 $source  = trim((string)($data['source']  ?? 'site'));
 $pageUrl = trim((string)($data['pageUrl'] ?? ''));
 $page    = trim((string)($data['page']    ?? ''));
+// ClientID Яндекс.Метрики (опционально — может отсутствовать, если Метрика не загрузилась)
+$yaClientId = trim((string)($data['yaClientId'] ?? ''));
+$yaClientId = mb_substr($yaClientId, 0, 100);
 
 // Полный URL страницы, откуда пришла заявка (например https://pack.t-sib.ru/gorizontalnoe)
 $leadUrl = $pageUrl;
@@ -116,6 +119,9 @@ if (!empty($quizClean)) {
     }
 }
 if ($leadUrl !== '')  $commentLines[] = 'Страница: ' . $leadUrl;
+if ($yaClientId !== '' && mb_strpos($comment, $yaClientId) === false) {
+    $commentLines[] = 'ClientID: ' . $yaClientId;
+}
 if (!empty($utmClean)) {
     $commentLines[] = '— UTM —';
     foreach ($utmClean as $k => $v) {
@@ -144,6 +150,7 @@ $logLine = '[' . date('Y-m-d H:i:s') . '] ' . json_encode([
     'pack'        => $pack,
     'comment'     => $comment,
     'quizAnswers' => $quizClean,
+    'yaClientId'  => $yaClientId,
     'url'         => $leadUrl,
     'page'        => $page,
     'utm'         => $utmClean,

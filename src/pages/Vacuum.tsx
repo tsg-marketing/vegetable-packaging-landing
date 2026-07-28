@@ -6,7 +6,7 @@ import VacuumQuiz, { VacuumQuizPayload } from "@/components/VacuumQuiz";
 import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
-import { ymGoal } from "@/lib/ym";
+import { ymGoal, getYaClientId } from "@/lib/ym";
 import { useSeo } from "@/lib/seo";
 import LegalInfo from "@/components/LegalInfo";
 
@@ -144,6 +144,11 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
     const pageUrl = typeof window !== "undefined" ? window.location.href : "";
     const baseName = String(payload.name ?? "").trim();
     const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
+    const yaClientId = await getYaClientId();
+    const baseComment = String(payload.comment ?? "").trim();
+    const comment = yaClientId
+      ? (baseComment ? `${baseComment}\nClientID: ${yaClientId}` : `ClientID: ${yaClientId}`)
+      : baseComment;
     const res = await fetch(LEAD_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -151,6 +156,8 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
         page: currentPagePath(),
         ...payload,
         name: nameWithUrl,
+        comment,
+        yaClientId,
         utm: readUtm(),
         pageUrl,
       }),
