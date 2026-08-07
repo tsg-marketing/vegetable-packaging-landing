@@ -16,6 +16,7 @@ const CATALOG_ENDPOINT = "https://functions.poehali.dev/9ddae291-349d-4cd4-96e8-
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg";
 const IMG_HERO_MACHINE = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/a1ea56d7-ebe7-436e-af6a-33c47cd05a81.jpg";
+const IMG_HERO_PACK = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/29b00fd0-0398-4d3d-83bb-09229c6f67e8.png";
 
 type CatalogParam = { name: string; value: string };
 type CatalogProduct = {
@@ -495,8 +496,8 @@ export default function Obanderolivayushchie() {
       </header>
 
       {/* HERO */}
-      <section id="hero" className="pt-16 min-h-[88vh] flex items-center bg-[#F7F7F7] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-12 lg:py-0">
+      <section id="hero" className="pt-16 flex items-center bg-[#F7F7F7] overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-6 lg:py-8">
           <div className="lg:col-span-7 pr-0 lg:pr-4 fade-up">
             <h1 className="text-[clamp(24px,3.4vw,40px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
               Обандероливающие машины <span style={{ color: "var(--orange)" }}>BAND&apos;ALL, BM, WK</span> — обвязка продукции мягкими лентами
@@ -526,11 +527,16 @@ export default function Obanderolivayushchie() {
             </div>
           </div>
 
-          <div className="lg:col-span-5 fade-up flex items-center justify-center">
+          <div className="lg:col-span-5 fade-up flex flex-col items-center justify-center gap-3">
             <img
               src={IMG_HERO_MACHINE}
               alt="Обандероливающая машина для обвязки продукции мягкими лентами"
-              className="w-full h-auto lg:h-[520px] xl:h-[580px] object-contain drop-shadow-2xl"
+              className="w-full h-auto lg:h-[380px] xl:h-[420px] object-contain drop-shadow-2xl"
+            />
+            <img
+              src={IMG_HERO_PACK}
+              alt="Продукция, упакованная мягкой лентой с брендированием"
+              className="w-full h-auto lg:h-[150px] xl:h-[170px] object-contain drop-shadow-xl"
             />
           </div>
         </div>
