@@ -15,6 +15,7 @@ const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/9ddae291-349d-4cd4-96e8-bfd27df0be32";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg";
+const IMG_HERO_MACHINE = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/a1ea56d7-ebe7-436e-af6a-33c47cd05a81.jpg";
 
 type CatalogParam = { name: string; value: string };
 type CatalogProduct = {
@@ -253,11 +254,6 @@ export default function Obanderolivayushchie() {
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "", pack: "", comment: "" });
 
-  const [heroData, setHeroData] = useState({ name: "", phone: "" });
-  const [heroAgree, setHeroAgree] = useState(false);
-  const [heroErrors, setHeroErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
-  const [heroSubmitting, setHeroSubmitting] = useState(false);
-
   const [fosOpen, setFosOpen] = useState<{ productName?: string } | null>(null);
   const [fosData, setFosData] = useState({ name: "", phone: "", email: "" });
   const [fosAgree, setFosAgree] = useState(false);
@@ -363,25 +359,6 @@ export default function Obanderolivayushchie() {
     setFosOpen(null);
     setThanksOpen(true);
   }, [fosData, fosOpen, fosSubmitting, validateFos]);
-
-  const submitHeroForm = async () => {
-    const errs: { name?: string; phone?: string; agree?: string } = {};
-    if (heroData.name.trim().length < 2) errs.name = "Укажите имя";
-    if (!isValidPhoneRu(heroData.phone)) errs.phone = "Введите телефон в формате +7 и 10 цифр";
-    if (!heroAgree) errs.agree = "Необходимо согласие";
-    setHeroErrors(errs);
-    if (Object.keys(errs).length > 0 || heroSubmitting) return;
-    setHeroSubmitting(true);
-    await sendLead({
-      source: "hero_form",
-      name: heroData.name.trim(),
-      phone: heroData.phone.trim(),
-    });
-    setHeroSubmitting(false);
-    setHeroData({ name: "", phone: "" });
-    setHeroAgree(false);
-    setThanksOpen(true);
-  };
 
   const submitMainForm = async () => {
     const errs: { name?: string; phone?: string; agree?: string } = {};
@@ -549,51 +526,12 @@ export default function Obanderolivayushchie() {
             </div>
           </div>
 
-          <div className="lg:col-span-5 fade-up">
-            <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-lg border border-gray-100">
-              <h2 className="text-xl font-bold text-[#1A1A1A] mb-2 leading-snug">
-                Оставьте заявку — подберём машину под ваш продукт
-              </h2>
-              <p className="text-[14px] text-[#666] mb-5">Менеджер свяжется в течение 15 минут</p>
-              <div className="space-y-3">
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Ваше имя"
-                    value={heroData.name}
-                    onChange={e => { setHeroData({ ...heroData, name: e.target.value }); if (heroErrors.name) setHeroErrors({ ...heroErrors, name: undefined }); }}
-                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
-                    style={{ borderColor: heroErrors.name ? "#E53935" : "#E0E0E0" }}
-                  />
-                  {heroErrors.name && <p className="text-[13px] text-red-500 mt-1">{heroErrors.name}</p>}
-                </div>
-                <div>
-                  <input
-                    type="tel"
-                    placeholder="+7 (___) ___-__-__"
-                    value={heroData.phone}
-                    onChange={e => { setHeroData({ ...heroData, phone: formatPhoneRu(e.target.value) }); if (heroErrors.phone) setHeroErrors({ ...heroErrors, phone: undefined }); }}
-                    onFocus={e => { if (!e.target.value) setHeroData({ ...heroData, phone: "+7 " }); }}
-                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
-                    style={{ borderColor: heroErrors.phone ? "#E53935" : "#E0E0E0" }}
-                  />
-                  {heroErrors.phone && <p className="text-[13px] text-red-500 mt-1">{heroErrors.phone}</p>}
-                </div>
-                <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={heroAgree}
-                    onChange={e => { setHeroAgree(e.target.checked); if (heroErrors.agree) setHeroErrors({ ...heroErrors, agree: undefined }); }}
-                    className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
-                  />
-                  <PolicyDisclaimer />
-                </label>
-                {heroErrors.agree && <p className="text-[13px] text-red-500 -mt-1">{heroErrors.agree}</p>}
-                <button onClick={submitHeroForm} disabled={heroSubmitting} className="btn-orange w-full py-3.5 text-base disabled:opacity-60">
-                  {heroSubmitting ? "Отправляем…" : "Отправить заявку"}
-                </button>
-              </div>
-            </div>
+          <div className="lg:col-span-5 fade-up flex items-center justify-center">
+            <img
+              src={IMG_HERO_MACHINE}
+              alt="Обандероливающая машина для обвязки продукции мягкими лентами"
+              className="w-full h-auto lg:h-[520px] xl:h-[580px] object-contain drop-shadow-2xl"
+            />
           </div>
         </div>
       </section>
