@@ -15,7 +15,7 @@ const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/9ddae291-349d-4cd4-96e8-bfd27df0be32";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg";
-const IMG_HERO_MACHINE = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/1c0db062-ad92-47c9-b222-e2532d20dc37.png";
+const IMG_HERO_MACHINE = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/fb95c3ad-3bfd-405e-940c-a6851562a7ec.png";
 
 type CatalogParam = { name: string; value: string };
 type CatalogProduct = {
