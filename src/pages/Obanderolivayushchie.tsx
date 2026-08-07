@@ -496,7 +496,7 @@ export default function Obanderolivayushchie() {
 
       {/* HERO */}
       <section id="hero" className="pt-16 flex items-center bg-[#F7F7F7] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-6 lg:py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch py-6 lg:py-8">
           <div className="lg:col-span-7 pr-0 lg:pr-4 fade-up">
             <h1 className="text-[clamp(24px,3.4vw,40px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
               Обандероливающие машины <span style={{ color: "var(--orange)" }}>BAND&apos;ALL, BM, WK</span> — обвязка продукции мягкими лентами
@@ -526,11 +526,11 @@ export default function Obanderolivayushchie() {
             </div>
           </div>
 
-          <div className="lg:col-span-5 fade-up flex items-center justify-center">
+          <div className="lg:col-span-5 fade-up self-stretch">
             <img
               src={IMG_HERO_MACHINE}
               alt="Обандероливающая машина и продукция, обвязанная мягкой лентой"
-              className="w-full h-auto object-contain rounded-2xl shadow-xl"
+              className="w-full h-full min-h-[260px] lg:min-h-[420px] object-cover rounded-2xl shadow-xl"
             />
           </div>
         </div>
