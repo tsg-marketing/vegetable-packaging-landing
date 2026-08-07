@@ -448,6 +448,7 @@ export default function Index() {
                     <a href="/vacuum" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Вакуумные упаковщики</a>
                     <a href="/gorizontalnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Горизонтальные машины flow-pack</a>
                     <a href="/kartonajnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Картонажное оборудование</a>
+                    <a href="/obanderolivayushchie-mashiny" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Обандероливающие машины</a>
                   </div>
                 </div>
               )}
@@ -490,6 +491,7 @@ export default function Index() {
               <a href="/vacuum" className="block text-base text-[#444] py-1.5 pl-2">Вакуумные упаковщики</a>
               <a href="/gorizontalnoe" className="block text-base text-[#444] py-1.5 pl-2">Горизонтальные машины flow-pack</a>
               <a href="/kartonajnoe" className="block text-base text-[#444] py-1.5 pl-2">Картонажное оборудование</a>
+              <a href="/obanderolivayushchie-mashiny" className="block text-base text-[#444] py-1.5 pl-2">Обандероливающие машины</a>
             </div>
             {NAV.slice(2).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}

@@ -10,6 +10,7 @@ import Vegetables from "./pages/Vegetables";
 import Vacuum from "./pages/Vacuum";
 import Gorizontalnoe from "./pages/Gorizontalnoe";
 import Kartonajnoe from "./pages/Kartonajnoe";
+import Obanderolivayushchie from "./pages/Obanderolivayushchie";
 import NotFound from "./pages/NotFound";
 import { ymGoal } from "@/lib/ym";
 
@@ -42,6 +43,7 @@ const App = () => {
             <Route path="/vacuum" element={<Vacuum />} />
             <Route path="/gorizontalnoe" element={<Gorizontalnoe />} />
             <Route path="/kartonajnoe" element={<Kartonajnoe />} />
+            <Route path="/obanderolivayushchie-mashiny" element={<Obanderolivayushchie />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

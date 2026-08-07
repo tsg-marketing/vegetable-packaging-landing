@@ -1,21 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
+
 import ProductGallery from "@/components/ProductGallery";
-import QuizSideTab from "@/components/QuizSideTab";
-import CartonQuiz, { type CartonQuizPayload } from "@/components/CartonQuiz";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal, getYaClientId } from "@/lib/ym";
 import { useSeo } from "@/lib/seo";
 import LegalInfo from "@/components/LegalInfo";
 
-// Страница картонажного упаковочного оборудования /kartonajnoe
+// Страница обандероливающих машин /obanderolivayushchie-mashiny
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
-const CATALOG_ENDPOINT = "https://functions.poehali.dev/714167da-e3c6-45bc-9647-de3991debd61";
+const CATALOG_ENDPOINT = "https://functions.poehali.dev/9ddae291-349d-4cd4-96e8-bfd27df0be32";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
-const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/e080e415-acc2-4182-8331-888da44fa6e4.jpg";
+const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg";
 
 type CatalogParam = { name: string; value: string };
 type CatalogProduct = {
@@ -44,12 +43,13 @@ function visibleParams(params: CatalogParam[]): CatalogParam[] {
 }
 
 function getVideoUrl(params: CatalogParam[]): string | null {
-  const p = params.find(x => /видео|video/i.test(x.name));
+  const p = params.find(x => /видео.*ссылк/i.test(x.name) || /^видео\s*\(ссылка\)$/i.test(x.name.trim()));
   if (!p) return null;
   const raw = (p.value || "").trim();
   if (!raw) return null;
-  const first = raw.split(/[\s,;]+/).find(s => /^https?:\/\//i.test(s));
-  return first || null;
+  const first = raw.split(/[,\s;]+/).find(s => /^https?:\/\//i.test(s));
+  if (!first) return null;
+  return first;
 }
 
 function stripHtml(html: string): string {
@@ -108,177 +108,179 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
   }
 }
 
+const HERO_BULLETS = [
+  "Гарантия 12 мес. завода-изготовителя",
+  "Доставка по РФ и странам Таможенного союза",
+  "Оборудование для пищевой промышленности",
+  "Более 12 моделей в наличии и под заказ",
+];
+
+const TASKS = [
+  { icon: "Package", title: "Групповая и штучная упаковка", desc: "Обвязка штучной продукции и наборов в один блок мягкой лентой" },
+  { icon: "ShieldCheck", title: "Защита от вскрытия", desc: "Лента фиксирует продукт и служит контрольным элементом целостности" },
+  { icon: "Tag", title: "Брендирование ленты", desc: "Логотип, дата, штрих-код, маркировка «Честный знак» прямо на ленте" },
+  { icon: "TrendingDown", title: "Экономия упаковки", desc: "Тонкие ленты от 35 мкм вместо плёночной или картонной упаковки" },
+];
+
+const ADVANTAGES = [
+  { icon: "Zap", title: "Бережная обвязка на высокой скорости", desc: "Запатентованная система: до 35 упаковок в минуту на полуавтомате без повреждения продукта" },
+  { icon: "TrendingDown", title: "Экономия упаковочного материала", desc: "Тонкие ленты от 35 мкм — расход материала ниже, чем у плёночной упаковки" },
+  { icon: "Wind", title: "Ультразвуковая сварка Ultra Clean Seal", desc: "Без запаха и дыма. Серия WK — для производств, где термосварка запрещена" },
+  { icon: "Wrench", title: "Пневматический привод", desc: "Минимум механики, простое обслуживание и высокая надёжность в эксплуатации" },
+  { icon: "Award", title: "Сертификация для пищевой промышленности", desc: "Корпус из нержавеющей стали SUS304, ПЛК Mitsubishi, сенсорная панель на русском языке" },
+  { icon: "ScanLine", title: "Позиционирование по фотометке", desc: "Точная остановка рисунка на ленте. Комплектация термотрансферным принтером" },
+];
+
+const PROCESS = [
+  { num: 1, icon: "PackageOpen", title: "Подача продукта", desc: "Вручную или автоматически с конвейера" },
+  { num: 2, icon: "RefreshCw", title: "Обвязка лентой", desc: "Лента оборачивается вокруг продукта" },
+  { num: 3, icon: "Flame", title: "Сварка ленты", desc: "Термо- или ультразвуковая сварка шва" },
+  { num: 4, icon: "CheckCircle2", title: "Выход готовой упаковки", desc: "Продукт обвязан и готов к отгрузке" },
+];
+
+type SeriesBullet = { text: string; links?: string[] };
+type SeriesItem = {
+  icon: string;
+  title: string;
+  imageTokens: string[];
+  fallbackImg: string;
+  intro: string;
+  bullets: SeriesBullet[];
+};
+
+const SERIES: SeriesItem[] = [
+  {
+    icon: "Minimize2",
+    title: "Настольные / мини",
+    imageTokens: ["HL-228"],
+    fallbackImg: IMG_HERO,
+    intro: "Для малых объёмов и ограниченной площади.",
+    bullets: [
+      { text: "Компактный корпус, ставится на стол" },
+      { text: "Подходит для аптек, пекарен, небольших цехов" },
+      { text: "Модель в наличии", links: ["HL-228"] },
+    ],
+  },
+  {
+    icon: "Hand",
+    title: "Полуавтоматические",
+    imageTokens: ["BAND'ALL стандартные", "WK02-30"],
+    fallbackImg: IMG_HERO,
+    intro: "Оператор вручную помещает продукт в зону обвязки.",
+    bullets: [
+      { text: "До 35 упаковок в минуту" },
+      { text: "Оптимальны для среднего объёма производства" },
+      { text: "Модели", links: ["BAND'ALL стандартные", "WK02-30"] },
+    ],
+  },
+  {
+    icon: "MoveRight",
+    title: "Автоматические с конвейером",
+    imageTokens: ["WK02-30A", "BM30"],
+    fallbackImg: IMG_HERO,
+    intro: "Встраивание в действующую производственную линию.",
+    bullets: [
+      { text: "Продукт подаётся конвейером автоматически" },
+      { text: "Работа без постоянного участия оператора" },
+      { text: "Модели", links: ["WK02-30A", "BM30"] },
+    ],
+  },
+  {
+    icon: "Factory",
+    title: "Автоматические линии BAND'ALL",
+    imageTokens: ["TXL", "TRC", "TRB"],
+    fallbackImg: IMG_HERO,
+    intro: "Полная автоматизация процесса обвязки.",
+    bullets: [
+      { text: "Максимальная производительность" },
+      { text: "Интеграция в линии крупных производств" },
+      { text: "Линии", links: ["TXL", "TRC", "TRB"] },
+    ],
+  },
+  {
+    icon: "Box",
+    title: "Упаковка в картонную обечайку",
+    imageTokens: ["S-60", "W-80"],
+    fallbackImg: IMG_HERO,
+    intro: "Обвязка продукции картонной обечайкой с брендированием.",
+    bullets: [
+      { text: "Презентабельный вид для полки в рознице" },
+      { text: "Большая площадь для печати и маркировки" },
+      { text: "Модели", links: ["S-60", "W-80"] },
+    ],
+  },
+];
+
+const GUARANTEES = [
+  { icon: "ShieldCheck", title: "Гарантия 12 месяцев", desc: "Гарантия завода-изготовителя на всё оборудование" },
+  { icon: "Truck", title: "Доставка по РФ и ТС", desc: "Отправка в любой регион России и страны Таможенного союза" },
+  { icon: "FileCheck", title: "Документы и сертификаты", desc: "Полный пакет документов для работы на территории РФ" },
+];
+
+const SERVICES = [
+  { icon: "Warehouse", title: "Наличие на складах", desc: "В Новосибирске и Москве" },
+  { icon: "Truck", title: "Доставка РФ и ТС", desc: "Экспресс-отправка со склада в день оплаты" },
+  { icon: "GraduationCap", title: "Обучение персонала", desc: "Инструктаж на объекте клиента включён" },
+  { icon: "Wallet", title: "Лизинг и рассрочка", desc: "Гибкие условия оплаты и финансирования" },
+];
+
+const FAQS = [
+  { q: "Что такое обандероливание?", a: "Это обвязка штучной или групповой продукции мягкой лентой — плёнкой OPP/BOPP или крафт-бумагой. Лента оборачивается вокруг продукта и сваривается, фиксируя его в единый блок. Способ экономичнее плёночной и картонной упаковки и даёт большую площадь для брендирования." },
+  { q: "Какую ленту использует оборудование?", a: "Применяются плёночные ленты OPP/BOPP толщиной от 35 мкм, а также бумажные ламинированные и крафт-ленты. Ширина ленты обычно 30–50 мм в зависимости от модели. Подбор материала зависит от продукта и требований к внешнему виду упаковки." },
+  { q: "Чем отличается серия WK от остальных?", a: "Машины WK используют технологию ультразвуковой сварки Ultra Clean Seal — шов формируется без нагрева, без запаха и дыма. Это решение для производств, где термосварка запрещена по санитарным или технологическим требованиям, например в фармацевтике и пищевом производстве." },
+  { q: "Можно ли наносить на ленту маркировку и «Честный знак»?", a: "Да. Оборудование комплектуется термотрансферным принтером, который наносит на ленту логотип, дату, штрих-код и коды маркировки «Честный знак». Позиционирование ленты по фотометке обеспечивает точное расположение печати." },
+  { q: "Какая производительность у оборудования?", a: "Полуавтоматические модели обеспечивают до 35 упаковок в минуту. Автоматические машины с конвейером и линии BAND'ALL работают быстрее за счёт автоматической подачи продукта. Точную производительность подберём под ваш продукт и объём." },
+  { q: "Есть ли сертификация для пищевой промышленности?", a: "Да. Оборудование сертифицировано для применения в пищевой промышленности, корпус выполнен из нержавеющей стали SUS304. Управление на базе ПЛК Mitsubishi с сенсорной панелью на русском языке." },
+];
+
 const NAV = [
   { label: "Главная", href: "/" },
   { label: "Каталог", href: "#catalog" },
   { label: "Преимущества", href: "#advantages" },
-  { label: "Решения", href: "#solutions" },
-  { label: "Подбор", href: "#selector" },
+  { label: "Типы машин", href: "#series" },
   { label: "О компании", href: "#about" },
+  { label: "Сервис", href: "#service" },
   { label: "FAQ", href: "#faq" },
   { label: "Контакты", href: "#contacts" },
 ];
 
-const FAQS = [
-  { q: "Чем формирователь отличается от заклейщика?", a: "Формирователь собирает короб из плоской заготовки и заклеивает дно. Заклейщик закрывает уже наполненный короб сверху и снизу. Часто их используют в паре с укладкой продукции между ними." },
-  { q: "Полуавтомат или автомат — что выбрать?", a: "Полуавтомат требует оператора (придержать клапаны, подать короб) — это дешевле и подходит для небольших объёмов. Автомат работает без участия человека — для потока и крупных производств." },
-  { q: "Нужен ли компрессор?", a: "Зависит от модели. Многим заклейщикам компрессор не нужен (работают от сети). Формирователям и пневматическим моделям требуется давление 0,4–0,6 МПа. У некоторых моделей (например, CXJ-6040C) компрессор приобретается отдельно." },
-  { q: "Какую ленту можно использовать?", a: "БОПП, ПВХ, крафт, бумажную, водоактивируемую (на FXW-6050), а также брендированный скотч с логотипом. Стандартная ширина — 48, 60, 76 мм." },
-  { q: "Можно ли встроить в существующую линию?", a: "Да. Большинство моделей работают автономно или интегрируются в упаковочную линию, в том числе с весами, сканерами и системами учёта WMS." },
-  { q: "Подойдёт ли для маркетплейсов?", a: "Да — есть специальные модели под малые короба и форматы «самолёт» №1–13 (GPA-30, GPK-30H15/20, GPE-50)." },
-  { q: "Что с гарантией и сервисом?", a: "Официальная гарантия производителя 12 месяцев, пусконаладка, гарантийное и послегарантийное обслуживание, доставка по РФ и странам ТС." },
-  { q: "Какой срок поставки?", a: "Зависит от наличия на складе. Уточняйте у менеджера — часть моделей доступна к отгрузке сразу." },
-];
+const PACK_TYPES = ["Продукты питания", "Хлебобулочные и кондитерские изделия", "Косметика и парфюмерия", "Фармацевтика и медизделия", "Канцелярия и полиграфия", "Текстиль", "Бытовая химия", "Промышленные товары", "Другое"];
 
-const HERO_BULLETS = [
-  { icon: "Zap", bold: "Производительность до 50 коробов/мин", rest: " — под любой объём упаковки" },
-  { icon: "Package", bold: "Короба от 130×80 мм до 850×600 мм", rest: " — мелкие посылки и крупная тара" },
-  { icon: "Wrench", bold: "Быстрая переналадка под новый типоразмер", rest: " без остановки линии" },
-  { icon: "ShieldCheck", bold: "Официальная гарантия 12 месяцев", rest: " + сервис и пусконаладка" },
-];
-
-const ADVANTAGES = [
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/cf0bf663-bfb9-4d53-872d-62209c73d899.jpg", title: "Меньше ручного труда", desc: "Один аппарат заменяет несколько упаковщиков — высвобождаете персонал в пиковые сезоны." },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/2b22d063-5d1c-471d-a0ec-97f86a8f2676.jpg", title: "Стабильное качество шва", desc: "Лента ложится ровно, без пузырей и перекосов — упаковка выглядит аккуратно при отгрузке." },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/27c4d987-50f9-46b4-8358-7cd878c7a78a.jpg", title: "Экономный расход скотча", desc: "Автоматическая обрезка ленты и экономный расход скотча — снижение операционных затрат." },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/6e2a2a41-3895-482e-9082-ff6d8e3a3591.jpg", title: "Работа с любой лентой", desc: "БОПП, ПВХ, крафт, водоактивируемая, брендированный скотч с логотипом." },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/29e73a6c-b7c8-474c-9b7a-3742c4596249.jpg", title: "Надёжные комплектующие", desc: "Ресурс выключателей до 100 000 циклов." },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/f3c658b8-c17d-45da-80d3-fc66a54c6d0b.jpg", title: "Автономно или в линии", desc: "Каждая машина работает отдельно или встраивается в упаковочный конвейер." },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/34719d32-a546-4589-b35b-5df105d8923c.jpg", title: "Сигнализация расходников", desc: "Оповещение об окончании ленты или заготовок — меньше простоев." },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/cce423ce-5ac9-4143-b933-35380ad32f93.jpg", title: "Мобильность", desc: "Конструкция на колёсах с фиксаторами — легко перемещать по цеху." },
-];
-
-const SOLUTIONS = [
-  { icon: "ShoppingCart", branch: "Маркетплейсы и e-commerce", solve: "Быстрая упаковка посылок в пик сезона, форматы «самолёт»" },
-  { icon: "Warehouse", branch: "Склады и фулфилмент", solve: "Формирование тары на потоке, интеграция с маркетплейсами, весами, сканерами" },
-  { icon: "UtensilsCrossed", branch: "Пищевое производство", solve: "Стабильная заклейка транспортной тары, нержавеющие узлы" },
-  { icon: "Pill", branch: "Фармацевтика, косметика", solve: "Аккуратная упаковка, защита от вскрытия" },
-  { icon: "Truck", branch: "Логистика и дистрибуция", solve: "Высокая скорость на крупнотоннажных потоках до 50 коробов/мин" },
-  { icon: "Boxes", branch: "Производство FMCG, бытовой химии", solve: "Серийная упаковка однотипной продукции без участия оператора" },
-];
-
-type SeriesRow = { series: string; perf: string; size: string; note: string };
-type SelectorTab = {
-  key: string;
-  label: string;
-  icon: string;
-  subtitle: string;
-  columns: [string, string, string, string];
-  rows: SeriesRow[];
-  tips: string[];
-};
-
-const SELECTOR_TABS: SelectorTab[] = [
-  {
-    key: "formers",
-    label: "Формирователи",
-    icon: "Box",
-    subtitle: "Собирают короб из плоской заготовки и заклеивают дно",
-    columns: ["Серия", "Производительность", "Размер короба", "Под что"],
-    rows: [
-      { series: "CXJ (4030C, 5035C, 6040A/C, 8560A, 4540D)", perf: "8–24 кор/мин", size: "от 200×150 до 850×600", note: "Базовое формирование, пищёвка, логистика" },
-      { series: "GPK-E (40E, 50E, 60)", perf: "8–12 кор/мин", size: "средние и крупные", note: "Экономичные, цена на ~50% ниже аналогов" },
-      { series: "GPK-H (30H15/20, 40H18/30/50, 50H20)", perf: "15–50 кор/мин", size: "от малых e-commerce до средних", note: "Высокоскоростные горизонтальные, для потока" },
-      { series: "D-1500", perf: "до 1600 кор/час", size: "300×200 до 600×600", note: "Премиум, память настроек, удалённый контроль" },
-    ],
-    tips: [
-      "Малые короба для маркетплейсов → GPK-30H15 / 30H20",
-      "Высокий поток на складе → GPK-40H30 / 40H50 (до 30–50 кор/мин)",
-      "Крупная тара → GPK-60, CXJ-8560A",
-      "Бюджет ограничен → серия GPK-E",
-    ],
-  },
-  {
-    key: "sealers",
-    label: "Заклейщики",
-    icon: "PackageCheck",
-    subtitle: "Заклеивают верх и низ собранного короба",
-    columns: ["Серия", "Тип", "Производительность", "Особенность"],
-    rows: [
-      { series: "FXJ (4030A, 5050A/AS/B/L/Q/QS/Z/ZX, 2550X, 6050, 6050С, 8070B)", perf: "Полуавтомат / авто", size: "18–45 кор/мин", note: "Самая широкая линейка, любой размер" },
-      { series: "EC-60", perf: "Полуавтомат", size: "25–40 кор/мин", note: "Бюджетный для малого/среднего бизнеса" },
-      { series: "FXW-6050", perf: "Автомат", size: "до 15 кор/мин", note: "Водоактивируемая крафт-лента (эко)" },
-      { series: "GPA (30, 50E, 50P)", perf: "Полуавтомат", size: "до 20 кор/мин", note: "Для маркетплейсов, короба №1–12" },
-      { series: "GPB-56", perf: "Полуавтомат", size: "до 20 кор/мин", note: "Высокие, узкие и тяжёлые короба" },
-      { series: "GPC (50, 50D)", perf: "Автомат", size: "поток", note: "С автозакрытием клапанов" },
-      { series: "GPE (50, 50P)", perf: "Автомат", size: "8–12 кор/мин", note: "Автонастройка под размер, частая смена тары" },
-    ],
-    tips: [
-      "Посылки для маркетплейсов → GPA-30, GPE-50",
-      "Тяжёлые/габаритные короба → FXJ-8070B (до 50 кг), GPB-56",
-      "Эко-упаковка крафт-лентой → FXW-6050",
-      "Полная автоматика без оператора → GPC-50D, GPE-50P",
-    ],
-  },
-  {
-    key: "combo",
-    label: "Комбо и спец.",
-    icon: "Combine",
-    subtitle: "Формирование + заклейка дна, фальцовка, клей-расплав",
-    columns: ["Модель", "Функция", "", ""],
-    rows: [
-      { series: "CXJ-6040A / 6040C", perf: "Формирование + заклейка дна за один цикл", size: "", note: "" },
-      { series: "DZF-5050 / 5050A", perf: "Складывание и заклейка дна, укладка товара", size: "", note: "" },
-      { series: "FXJ-5050Z", perf: "Фальцовка верхних ушей + заклейка сверху/снизу", size: "", note: "" },
-      { series: "FXJ-5050ZBR", perf: "Заклейка термоклеем-расплавом (защита от вскрытия)", size: "", note: "" },
-      { series: "JFX-5050B / 5060", perf: "Заклейка углов/стыков клапанов", size: "", note: "" },
-    ],
-    tips: [],
-  },
-];
-
-const LINE_STEPS = [
-  { icon: "Box", title: "Формирователь" },
-  { icon: "Hand", title: "Укладка продукции" },
-  { icon: "PackageCheck", title: "Заклейщик" },
-  { icon: "Truck", title: "Отгрузка" },
-];
-
-const GUARANTEES = [
-  { icon: "ShieldCheck", title: "Гарантия 12 месяцев", desc: "На всё оборудование с пусконаладкой" },
-  { icon: "Award", title: "Сертификация CE, ISO 9001", desc: "Соответствие международным стандартам качества" },
-  { icon: "FileCheck", title: "Декларация соответствия", desc: "Документы для работы на территории РФ и СНГ" },
-];
-
-const SERVICES = [
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/fa477267-7521-4633-93b8-5ab3e6af1486.jpg", title: "Наличие на складах", desc: "В Новосибирске и Москве" },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/5842e0f8-8e07-4d8b-862d-ea93be2b0686.jpg", title: "Доставка РФ и СНГ", desc: "Экспресс-отправка со склада в день оплаты" },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/1282aae5-2da0-4623-990e-68750f676dd7.jpg", title: "Обучение персонала", desc: "Инструктаж на объекте клиента включён" },
-  { img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/6441e3aa-1d2f-40c2-8397-537fa22d6c2a.jpg", title: "Лизинг и рассрочка", desc: "Гибкие условия оплаты и финансирования" },
-];
-
-export default function Kartonajnoe() {
-  const [selectorTab, setSelectorTab] = useState(0);
+export default function Obanderolivayushchie() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [quizOpen, setQuizOpen] = useState(false);
+  const [formData, setFormData] = useState({ name: "", phone: "", pack: "", comment: "" });
 
-  const [kpData, setKpData] = useState({ name: "", phone: "", email: "", details: "" });
-  const [kpAgree, setKpAgree] = useState(false);
-  const [kpErrors, setKpErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
-  const [kpSubmitting, setKpSubmitting] = useState(false);
+  const [heroData, setHeroData] = useState({ name: "", phone: "" });
+  const [heroAgree, setHeroAgree] = useState(false);
+  const [heroErrors, setHeroErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
+  const [heroSubmitting, setHeroSubmitting] = useState(false);
 
   const [fosOpen, setFosOpen] = useState<{ productName?: string } | null>(null);
   const [fosData, setFosData] = useState({ name: "", phone: "", email: "" });
   const [fosAgree, setFosAgree] = useState(false);
   const [fosErrors, setFosErrors] = useState<{ name?: string; phone?: string; email?: string; agree?: string }>({});
   const [fosSubmitting, setFosSubmitting] = useState(false);
+
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formAgree, setFormAgree] = useState(false);
+  const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string; agree?: string }>({});
   const [thanksOpen, setThanksOpen] = useState(false);
 
   const [catalog, setCatalog] = useState<CatalogProduct[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState(false);
-  const [catalogShow, setCatalogShow] = useState(9);
+  const [catalogShow, setCatalogShow] = useState(8);
   const [catalogSearch, setCatalogSearch] = useState("");
-  const [catalogCat, setCatalogCat] = useState("all");
 
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
   const [videoModal, setVideoModal] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
-  useEffect(() => { setCatalogShow(9); }, [catalogSearch, catalogCat]);
+
+  useEffect(() => { setCatalogShow(8); }, [catalogSearch]);
 
   useEffect(() => {
     const anyOpen = detailsProduct || videoModal || lightbox || fosOpen || thanksOpen;
@@ -286,20 +288,17 @@ export default function Kartonajnoe() {
     return () => { document.body.style.overflow = ""; };
   }, [detailsProduct, videoModal, lightbox, fosOpen, thanksOpen]);
 
-  const CATEGORY_TABS = [
-    { id: "all", label: "Все" },
-    { id: "559", label: "Формирователи коробов" },
-    { id: "558", label: "Заклейщики коробов" },
-    { id: "325", label: "Картонажное оборудование" },
-  ];
-  const catCount = (id: string) => id === "all" ? catalog.length : catalog.filter(p => p.categoryId === id).length;
-
   const filteredCatalog = catalog.filter(p => {
-    if (catalogCat !== "all" && p.categoryId !== catalogCat) return false;
     const q = catalogSearch.trim().toLowerCase();
     if (q) return p.name.toLowerCase().includes(q);
     return true;
   });
+
+  useSeo({
+    title: "Обандероливающие машины BAND'ALL, BM, WK — обвязка мягкими лентами | Техно-Сиб",
+    description: "Обандероливающие машины для обвязки продукции мягкими лентами: BAND'ALL, BM, WK, HL-228. От настольных мини-моделей до автоматических линий. Гарантия 12 мес., доставка по РФ и странам ТС.",
+  });
+
 
   useEffect(() => {
     captureUtm();
@@ -331,11 +330,6 @@ export default function Kartonajnoe() {
     })();
     return () => { cancelled = true; };
   }, []);
-
-  useSeo({
-    title: "Картонажное оборудование — формирователи и заклейщики коробов | Техно-Сиб",
-    description: "Картонажное упаковочное оборудование: формирователи и заклейщики коробов до 50 коробов/мин. Короба от 130×80 до 850×600 мм. Для маркетплейсов, e-commerce, логистики и пищевых производств.",
-  });
 
   const openFos = useCallback((productName?: string) => {
     setFosData({ name: "", phone: "", email: "" });
@@ -370,45 +364,46 @@ export default function Kartonajnoe() {
     setThanksOpen(true);
   }, [fosData, fosOpen, fosSubmitting, validateFos]);
 
-  const submitQuiz = useCallback(async (data: CartonQuizPayload): Promise<boolean> => {
-    return sendLead({
-      source: "quiz",
-      name: data.name,
-      phone: data.phone,
-      email: data.email,
-      task: data.task,
-      size: data.size,
-      speed: data.speed,
-      options: data.options.join(", "),
-      quizAnswers: {
-        task: data.task,
-        size: data.size,
-        speed: data.speed,
-        options: data.options.join(", "),
-      },
-    });
-  }, []);
-
-  const submitKp = useCallback(async () => {
+  const submitHeroForm = async () => {
     const errs: { name?: string; phone?: string; agree?: string } = {};
-    if (kpData.name.trim().length < 2) errs.name = "Укажите имя";
-    if (!isValidPhoneRu(kpData.phone)) errs.phone = "Введите телефон в формате +7 и 10 цифр";
-    if (!kpAgree) errs.agree = "Необходимо согласие";
-    setKpErrors(errs);
-    if (Object.keys(errs).length > 0 || kpSubmitting) return;
-    setKpSubmitting(true);
+    if (heroData.name.trim().length < 2) errs.name = "Укажите имя";
+    if (!isValidPhoneRu(heroData.phone)) errs.phone = "Введите телефон в формате +7 и 10 цифр";
+    if (!heroAgree) errs.agree = "Необходимо согласие";
+    setHeroErrors(errs);
+    if (Object.keys(errs).length > 0 || heroSubmitting) return;
+    setHeroSubmitting(true);
     await sendLead({
-      source: "kp_form",
-      name: kpData.name.trim(),
-      phone: kpData.phone.trim(),
-      email: kpData.email.trim(),
-      comment: kpData.details.trim(),
+      source: "hero_form",
+      name: heroData.name.trim(),
+      phone: heroData.phone.trim(),
     });
-    setKpSubmitting(false);
-    setKpData({ name: "", phone: "", email: "", details: "" });
-    setKpAgree(false);
+    setHeroSubmitting(false);
+    setHeroData({ name: "", phone: "" });
+    setHeroAgree(false);
     setThanksOpen(true);
-  }, [kpData, kpAgree, kpSubmitting]);
+  };
+
+  const submitMainForm = async () => {
+    const errs: { name?: string; phone?: string; agree?: string } = {};
+    if (!formData.name.trim() || formData.name.trim().length < 2) errs.name = "Введите имя";
+    if (!formData.phone.trim() || !isValidPhoneRu(formData.phone)) {
+      errs.phone = "Введите телефон в формате +7 и 10 цифр";
+    }
+    if (!formAgree) errs.agree = "Необходимо согласие";
+    setFormErrors(errs);
+    if (Object.keys(errs).length > 0 || formSubmitting) return;
+    setFormSubmitting(true);
+    await sendLead({
+      source: "main_form",
+      name: formData.name,
+      phone: formData.phone,
+      pack: formData.pack,
+      comment: formData.comment,
+    });
+    setFormSubmitting(false);
+    setFormData({ name: "", phone: "", pack: "", comment: "" });
+    setThanksOpen(true);
+  };
 
   const scrollTo = (href: string) => {
     if (href.startsWith("/")) { window.location.href = href; return; }
@@ -418,49 +413,26 @@ export default function Kartonajnoe() {
   };
 
   const findProduct = useCallback((token: string): CatalogProduct | undefined => {
-    const t = token.trim().toLowerCase().replace(/[\s-]+/g, "");
-    if (!t) return undefined;
-    return catalog.find(p => p.name.toLowerCase().replace(/[\s-]+/g, "").includes(t));
+    const t = token.trim().toLowerCase().replace(/\s+/g, "");
+    return catalog.find(p => p.name.toLowerCase().replace(/\s+/g, "").includes(t));
   }, [catalog]);
 
-  const goToModel = useCallback((token: string) => {
-    const prod = findProduct(token);
-    if (prod) { setDetailsProduct(prod); return; }
-    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+  const seriesImage = useCallback((item: SeriesItem): string => {
+    for (const token of item.imageTokens) {
+      const prod = findProduct(token);
+      if (prod && prod.pictures.length > 0) return prod.pictures[0];
+    }
+    return item.fallbackImg;
   }, [findProduct]);
 
-  // Разбивает строку серии на кликабельные модели: "CXJ (4030C, 5035C)" → ссылки
-  const renderModels = (text: string) => {
-    const m = text.match(/^(.*?)\(([^)]*)\)(.*)$/);
-    if (!m) {
-      return (
-        <button onClick={() => goToModel(text)} className="font-semibold text-left hover:underline" style={{ color: "var(--orange)" }}>
-          {text}
-        </button>
-      );
+  const goToProduct = useCallback((token: string) => {
+    const prod = findProduct(token);
+    if (prod) {
+      setDetailsProduct(prod);
+      return;
     }
-    const prefix = m[1].trim();
-    const tokens = m[2].split(/[,/]/).map(s => s.trim()).filter(Boolean);
-    return (
-      <span className="leading-relaxed">
-        {prefix && <span className="text-[#1A1A1A]">{prefix} </span>}
-        <span className="inline-flex flex-wrap gap-1.5 align-middle">
-          {tokens.map((tok, i) => (
-            <button
-              key={i}
-              onClick={() => goToModel(prefix ? `${prefix.split(" ")[0]}-${tok}` : tok)}
-              className="text-[12.5px] font-semibold px-2 py-0.5 rounded-md transition-colors"
-              style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.22)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.1)"; }}
-            >
-              {tok}
-            </button>
-          ))}
-        </span>
-      </span>
-    );
-  };
+    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+  }, [findProduct]);
 
   return (
     <div className="min-h-screen bg-white text-[#1A1A1A]">
@@ -485,12 +457,12 @@ export default function Kartonajnoe() {
               </button>
               {equipmentOpen && (
                 <div className="absolute left-0 top-full pt-2 z-50">
-                  <div className="bg-white border border-gray-100 shadow-lg rounded-lg py-2 min-w-[280px]">
+                  <div className="bg-white border border-gray-100 shadow-lg rounded-lg py-2 min-w-[260px]">
                     <a href="/vegetables" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Упаковка овощей и фруктов</a>
                     <a href="/vacuum" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Вакуумные упаковщики</a>
+                    <a href="/kartonajnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Картонажное оборудование</a>
                     <a href="/gorizontalnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Горизонтальные машины flow-pack</a>
-                    <a href="/kartonajnoe" className="block px-4 py-2 text-sm text-orange-600 font-semibold hover:bg-[#FFF5EE] transition-colors">Картонажное оборудование</a>
-                    <a href="/obanderolivayushchie-mashiny" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Обандероливающие машины</a>
+                    <a href="/obanderolivayushchie-mashiny" className="block px-4 py-2 text-sm text-orange-600 font-semibold hover:bg-[#FFF5EE] transition-colors">Обандероливающие машины</a>
                   </div>
                 </div>
               )}
@@ -529,9 +501,9 @@ export default function Kartonajnoe() {
               <p className="text-xs font-semibold text-[#999] uppercase mb-2">Оборудование</p>
               <a href="/vegetables" className="block text-base text-[#444] py-1.5 pl-2">Упаковка овощей и фруктов</a>
               <a href="/vacuum" className="block text-base text-[#444] py-1.5 pl-2">Вакуумные упаковщики</a>
+              <a href="/kartonajnoe" className="block text-base text-[#444] py-1.5 pl-2">Картонажное оборудование</a>
               <a href="/gorizontalnoe" className="block text-base text-[#444] py-1.5 pl-2">Горизонтальные машины flow-pack</a>
-              <a href="/kartonajnoe" className="block text-base text-orange-600 font-semibold py-1.5 pl-2">Картонажное оборудование</a>
-              <a href="/obanderolivayushchie-mashiny" className="block text-base text-[#444] py-1.5 pl-2">Обандероливающие машины</a>
+              <a href="/obanderolivayushchie-mashiny" className="block text-base text-orange-600 font-semibold py-1.5 pl-2">Обандероливающие машины</a>
             </div>
             {NAV.slice(2).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
@@ -548,58 +520,120 @@ export default function Kartonajnoe() {
       {/* HERO */}
       <section id="hero" className="pt-16 min-h-[88vh] flex items-center bg-[#F7F7F7] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-12 lg:py-0">
-          <div className="lg:col-span-6 pr-0 lg:pr-4 fade-up">
-            <h1 className="text-[clamp(26px,4vw,44px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
-              Формирователи и заклейщики коробов от ведущих <span style={{ color: "var(--orange)" }}>Азиатских и Европейских</span> производителей
+          <div className="lg:col-span-7 pr-0 lg:pr-4 fade-up">
+            <h1 className="text-[clamp(24px,3.4vw,40px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
+              Обандероливающие машины <span style={{ color: "var(--orange)" }}>BAND&apos;ALL, BM, WK</span> — обвязка продукции мягкими лентами
             </h1>
 
-            <ul className="grid gap-y-4 mb-8 max-w-2xl mt-2">
+            <p className="text-[17px] sm:text-[19px] text-[#444] mb-8 max-w-2xl leading-relaxed">
+              Официальный поставщик. От настольных мини-моделей до автоматических линий.
+              Доставка по РФ и странам ТС, гарантия завода-изготовителя.
+            </p>
+
+            <ul className="grid sm:grid-cols-2 gap-x-5 gap-y-4 mb-8 max-w-2xl">
               {HERO_BULLETS.map((b, i) => (
-                <li key={i} className="flex items-start gap-3 text-[18px] sm:text-[20px] text-[#1A1A1A] leading-snug">
-                  <Icon name={b.icon} fallback="CheckCircle2" size={28} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                  <span><span className="font-bold">{b.bold}</span>{b.rest}</span>
+                <li key={i} className="flex items-start gap-3 text-[16px] font-medium text-[#1A1A1A] leading-snug">
+                  <Icon name="CheckCircle2" size={22} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                  <span>{b}</span>
                 </li>
               ))}
             </ul>
 
             <div className="flex flex-wrap gap-3">
-              <button onClick={() => setQuizOpen(true)} className="btn-orange text-base px-8 py-3.5">
+              <button onClick={() => openFos()} className="btn-orange text-base px-8 py-3.5">
                 Подобрать оборудование
               </button>
-              <button onClick={() => openFos()} className="btn-outline-orange text-base px-8 py-3.5">
-                Получить КП
+              <button onClick={() => scrollTo("#about-banding")} className="btn-outline-orange text-base px-8 py-3.5">
+                Узнать подробней
               </button>
             </div>
           </div>
 
-          <div className="lg:col-span-6 fade-up flex items-center justify-center">
-            <img
-              src={IMG_HERO}
-              alt="Формирователь и заклейщик коробов"
-              className="w-full h-auto lg:h-[520px] xl:h-[580px] object-contain drop-shadow-2xl rounded-2xl"
-            />
+          <div className="lg:col-span-5 fade-up">
+            <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-lg border border-gray-100">
+              <h2 className="text-xl font-bold text-[#1A1A1A] mb-2 leading-snug">
+                Оставьте заявку — подберём машину под ваш продукт
+              </h2>
+              <p className="text-[14px] text-[#666] mb-5">Менеджер свяжется в течение 15 минут</p>
+              <div className="space-y-3">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Ваше имя"
+                    value={heroData.name}
+                    onChange={e => { setHeroData({ ...heroData, name: e.target.value }); if (heroErrors.name) setHeroErrors({ ...heroErrors, name: undefined }); }}
+                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                    style={{ borderColor: heroErrors.name ? "#E53935" : "#E0E0E0" }}
+                  />
+                  {heroErrors.name && <p className="text-[13px] text-red-500 mt-1">{heroErrors.name}</p>}
+                </div>
+                <div>
+                  <input
+                    type="tel"
+                    placeholder="+7 (___) ___-__-__"
+                    value={heroData.phone}
+                    onChange={e => { setHeroData({ ...heroData, phone: formatPhoneRu(e.target.value) }); if (heroErrors.phone) setHeroErrors({ ...heroErrors, phone: undefined }); }}
+                    onFocus={e => { if (!e.target.value) setHeroData({ ...heroData, phone: "+7 " }); }}
+                    className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                    style={{ borderColor: heroErrors.phone ? "#E53935" : "#E0E0E0" }}
+                  />
+                  {heroErrors.phone && <p className="text-[13px] text-red-500 mt-1">{heroErrors.phone}</p>}
+                </div>
+                <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={heroAgree}
+                    onChange={e => { setHeroAgree(e.target.checked); if (heroErrors.agree) setHeroErrors({ ...heroErrors, agree: undefined }); }}
+                    className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
+                  />
+                  <PolicyDisclaimer />
+                </label>
+                {heroErrors.agree && <p className="text-[13px] text-red-500 -mt-1">{heroErrors.agree}</p>}
+                <button onClick={submitHeroForm} disabled={heroSubmitting} className="btn-orange w-full py-3.5 text-base disabled:opacity-60">
+                  {heroSubmitting ? "Отправляем…" : "Отправить заявку"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ECONOMY / ADVANTAGES */}
-      <section id="advantages" className="py-16 bg-white">
+      {/* WHAT IS BANDING */}
+      <section id="about-banding" className="py-16 bg-white scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title">Почему это оборудование экономит ваши деньги</h2>
-            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Автоматизация формирования и заклейки коробов снижает затраты на персонал, материалы и простои</p>
+            <h2 className="section-title">Что такое обандероливание и для чего оно нужно</h2>
+            <p className="text-[#555] mt-3 max-w-3xl mx-auto text-[16px] leading-relaxed">
+              Обандероливающая машина обвязывает штучную или групповую продукцию мягкой лентой —
+              плёнкой OPP/BOPP или крафт-бумагой. Это экономичная альтернатива плёночной и картонной упаковке
+              с большой площадью для брендирования.
+            </p>
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
+            {TASKS.map((t, i) => (
+              <div key={i} className="card-hover rounded-2xl p-7 bg-white border-2 shadow-sm" style={{ borderColor: "var(--orange)" }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name={t.icon} fallback="Package" size={30} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-lg mb-3 leading-snug">{t.title}</h3>
+                <p className="text-[15px] text-[#555] leading-relaxed">{t.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mb-8">
+            <h3 className="text-2xl sm:text-3xl font-bold text-[#1A1A1A]">Как работает машина</h3>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {ADVANTAGES.map((a, i) => (
-              <div key={i} className="card-hover rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col overflow-hidden">
-                <div className="aspect-[16/10] overflow-hidden bg-[#F0F0F0]">
-                  <img src={a.img} alt={a.title} loading="lazy" className="w-full h-full object-cover" />
+            {PROCESS.map((s, i) => (
+              <div key={i} className="relative rounded-2xl p-7 bg-[#F7F7F7] border border-gray-100">
+                <div className="absolute top-5 right-6 text-[42px] font-bold leading-none" style={{ color: "rgba(255,102,0,0.15)" }}>{s.num}</div>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "var(--orange)" }}>
+                  <Icon name={s.icon} fallback="Package" size={24} className="text-white" />
                 </div>
-                <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="font-bold text-[#1A1A1A] text-[18px] mb-2 leading-snug">{a.title}</h3>
-                  <p className="text-[16px] text-[#444] leading-relaxed">{a.desc}</p>
-                </div>
+                <h4 className="font-bold text-[#1A1A1A] text-[17px] mb-2 leading-snug">{s.title}</h4>
+                <p className="text-[14px] text-[#555] leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -607,18 +641,44 @@ export default function Kartonajnoe() {
           <div className="mt-10 text-center">
             <button onClick={() => openFos()} className="btn-orange">
               <Icon name="Calculator" size={18} className="mr-2" />
-              Рассчитать экономию
+              Рассчитать экономию на упаковке
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ADVANTAGES */}
+      <section id="advantages" className="py-16 bg-[#F7F7F7]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Преимущества оборудования от Техно-Сиб</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {ADVANTAGES.map((a, i) => (
+              <div key={i} className="card-hover rounded-2xl bg-white border border-gray-100 shadow-sm p-7">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name={a.icon} fallback="Star" size={30} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-lg mb-3 leading-snug">{a.title}</h3>
+                <p className="text-[15px] text-[#555] leading-relaxed">{a.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <button onClick={() => openFos()} className="btn-outline-orange">
+              <Icon name="Headset" size={18} className="mr-2" />
+              Получить техническую консультацию
             </button>
           </div>
         </div>
       </section>
 
       {/* CATALOG */}
-      <section id="catalog" className="py-16 bg-[#F7F7F7]">
+      <section id="catalog" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-8">
-            <h2 className="section-title">Каталог картонажного оборудования</h2>
-            <p className="text-[#666] mt-2 max-w-xl mx-auto">Формирователи коробов, заклейщики коробов и картонажное оборудование</p>
+            <h2 className="section-title">Каталог оборудования</h2>
+            <p className="text-[#666] mt-2 max-w-xl mx-auto">Подберите обандероливающую машину под ваш продукт и объём производства</p>
           </div>
 
           <div className="max-w-md mx-auto mb-8 relative">
@@ -641,32 +701,9 @@ export default function Kartonajnoe() {
             )}
           </div>
 
-          {!catalogLoading && !catalogError && (
-            <div className="flex flex-wrap justify-center gap-2 mb-8">
-              {CATEGORY_TABS.map(t => {
-                const active = catalogCat === t.id;
-                const cnt = catCount(t.id);
-                if (t.id !== "all" && cnt === 0) return null;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setCatalogCat(t.id)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold transition-all border"
-                    style={active
-                      ? { background: "var(--orange)", color: "#fff", borderColor: "var(--orange)" }
-                      : { background: "#fff", color: "#444", borderColor: "#E5E5E5" }}
-                  >
-                    {t.label}
-                    <span className="text-[12px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: active ? "rgba(255,255,255,0.25)" : "#F0F0F0", color: active ? "#fff" : "#888" }}>{cnt}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
           {catalogLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {Array.from({ length: 6 }).map((_, i) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
                   <div className="aspect-[16/10] bg-gray-100" />
                   <div className="p-5 space-y-3">
@@ -702,7 +739,7 @@ export default function Kartonajnoe() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {filteredCatalog.slice(0, catalogShow).map(p => {
                     const keyParams = visibleParams(p.params);
                     const videoUrl = getVideoUrl(p.params);
@@ -772,10 +809,34 @@ export default function Kartonajnoe() {
 
               {filteredCatalog.length > catalogShow && (
                 <div className="mt-8 text-center">
-                  <button onClick={() => setCatalogShow(s => s + 9)} className="btn-outline-orange">
+                  <button onClick={() => setCatalogShow(s => s + 8)} className="btn-outline-orange">
                     <Icon name="ChevronDown" size={18} className="mr-2" />
                     Показать ещё ({filteredCatalog.length - catalogShow})
                   </button>
+                </div>
+              )}
+
+              {catalog.length > 0 && (
+                <div className="mt-12">
+                  <div
+                    className="rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:gap-6"
+                    style={{ background: "linear-gradient(135deg, rgba(255,102,0,0.08), rgba(255,102,0,0.02))", border: "1px solid rgba(255,102,0,0.18)" }}
+                  >
+                    <div className="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center" style={{ background: "var(--orange)" }}>
+                      <Icon name="ListChecks" size={26} className="text-white" />
+                    </div>
+                    <div className="flex-1 text-center sm:text-left">
+                      <h3 className="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-1">Нужна индивидуальная конфигурация или подбор под задачу?</h3>
+                      <p className="text-[#555] text-[15px] leading-relaxed">Опишите продукт и объём — инженер подберёт подходящую машину с ценой и видео работы.</p>
+                    </div>
+                    <button
+                      onClick={() => openFos()}
+                      className="px-6 py-3.5 rounded-lg font-semibold text-white text-base transition-opacity hover:opacity-90 whitespace-nowrap"
+                      style={{ background: "var(--orange)" }}
+                    >
+                      Подобрать под задачу
+                    </button>
+                  </div>
                 </div>
               )}
             </>
@@ -783,129 +844,52 @@ export default function Kartonajnoe() {
         </div>
       </section>
 
-      {/* SOLUTIONS — Экран 4 */}
-      <section id="solutions" className="py-16 bg-white">
+      {/* SERIES */}
+      <section id="series" className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title">Решения под вашу задачу</h2>
-            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Подберём оборудование под отрасль, объём и формат упаковки</p>
+            <h2 className="section-title">Типы машин — как выбрать</h2>
+            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Нажмите на модель, чтобы открыть карточку с характеристиками, фото и ценой</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
-            {SOLUTIONS.map((s, i) => (
-              <div key={i} className="card-hover bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.1)" }}>
-                  <Icon name={s.icon} fallback="Boxes" size={26} style={{ color: "var(--orange)" }} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {SERIES.map((s, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover flex flex-col">
+                <div className="aspect-square bg-white overflow-hidden">
+                  <img src={seriesImage(s)} alt={s.title} loading="lazy" className="w-full h-full object-cover" />
                 </div>
-                <h3 className="font-bold text-[#1A1A1A] text-[16px] mb-2 leading-snug">{s.branch}</h3>
-                <p className="text-[14px] text-[#555] leading-relaxed">{s.solve}</p>
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="font-bold text-[#1A1A1A] text-lg mb-2 leading-snug">{s.title}</h3>
+                  <p className="text-[14px] text-[#666] mb-4">{s.intro}</p>
+                  <ul className="space-y-2.5 mb-5 flex-1">
+                    {s.bullets.map((b, bi) => (
+                      <li key={bi} className="flex items-start gap-2 text-[14px] leading-snug">
+                        <Icon name="Check" size={15} className="mt-1 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                        <span className="text-[#444]">
+                          {b.text}
+                          {b.links && b.links.length > 0 && (
+                            <span className="block mt-1.5 flex flex-wrap gap-1.5">
+                              {b.links.map(link => (
+                                <button
+                                  key={link}
+                                  onClick={() => goToProduct(link)}
+                                  className="text-[12.5px] font-semibold px-2 py-0.5 rounded-md transition-colors"
+                                  style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
+                                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.2)"; }}
+                                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,102,0,0.1)"; }}
+                                >
+                                  {link}
+                                </button>
+                              ))}
+                            </span>
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button onClick={() => openFos()} className="btn-outline-orange w-full">Получить консультацию</button>
+                </div>
               </div>
             ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* SELECTOR — Экран 5 */}
-      <section id="selector" className="py-16 bg-[#F7F7F7]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8">
-            <h2 className="section-title">Какой формирователь коробов выбрать</h2>
-            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Три типа оборудования — выберите вкладку и сравните серии</p>
-          </div>
-
-          {/* Line scheme */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-7 mb-8">
-            <p className="text-center text-[13px] uppercase tracking-wider font-semibold mb-5" style={{ color: "var(--orange)" }}>Схема линии</p>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-2">
-              {LINE_STEPS.map((step, i) => (
-                <div key={i} className="flex flex-col sm:flex-row items-center gap-3 sm:gap-2">
-                  <div className="flex flex-col items-center text-center w-full sm:w-32">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-2" style={{ background: "rgba(255,102,0,0.1)" }}>
-                      <Icon name={step.icon} fallback="Box" size={26} style={{ color: "var(--orange)" }} />
-                    </div>
-                    <span className="text-[14px] font-semibold text-[#1A1A1A] leading-snug">{step.title}</span>
-                  </div>
-                  {i < LINE_STEPS.length - 1 && (
-                    <Icon name="ArrowRight" size={22} className="rotate-90 sm:rotate-0 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mb-6">
-            {SELECTOR_TABS.map((t, i) => (
-              <button
-                key={t.key}
-                onClick={() => setSelectorTab(i)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold transition-all border"
-                style={selectorTab === i
-                  ? { background: "var(--orange)", color: "#fff", borderColor: "var(--orange)" }
-                  : { background: "#fff", color: "#444", borderColor: "#E5E5E5" }}
-              >
-                <Icon name={t.icon} fallback="Box" size={18} />
-                {t.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab content */}
-          {(() => {
-            const tab = SELECTOR_TABS[selectorTab];
-            const visibleCols = tab.columns.filter(c => c !== "");
-            return (
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="px-5 sm:px-7 pt-5 pb-3 border-b border-gray-100">
-                  <h3 className="font-bold text-[#1A1A1A] text-lg">{tab.label} коробов</h3>
-                  <p className="text-[14px] text-[#666] mt-0.5">{tab.subtitle}</p>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[640px]">
-                    <thead>
-                      <tr className="bg-[#FAFAFA]">
-                        {visibleCols.map((c, i) => (
-                          <th key={i} className="px-4 sm:px-6 py-3 text-[12px] uppercase tracking-wider font-bold text-[#888]">{c}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {tab.rows.map((r, i) => (
-                        <tr key={i} className="border-t border-gray-100 hover:bg-[#FFF8F3] transition-colors">
-                          <td className="px-4 sm:px-6 py-3.5 text-[14px] font-semibold text-[#1A1A1A] align-top">{renderModels(r.series)}</td>
-                          <td className="px-4 sm:px-6 py-3.5 text-[14px] text-[#444] align-top">{r.perf}</td>
-                          {visibleCols.length > 2 && <td className="px-4 sm:px-6 py-3.5 text-[14px] text-[#444] align-top">{r.size}</td>}
-                          {visibleCols.length > 3 && <td className="px-4 sm:px-6 py-3.5 text-[14px] text-[#444] align-top">{r.note}</td>}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {tab.tips.length > 0 && (
-                  <div className="px-5 sm:px-7 py-5 border-t border-gray-100" style={{ background: "rgba(255,102,0,0.04)" }}>
-                    <p className="font-bold text-[14px] mb-3" style={{ color: "var(--orange)" }}>Подсказка по выбору</p>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5">
-                      {tab.tips.map((tip, i) => (
-                        <li key={i} className="flex items-start gap-2 text-[14px] text-[#444] leading-snug">
-                          <Icon name="Check" size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                          <span>{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-
-          <div className="mt-8 text-center">
-            <button onClick={() => setQuizOpen(true)} className="btn-orange">
-              <Icon name="Headset" size={18} className="mr-2" />
-              Помочь с выбором серии
-            </button>
           </div>
         </div>
       </section>
@@ -1009,50 +993,20 @@ export default function Kartonajnoe() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {SERVICES.map((s, i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden card-hover flex flex-col">
-                <div className="aspect-[4/3] bg-[#F0F0F0] overflow-hidden">
-                  <img src={s.img} alt={s.title} loading="lazy" className="w-full h-full object-cover" />
+              <div key={i} className="bg-white rounded-xl border border-gray-100 card-hover p-6">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name={s.icon} fallback="Truck" size={24} style={{ color: "var(--orange)" }} />
                 </div>
-                <div className="p-5 flex-1">
-                  <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{s.title}</h3>
-                  <p className="text-sm text-[#666] leading-relaxed">{s.desc}</p>
-                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{s.title}</h3>
+                <p className="text-sm text-[#666] leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* QUIZ CTA */}
-      <section id="quiz" className="py-16 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden bg-[#1A1A1A]">
-            <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full" style={{ background: "rgba(255,102,0,0.18)" }} />
-            <div className="absolute -bottom-20 -left-10 w-56 h-56 rounded-full" style={{ background: "rgba(255,102,0,0.10)" }} />
-            <div className="relative z-10">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: "var(--orange)" }}>
-                <Icon name="ListChecks" size={32} className="text-white" />
-              </div>
-              <h2 className="text-[clamp(24px,3.5vw,36px)] font-bold text-white mb-3 leading-tight">
-                Подберём оборудование за 4 шага
-              </h2>
-              <p className="text-white/70 text-[17px] mb-7 max-w-xl mx-auto leading-snug">
-                Ответьте на 4 вопроса — инженер подберёт 2–3 модели под ваши параметры и пришлёт цены
-              </p>
-              <button
-                onClick={() => setQuizOpen(true)}
-                className="btn-orange text-base px-9 py-4 inline-flex items-center gap-2"
-              >
-                <Icon name="Smile" size={20} className="text-white" />
-                Пройти квиз
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* FAQ */}
-      <section id="faq" className="py-16 bg-[#F7F7F7]">
+      <section id="faq" className="py-16 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="section-title">Частые вопросы</h2>
@@ -1082,81 +1036,76 @@ export default function Kartonajnoe() {
         </div>
       </section>
 
-      {/* CONTACTS / KP FORM */}
+      {/* CONTACT FORM */}
       <section id="contacts" className="py-16 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title mb-3">Получите подборку и цены под вашу задачу</h2>
-            <p className="text-[#666] max-w-2xl mx-auto leading-relaxed">
-              Оставьте контакты — инженер подберёт 2–3 модели, рассчитает комплектацию и пришлёт коммерческое
-              предложение в течение рабочего дня. При необходимости проведём тест на вашем коробе.
-            </p>
+            <h2 className="section-title mb-3">Получить коммерческое предложение</h2>
+            <p className="text-[#666]">Заполните форму — менеджер свяжется в течение 15 минут</p>
           </div>
 
           <div className="bg-[#F7F7F7] rounded-2xl p-6 sm:p-8 text-[#1A1A1A] border border-gray-100">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Имя</label>
+                <label className="block text-sm font-medium mb-1.5">Имя *</label>
                 <input
                   type="text"
-                  value={kpData.name}
-                  onChange={e => { setKpData({ ...kpData, name: e.target.value }); if (kpErrors.name) setKpErrors({ ...kpErrors, name: undefined }); }}
-                  className="w-full px-4 py-3 rounded-lg border bg-white focus:outline-none focus:border-orange-500"
-                  style={{ borderColor: kpErrors.name ? "#E53935" : "#E0E0E0" }}
-                  placeholder="Иван Петров"
+                  value={formData.name}
+                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                  className={`w-full px-4 py-3 rounded-lg border ${formErrors.name ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
+                  placeholder="Иван"
                 />
-                {kpErrors.name && <p className="text-xs text-red-500 mt-1">{kpErrors.name}</p>}
+                {formErrors.name && <p className="text-xs text-red-500 mt-1">{formErrors.name}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5">Телефон *</label>
                 <input
                   type="tel"
-                  value={kpData.phone}
-                  onChange={e => { setKpData({ ...kpData, phone: formatPhoneRu(e.target.value) }); if (kpErrors.phone) setKpErrors({ ...kpErrors, phone: undefined }); }}
-                  onFocus={e => { if (!e.target.value) setKpData({ ...kpData, phone: "+7 " }); }}
-                  className="w-full px-4 py-3 rounded-lg border bg-white focus:outline-none focus:border-orange-500"
-                  style={{ borderColor: kpErrors.phone ? "#E53935" : "#E0E0E0" }}
+                  value={formData.phone}
+                  onChange={e => setFormData({ ...formData, phone: formatPhoneRu(e.target.value) })}
+                  onFocus={e => { if (!e.target.value) setFormData({ ...formData, phone: "+7 " }); }}
+                  className={`w-full px-4 py-3 rounded-lg border ${formErrors.phone ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
                   placeholder="+7 (___) ___-__-__"
                 />
-                {kpErrors.phone && <p className="text-xs text-red-500 mt-1">{kpErrors.phone}</p>}
+                {formErrors.phone && <p className="text-xs text-red-500 mt-1">{formErrors.phone}</p>}
               </div>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1.5">Email</label>
-              <input
-                type="email"
-                value={kpData.email}
-                onChange={e => setKpData({ ...kpData, email: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:border-orange-500"
-                placeholder="your@email.com"
-              />
+              <label className="block text-sm font-medium mb-1.5">Что упаковываете?</label>
+              <select
+                value={formData.pack}
+                onChange={e => setFormData({ ...formData, pack: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:border-orange-500 bg-white"
+              >
+                <option value="">— выберите —</option>
+                {PACK_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
             </div>
 
             <div className="mb-5">
-              <label className="block text-sm font-medium mb-1.5">Объём упаковки в смену / тип короба</label>
+              <label className="block text-sm font-medium mb-1.5">Комментарий</label>
               <textarea
-                value={kpData.details}
-                onChange={e => setKpData({ ...kpData, details: e.target.value })}
+                value={formData.comment}
+                onChange={e => setFormData({ ...formData, comment: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:border-orange-500 resize-none"
-                placeholder="Например: 5000 коробов в смену, размер 400×300×200, нужна автоматика"
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:border-orange-500 resize-none"
+                placeholder="Объём, размер продукта, нужные опции..."
               />
             </div>
 
             <label className="flex items-start gap-2.5 cursor-pointer select-none mb-4">
               <input
                 type="checkbox"
-                checked={kpAgree}
-                onChange={e => { setKpAgree(e.target.checked); if (kpErrors.agree) setKpErrors({ ...kpErrors, agree: undefined }); }}
+                checked={formAgree}
+                onChange={e => { setFormAgree(e.target.checked); if (formErrors.agree) setFormErrors({ ...formErrors, agree: undefined }); }}
                 className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
               />
               <PolicyDisclaimer />
             </label>
-            {kpErrors.agree && <p className="text-xs text-red-500 mb-2">{kpErrors.agree}</p>}
-
-            <button onClick={submitKp} disabled={kpSubmitting} className="btn-orange w-full text-base py-4 disabled:opacity-60">
-              {kpSubmitting ? "Отправляем..." : "Получить КП с ценами"}
+            {formErrors.agree && <p className="text-xs text-red-500 mb-2">{formErrors.agree}</p>}
+            <button onClick={submitMainForm} disabled={formSubmitting} className="btn-orange w-full text-base py-4 disabled:opacity-60">
+              {formSubmitting ? "Отправляем..." : "Отправить заявку"}
             </button>
           </div>
         </div>
@@ -1265,9 +1214,9 @@ export default function Kartonajnoe() {
               </div>
 
               {detailsProduct.description && stripHtml(detailsProduct.description) && (
-                <div className="mb-5">
+                <div className="mb-6">
                   <h4 className="font-bold text-[13px] uppercase tracking-wider mb-2" style={{ color: "var(--orange)" }}>Описание</h4>
-                  <p className="text-[14px] text-[#444] leading-relaxed whitespace-pre-line line-clamp-4">{stripHtml(detailsProduct.description)}</p>
+                  <p className="text-[14px] text-[#444] leading-relaxed whitespace-pre-line">{stripHtml(detailsProduct.description)}</p>
                 </div>
               )}
 
@@ -1316,11 +1265,11 @@ export default function Kartonajnoe() {
                 if (rtMatch) {
                   return <iframe className="absolute inset-0 w-full h-full" src={`https://rutube.ru/play/embed/${rtMatch[1]}`} title="Видео" allow="autoplay" allowFullScreen />;
                 }
-                if (/vk\.com|vkvideo\.ru/i.test(videoModal)) {
-                  return <iframe className="absolute inset-0 w-full h-full" src={videoModal.replace(/\/video/, "/video_ext.php?oid=").includes("video_ext") ? videoModal : videoModal} title="Видео" allow="autoplay; encrypted-media; fullscreen" allowFullScreen />;
+                if (/rutube\.ru\/play\/embed/i.test(videoModal)) {
+                  return <iframe className="absolute inset-0 w-full h-full" src={videoModal} title="Видео" allow="autoplay" allowFullScreen />;
                 }
                 return (
-                  <video className="absolute inset-0 w-full h-full" src={videoModal} controls autoPlay playsInline>
+                  <video src={videoModal} controls autoPlay playsInline className="absolute inset-0 w-full h-full">
                     <a href={videoModal} target="_blank" rel="noopener noreferrer">Открыть видео</a>
                   </video>
                 );
@@ -1519,9 +1468,6 @@ export default function Kartonajnoe() {
         </div>
       )}
 
-      {/* QUIZ SIDE TAB + MODAL */}
-      <QuizSideTab onClick={() => setQuizOpen(true)} />
-      <CartonQuiz open={quizOpen} onClose={() => setQuizOpen(false)} onSubmit={submitQuiz} />
     </div>
   );
 }
