@@ -15,8 +15,7 @@ const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/9ddae291-349d-4cd4-96e8-bfd27df0be32";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg";
-const IMG_HERO_MACHINE = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/a1ea56d7-ebe7-436e-af6a-33c47cd05a81.jpg";
-const IMG_HERO_PACK = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/29b00fd0-0398-4d3d-83bb-09229c6f67e8.png";
+const IMG_HERO_MACHINE = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/1c0db062-ad92-47c9-b222-e2532d20dc37.png";
 
 type CatalogParam = { name: string; value: string };
 type CatalogProduct = {
@@ -527,16 +526,11 @@ export default function Obanderolivayushchie() {
             </div>
           </div>
 
-          <div className="lg:col-span-5 fade-up flex flex-col items-center justify-center gap-3">
+          <div className="lg:col-span-5 fade-up flex items-center justify-center">
             <img
               src={IMG_HERO_MACHINE}
-              alt="Обандероливающая машина для обвязки продукции мягкими лентами"
-              className="w-full h-auto lg:h-[380px] xl:h-[420px] object-contain drop-shadow-2xl"
-            />
-            <img
-              src={IMG_HERO_PACK}
-              alt="Продукция, упакованная мягкой лентой с брендированием"
-              className="w-full h-auto lg:h-[150px] xl:h-[170px] object-contain drop-shadow-xl"
+              alt="Обандероливающая машина и продукция, обвязанная мягкой лентой"
+              className="w-full h-auto object-contain rounded-2xl shadow-xl"
             />
           </div>
         </div>
