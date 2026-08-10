@@ -166,7 +166,7 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
               </p>
               <h3 className="text-xl sm:text-2xl font-bold text-[#1A1A1A] leading-tight">
                 {done
-                  ? "Спасибо! Заявка принята"
+                  ? "Спасибо за обращение в нашу компанию"
                   : isFinal
                     ? "Готово! Подобрали варианты под ваши задачи"
                     : `Вопрос ${step + 1} из ${STEPS.length}`}
@@ -200,7 +200,7 @@ export default function Quiz({ open, onClose, onSubmit }: Props) {
               >
                 <Icon name="Check" size={32} style={{ color: "var(--orange)" }} />
               </div>
-              <h3 className="font-bold text-[22px] text-[#1A1A1A] mb-3 leading-tight">Благодарим за обращение в компанию Техно-Сиб</h3>
+              <h3 className="font-bold text-[22px] text-[#1A1A1A] mb-3 leading-tight">Спасибо за обращение в нашу компанию</h3>
               <p className="text-[#555] leading-relaxed mb-6">
                 Менеджер свяжется с Вами в ближайшее время в часы работы.
               </p>

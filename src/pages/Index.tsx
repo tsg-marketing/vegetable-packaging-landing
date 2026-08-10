@@ -1396,8 +1396,8 @@ export default function Index() {
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "rgba(255,102,0,0.1)" }}>
                   <Icon name="Check" size={32} style={{ color: "var(--orange)" }} />
                 </div>
-                <h3 className="font-bold text-2xl text-[#1A1A1A] mb-2">Заявка отправлена!</h3>
-                <p className="text-[#666] mb-6">Менеджер свяжется с вами в течение 15 минут.</p>
+                <h3 className="font-bold text-2xl text-[#1A1A1A] mb-3 leading-tight">Спасибо за обращение в нашу компанию</h3>
+                <p className="text-[#666] mb-6">Менеджер свяжется с Вами в ближайшее время в часы работы.</p>
                 <button onClick={() => setFosOpen(null)} className="btn-orange px-8">Готово</button>
               </div>
             )}
@@ -1457,7 +1457,7 @@ export default function Index() {
               <Icon name="Check" size={32} style={{ color: "var(--orange)" }} />
             </div>
             <h3 className="font-bold text-[22px] text-[#1A1A1A] mb-3 leading-tight">
-              Благодарим за обращение в компанию Техно-Сиб
+              Спасибо за обращение в нашу компанию
             </h3>
             <p className="text-[#555] leading-relaxed mb-6">
               Менеджер свяжется с Вами в ближайшее время в часы работы.

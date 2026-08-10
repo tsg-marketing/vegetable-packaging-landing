@@ -1120,7 +1120,7 @@ export default function Home() {
               <Icon name="Check" size={32} style={{ color: "var(--orange)" }} />
             </div>
             <h3 className="font-bold text-[22px] text-[#1A1A1A] mb-3 leading-tight">
-              Благодарим за обращение в компанию Техно-Сиб
+              Спасибо за обращение в нашу компанию
             </h3>
             <p className="text-[#555] leading-relaxed mb-6">
               Менеджер свяжется с Вами в ближайшее время в часы работы.
