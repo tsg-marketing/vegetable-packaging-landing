@@ -208,7 +208,7 @@ export default function Traysealers() {
               </button>
               {equipmentOpen && (
                 <div className="absolute left-0 top-full pt-2 z-50">
-                  <EquipmentMenu variant="desktop" currentHref="/traysealers" />
+                  <EquipmentMenu variant="desktop" currentHref="/traysealers" showGroups={false} />
                 </div>
               )}
             </div>
@@ -244,7 +244,7 @@ export default function Traysealers() {
             ))}
             <div className="border-b border-gray-100 pb-2">
               <p className="text-xs font-semibold text-[#999] uppercase mb-2">Оборудование</p>
-              <EquipmentMenu variant="mobile" currentHref="/traysealers" />
+              <EquipmentMenu variant="mobile" currentHref="/traysealers" showGroups={false} />
             </div>
             {NAV.slice(1).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
