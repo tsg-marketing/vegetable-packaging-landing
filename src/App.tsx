@@ -11,6 +11,7 @@ import Vacuum from "./pages/Vacuum";
 import Gorizontalnoe from "./pages/Gorizontalnoe";
 import Kartonajnoe from "./pages/Kartonajnoe";
 import Obanderolivayushchie from "./pages/Obanderolivayushchie";
+import Termousadka from "./pages/Termousadka";
 import NotFound from "./pages/NotFound";
 import { ymGoal } from "@/lib/ym";
 
@@ -44,6 +45,7 @@ const App = () => {
             <Route path="/gorizontalnoe" element={<Gorizontalnoe />} />
             <Route path="/kartonajnoe" element={<Kartonajnoe />} />
             <Route path="/obanderolivayushchie-mashiny" element={<Obanderolivayushchie />} />
+            <Route path="/termousadka" element={<Termousadka />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
