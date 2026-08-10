@@ -45,7 +45,7 @@ const App = () => {
             <Route path="/vacuum" element={<Vacuum />} />
             <Route path="/gorizontalnoe" element={<Gorizontalnoe />} />
             <Route path="/kartonajnoe" element={<Kartonajnoe />} />
-            <Route path="/obanderolivayushchie-mashiny" element={<Obanderolivayushchie />} />
+            <Route path="/obanderolivanie" element={<Obanderolivayushchie />} />
             <Route path="/termousadka" element={<Termousadka />} />
             <Route path="/traysealers" element={<Traysealers />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

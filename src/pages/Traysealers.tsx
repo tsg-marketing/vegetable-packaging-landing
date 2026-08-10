@@ -683,7 +683,7 @@ export default function Traysealers() {
                 <li><a href="/vacuum" className="text-sm text-white/65 hover:text-white transition-colors">Вакуумные упаковщики</a></li>
                 <li><a href="/termousadka" className="text-sm text-white/65 hover:text-white transition-colors">Термоусадочное оборудование</a></li>
                 <li><a href="/gorizontalnoe" className="text-sm text-white/65 hover:text-white transition-colors">Горизонтальные машины flow-pack</a></li>
-                <li><a href="/obanderolivayushchie-mashiny" className="text-sm text-white/65 hover:text-white transition-colors">Обандероливающие машины</a></li>
+                <li><a href="/obanderolivanie" className="text-sm text-white/65 hover:text-white transition-colors">Обандероливающие машины</a></li>
               </ul>
             </div>
 

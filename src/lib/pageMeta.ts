@@ -39,9 +39,9 @@ export const PAGES_META: PageMeta[] = [
     image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/e080e415-acc2-4182-8331-888da44fa6e4.jpg",
   },
   {
-    path: "/obanderolivayushchie-mashiny",
-    title: "Обандероливающие машины BAND'ALL, BM, WK — обвязка мягкими лентами | Техно-Сиб",
-    description: "Обандероливающие машины для обвязки продукции мягкими лентами: BAND'ALL, BM, WK, HL-228. От настольных мини-моделей до автоматических линий. Гарантия 12 мес.",
+    path: "/obanderolivanie",
+    title: "Оборудование для обвязки мягкими лентами и картонной обечайкой | Техно-Сиб",
+    description: "Обандероливающие машины и автоматы для упаковки в картонную обечайку: WK02-30, BM30, HL-228, S-60, W-80. От настольных мини-моделей до автоматических линий. Гарантия 12 мес.",
     image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/fb95c3ad-3bfd-405e-940c-a6851562a7ec.png",
   },
   {

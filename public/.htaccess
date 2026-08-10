@@ -11,6 +11,9 @@
   # Не трогаем API-обработчики
   RewriteRule ^api/ - [L]
 
+  # Старый адрес раздела обандероливания — постоянный редирект на новый
+  RewriteRule ^obanderolivayushchie-mashiny/?$ /obanderolivanie [R=301,L]
+
   # Боты мессенджеров и соцсетей не выполняют JS — отдаём им готовую
   # разметку превью с заголовком, описанием и картинкой нужной страницы
   RewriteCond %{HTTP_USER_AGENT} (TelegramBot|WhatsApp|vkShare|Viber|Discordbot|Slackbot|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|SkypeUriPreview|Iframely|redditbot|Pinterest|Google-InspectionTool|Yandexbot|YandexRenderResourcesBot) [NC]

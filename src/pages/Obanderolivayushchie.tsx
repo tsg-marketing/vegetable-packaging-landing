@@ -12,7 +12,7 @@ import { useSeo } from "@/lib/seo";
 import { getPageMeta } from "@/lib/pageMeta";
 import LegalInfo from "@/components/LegalInfo";
 
-// Страница обандероливающих машин /obanderolivayushchie-mashiny
+// Страница обандероливающих машин /obanderolivanie
 
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/9ddae291-349d-4cd4-96e8-bfd27df0be32";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
@@ -33,6 +33,23 @@ type CatalogProduct = {
   pictures: string[];
   params: CatalogParam[];
 };
+
+// Модели BAND'ALL на странице не показываем
+function isBandallProduct(name: string): boolean {
+  return /band\s*[`'\u2018\u2019]?\s*all/i.test(name);
+}
+
+// В карточке каталога показываем только ключевые характеристики
+const KEY_PARAM_WORDS = ["ширина ленты", "производительност", "толщина", "скорост", "намотка", "размер продукта"];
+
+function isKeyParam(name: string): boolean {
+  const n = name.trim().toLowerCase();
+  return KEY_PARAM_WORDS.some(w => n.includes(w));
+}
+
+function keyParams(params: CatalogParam[]): CatalogParam[] {
+  return visibleParams(params).filter(p => isKeyParam(p.name));
+}
 
 function isHiddenParam(name: string): boolean {
   const n = name.trim().toLowerCase();
@@ -84,7 +101,7 @@ const HERO_BULLETS = [
   "Гарантия 12 мес. завода-изготовителя",
   "Доставка по РФ и странам Таможенного союза",
   "Оборудование для пищевой промышленности",
-  "Более 12 моделей в наличии и под заказ",
+  "Модели в наличии на складах и под заказ",
 ];
 
 const TASKS = [
@@ -95,7 +112,7 @@ const TASKS = [
 ];
 
 const ADVANTAGES = [
-  { icon: "Zap", title: "Бережная обвязка на высокой скорости", desc: "Запатентованная система: до 35 упаковок в минуту на полуавтомате без повреждения продукта" },
+  { icon: "Zap", title: "Бережная обвязка на высокой скорости", desc: "До 55 упаковок в минуту на автоматах — без повреждения продукта" },
   { icon: "TrendingDown", title: "Экономия упаковочного материала", desc: "Тонкие ленты от 35 мкм — расход материала ниже, чем у плёночной упаковки" },
   { icon: "Wind", title: "Ультразвуковая сварка Ultra Clean Seal", desc: "Без запаха и дыма. Серия WK — для производств, где термосварка запрещена" },
   { icon: "Wrench", title: "Пневматический привод", desc: "Минимум механики, простое обслуживание и высокая надёжность в эксплуатации" },
@@ -128,7 +145,7 @@ const SERIES: SeriesItem[] = [
     fallbackImg: IMG_HERO,
     intro: "Для малых объёмов и ограниченной площади.",
     bullets: [
-      { text: "Компактный корпус, ставится на стол" },
+      { text: "Компактный корпус, ставится на стол, лента 17 мм" },
       { text: "Подходит для аптек, пекарен, небольших цехов" },
       { text: "Модель в наличии", links: ["HL-228"] },
     ],
@@ -136,37 +153,25 @@ const SERIES: SeriesItem[] = [
   {
     icon: "Hand",
     title: "Полуавтоматические",
-    imageTokens: ["BAND'ALL стандартные", "WK02-30"],
+    imageTokens: ["WK02-30", "WK02-30B"],
     fallbackImg: IMG_HERO,
     intro: "Оператор вручную помещает продукт в зону обвязки.",
     bullets: [
-      { text: "До 35 упаковок в минуту" },
+      { text: "Цикл обвязки не более 3 секунд, лента 30 мм" },
       { text: "Оптимальны для среднего объёма производства" },
-      { text: "Модели", links: ["BAND'ALL стандартные", "WK02-30"] },
+      { text: "Модели", links: ["WK02-30", "WK02-30B"] },
     ],
   },
   {
     icon: "MoveRight",
     title: "Автоматические с конвейером",
-    imageTokens: ["WK02-30A", "BM30"],
+    imageTokens: ["BM30", "WK02-30A"],
     fallbackImg: IMG_HERO,
     intro: "Встраивание в действующую производственную линию.",
     bullets: [
-      { text: "Продукт подаётся конвейером автоматически" },
-      { text: "Работа без постоянного участия оператора" },
-      { text: "Модели", links: ["WK02-30A", "BM30"] },
-    ],
-  },
-  {
-    icon: "Factory",
-    title: "Автоматические линии BAND'ALL",
-    imageTokens: ["TXL", "TRC", "TRB"],
-    fallbackImg: IMG_HERO,
-    intro: "Полная автоматизация процесса обвязки.",
-    bullets: [
-      { text: "Максимальная производительность" },
-      { text: "Интеграция в линии крупных производств" },
-      { text: "Линии", links: ["TXL", "TRC", "TRB"] },
+      { text: "До 28 циклов в минуту, работа без участия оператора" },
+      { text: "ПЛК-управление и сенсорная панель" },
+      { text: "Модели", links: ["BM30", "WK02-30A"] },
     ],
   },
   {
@@ -176,7 +181,7 @@ const SERIES: SeriesItem[] = [
     fallbackImg: IMG_HERO,
     intro: "Обвязка продукции картонной обечайкой с брендированием.",
     bullets: [
-      { text: "Презентабельный вид для полки в рознице" },
+      { text: "До 55 упаковок в минуту, презентабельный вид для полки" },
       { text: "Большая площадь для печати и маркировки" },
       { text: "Модели", links: ["S-60", "W-80"] },
     ],
@@ -201,7 +206,7 @@ const FAQS = [
   { q: "Какую ленту использует оборудование?", a: "Применяются плёночные ленты OPP/BOPP толщиной от 35 мкм, а также бумажные ламинированные и крафт-ленты. Ширина ленты обычно 30–50 мм в зависимости от модели. Подбор материала зависит от продукта и требований к внешнему виду упаковки." },
   { q: "Чем отличается серия WK от остальных?", a: "Машины WK используют технологию ультразвуковой сварки Ultra Clean Seal — шов формируется без нагрева, без запаха и дыма. Это решение для производств, где термосварка запрещена по санитарным или технологическим требованиям, например в фармацевтике и пищевом производстве." },
   { q: "Можно ли наносить на ленту маркировку и «Честный знак»?", a: "Да. Оборудование комплектуется термотрансферным принтером, который наносит на ленту логотип, дату, штрих-код и коды маркировки «Честный знак». Позиционирование ленты по фотометке обеспечивает точное расположение печати." },
-  { q: "Какая производительность у оборудования?", a: "Полуавтоматические модели обеспечивают до 35 упаковок в минуту. Автоматические машины с конвейером и линии BAND'ALL работают быстрее за счёт автоматической подачи продукта. Точную производительность подберём под ваш продукт и объём." },
+  { q: "Какая производительность у оборудования?", a: "Полуавтоматические модели выполняют цикл обвязки не более чем за 3 секунды. Автоматические машины с конвейером — до 28 циклов в минуту, а автоматы для упаковки в картонную обечайку — до 55 упаковок в минуту. Точную производительность подберём под ваш продукт и объём." },
   { q: "Есть ли сертификация для пищевой промышленности?", a: "Да. Оборудование сертифицировано для применения в пищевой промышленности, корпус выполнен из нержавеющей стали SUS304. Управление на базе ПЛК Mitsubishi с сенсорной панелью на русском языке." },
 ];
 
@@ -260,7 +265,7 @@ export default function Obanderolivayushchie() {
     return true;
   });
 
-  useSeo(getPageMeta("/obanderolivayushchie-mashiny"));
+  useSeo(getPageMeta("/obanderolivanie"));
 
   useEffect(() => {
     captureUtm();
@@ -277,7 +282,8 @@ export default function Obanderolivayushchie() {
         if (!res.ok) throw new Error("bad status");
         const data = await res.json();
         if (cancelled) return;
-        const list: CatalogProduct[] = Array.isArray(data?.products) ? data.products : [];
+        const raw: CatalogProduct[] = Array.isArray(data?.products) ? data.products : [];
+        const list = raw.filter(p => !isBandallProduct(p.name));
         list.sort((a, b) => {
           const pa = a.price || Number.MAX_SAFE_INTEGER;
           const pb = b.price || Number.MAX_SAFE_INTEGER;
@@ -400,7 +406,7 @@ export default function Obanderolivayushchie() {
               </button>
               {equipmentOpen && (
                 <div className="absolute left-0 top-full pt-2 z-50">
-                  <EquipmentMenu variant="desktop" currentHref="/obanderolivayushchie-mashiny" />
+                  <EquipmentMenu variant="desktop" currentHref="/obanderolivanie" />
                 </div>
               )}
             </div>
@@ -436,7 +442,7 @@ export default function Obanderolivayushchie() {
             ))}
             <div className="border-b border-gray-100 pb-2">
               <p className="text-xs font-semibold text-[#999] uppercase mb-2">Оборудование</p>
-              <EquipmentMenu variant="mobile" currentHref="/obanderolivayushchie-mashiny" />
+              <EquipmentMenu variant="mobile" currentHref="/obanderolivanie" />
             </div>
             {NAV.slice(2).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
@@ -455,12 +461,13 @@ export default function Obanderolivayushchie() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch py-6 lg:py-8">
           <div className="lg:col-span-7 pr-0 lg:pr-4 fade-up">
             <h1 className="text-[clamp(24px,3.4vw,40px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
-              Обандероливающие машины <span style={{ color: "var(--orange)" }}>BAND&apos;ALL, BM, WK</span> — обвязка продукции мягкими лентами
+              Оборудование для обвязки продукции <span style={{ color: "var(--orange)" }}>мягкими лентами</span> и картонной обечайкой
             </h1>
 
             <p className="text-[17px] sm:text-[19px] text-[#444] mb-8 max-w-2xl leading-relaxed">
-              Официальный поставщик. От настольных мини-моделей до автоматических линий.
-              Доставка по РФ и странам ТС, гарантия завода-изготовителя.
+              Обандероливающие машины и автоматы для упаковки в картонную обечайку —
+              от настольных мини-моделей до автоматических линий. Доставка по РФ и странам ТС,
+              гарантия завода-изготовителя.
             </p>
 
             <ul className="grid sm:grid-cols-2 gap-x-5 gap-y-4 mb-8 max-w-2xl">
@@ -485,7 +492,7 @@ export default function Obanderolivayushchie() {
           <div className="lg:col-span-5 fade-up self-stretch">
             <img
               src={IMG_HERO_MACHINE}
-              alt="Обандероливающая машина и продукция, обвязанная мягкой лентой"
+              alt="Оборудование для обвязки продукции мягкими лентами и картонной обечайкой"
               className="w-full h-full min-h-[260px] lg:min-h-[420px] object-cover rounded-2xl shadow-xl"
             />
           </div>
@@ -536,32 +543,6 @@ export default function Obanderolivayushchie() {
             <button onClick={() => openFos()} className="btn-orange">
               <Icon name="Calculator" size={18} className="mr-2" />
               Рассчитать экономию на упаковке
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* ADVANTAGES */}
-      <section id="advantages" className="py-16 bg-[#F7F7F7]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 className="section-title">Преимущества оборудования от Техно-Сиб</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {ADVANTAGES.map((a, i) => (
-              <div key={i} className="card-hover rounded-2xl bg-white border border-gray-100 shadow-sm p-7">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
-                  <Icon name={a.icon} fallback="Star" size={30} style={{ color: "var(--orange)" }} />
-                </div>
-                <h3 className="font-bold text-[#1A1A1A] text-lg mb-3 leading-snug">{a.title}</h3>
-                <p className="text-[15px] text-[#555] leading-relaxed">{a.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-10 text-center">
-            <button onClick={() => openFos()} className="btn-outline-orange">
-              <Icon name="Headset" size={18} className="mr-2" />
-              Получить техническую консультацию
             </button>
           </div>
         </div>
@@ -635,7 +616,7 @@ export default function Obanderolivayushchie() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {filteredCatalog.slice(0, catalogShow).map(p => {
-                    const keyParams = visibleParams(p.params);
+                    const cardParams = keyParams(p.params);
                     const videoUrl = getVideoUrl(p.params);
                     return (
                       <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24">
@@ -649,9 +630,9 @@ export default function Obanderolivayushchie() {
                         />
                         <div className="p-5 flex-1 flex flex-col">
                           <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-3 leading-snug min-h-[44px]">{p.name}</h3>
-                          {keyParams.length > 0 && (
+                          {cardParams.length > 0 && (
                             <ul className="mb-4 space-y-1.5">
-                              {keyParams.map((pr, i) => (
+                              {cardParams.map((pr, i) => (
                                 <li key={i} className="flex items-start gap-2 text-[13px] leading-snug">
                                   <span className="text-[#888] mt-1">·</span>
                                   <span className="text-[#444]">
@@ -735,6 +716,32 @@ export default function Obanderolivayushchie() {
               )}
             </>
           )}
+        </div>
+      </section>
+
+      {/* ADVANTAGES */}
+      <section id="advantages" className="py-16 bg-[#F7F7F7]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Преимущества оборудования от Техно-Сиб</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {ADVANTAGES.map((a, i) => (
+              <div key={i} className="card-hover rounded-2xl bg-white border border-gray-100 shadow-sm p-7">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name={a.icon} fallback="Star" size={30} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-lg mb-3 leading-snug">{a.title}</h3>
+                <p className="text-[15px] text-[#555] leading-relaxed">{a.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <button onClick={() => openFos()} className="btn-outline-orange">
+              <Icon name="Headset" size={18} className="mr-2" />
+              Получить техническую консультацию
+            </button>
+          </div>
         </div>
       </section>
 
