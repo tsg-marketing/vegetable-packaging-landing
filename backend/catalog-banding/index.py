@@ -1,6 +1,6 @@
 """
 Business: Загружает YML-фид t-sib.ru, отдаёт товары обандероливающего оборудования (обвязка мягкими лентами) (category 331).
-Кэш: данные обновляются 2 раза в сутки в 11:00 и 17:00 по Новосибирску (UTC+7).
+Кэш: данные обновляются 3 раза в сутки в 07:00, 13:00 и 19:00 по Новосибирску (UTC+7).
 Args: event с httpMethod (GET/OPTIONS); context — объект с request_id.
 Returns: JSON {products: [...], updatedAt, nextUpdate} с фото, параметрами и описанием.
 """
@@ -15,7 +15,7 @@ TARGET_CATEGORIES = {"331"}
 
 NSK_TZ = timezone(timedelta(hours=7))
 # Слоты обновления кэша по новосибирскому времени (часы, минуты)
-REFRESH_TIMES_NSK = [(11, 0), (17, 0)]
+REFRESH_TIMES_NSK = [(7, 0), (13, 0), (19, 0)]
 
 _CACHE: dict = {
     'payload': None,

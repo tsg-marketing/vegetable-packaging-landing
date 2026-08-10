@@ -29,7 +29,7 @@ TOP_N = 10
 
 NSK_TZ = timezone(timedelta(hours=7))
 # Слоты обновления кэша по новосибирскому времени (часы, минуты)
-REFRESH_TIMES_NSK = [(11, 0), (17, 0)]
+REFRESH_TIMES_NSK = [(7, 0), (13, 0), (19, 0)]
 
 _CACHE: dict = {
     'payload': None,

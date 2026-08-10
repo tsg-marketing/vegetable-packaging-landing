@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Icon from "@/components/ui/icon";
+import EquipmentMenu from "@/components/EquipmentMenu";
 import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
 import QuizSideTab from "@/components/QuizSideTab";
 import VacuumQuiz, { VacuumQuizPayload } from "@/components/VacuumQuiz";
@@ -477,13 +478,7 @@ export default function Vacuum() {
               </button>
               {equipmentOpen && (
                 <div className="absolute left-0 top-full pt-2 z-50">
-                  <div className="bg-white border border-gray-100 shadow-lg rounded-lg py-2 min-w-[260px]">
-                    <a href="/termousadka" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Термоусадочное оборудование</a>
-                    <a href="/vegetables" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Упаковка овощей и фруктов</a>
-                    <a href="/gorizontalnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Горизонтальные машины flow-pack</a>
-                    <a href="/kartonajnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Картонажное оборудование</a>
-                    <a href="/obanderolivayushchie-mashiny" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Обандероливающие машины</a>
-                  </div>
+                  <EquipmentMenu variant="desktop" currentHref="/vacuum" />
                 </div>
               )}
             </div>
@@ -519,11 +514,7 @@ export default function Vacuum() {
             ))}
             <div className="border-b border-gray-100 pb-2">
               <p className="text-xs font-semibold text-[#999] uppercase mb-2">Оборудование</p>
-              <a href="/termousadka" className="block text-base text-[#444] py-1.5 pl-2">Термоусадочное оборудование</a>
-              <a href="/vegetables" className="block text-base text-[#444] py-1.5 pl-2">Упаковка овощей и фруктов</a>
-              <a href="/gorizontalnoe" className="block text-base text-[#444] py-1.5 pl-2">Горизонтальные машины flow-pack</a>
-              <a href="/kartonajnoe" className="block text-base text-[#444] py-1.5 pl-2">Картонажное оборудование</a>
-              <a href="/obanderolivayushchie-mashiny" className="block text-base text-[#444] py-1.5 pl-2">Обандероливающие машины</a>
+              <EquipmentMenu variant="mobile" currentHref="/vacuum" />
             </div>
             {NAV.slice(2).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import EquipmentMenu from "@/components/EquipmentMenu";
 import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
 import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
@@ -29,7 +30,7 @@ import {
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
-const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/1ff9373f-6495-42ea-9062-b1142194a5fe.jpg";
+const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/b27e10b6-4cef-468f-8f12-e2c0195137dd.png";
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -239,14 +240,7 @@ export default function Termousadka() {
               </button>
               {equipmentOpen && (
                 <div className="absolute left-0 top-full pt-2 z-50">
-                  <div className="bg-white border border-gray-100 shadow-lg rounded-lg py-2 min-w-[280px]">
-                    <a href="/termousadka" className="block px-4 py-2 text-sm text-orange-600 font-semibold hover:bg-[#FFF5EE] transition-colors">Термоусадочное оборудование</a>
-                    <a href="/vegetables" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Упаковка овощей и фруктов</a>
-                    <a href="/vacuum" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Вакуумные упаковщики</a>
-                    <a href="/kartonajnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Картонажное оборудование</a>
-                    <a href="/gorizontalnoe" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Горизонтальные машины flow-pack</a>
-                    <a href="/obanderolivayushchie-mashiny" className="block px-4 py-2 text-sm text-[#444] hover:bg-[#FFF5EE] hover:text-orange-600 transition-colors">Обандероливающие машины</a>
-                  </div>
+                  <EquipmentMenu variant="desktop" currentHref="/termousadka" />
                 </div>
               )}
             </div>
@@ -282,12 +276,7 @@ export default function Termousadka() {
             ))}
             <div className="border-b border-gray-100 pb-2">
               <p className="text-xs font-semibold text-[#999] uppercase mb-2">Оборудование</p>
-              <a href="/termousadka" className="block text-base text-orange-600 font-semibold py-1.5 pl-2">Термоусадочное оборудование</a>
-              <a href="/vegetables" className="block text-base text-[#444] py-1.5 pl-2">Упаковка овощей и фруктов</a>
-              <a href="/vacuum" className="block text-base text-[#444] py-1.5 pl-2">Вакуумные упаковщики</a>
-              <a href="/kartonajnoe" className="block text-base text-[#444] py-1.5 pl-2">Картонажное оборудование</a>
-              <a href="/gorizontalnoe" className="block text-base text-[#444] py-1.5 pl-2">Горизонтальные машины flow-pack</a>
-              <a href="/obanderolivayushchie-mashiny" className="block text-base text-[#444] py-1.5 pl-2">Обандероливающие машины</a>
+              <EquipmentMenu variant="mobile" currentHref="/termousadka" />
             </div>
             {NAV.slice(1).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
@@ -303,34 +292,47 @@ export default function Termousadka() {
 
       {/* HERO */}
       <section id="hero" className="pt-16 bg-[#F7F7F7] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch py-8 lg:py-10">
-          <div className="lg:col-span-7 pr-0 lg:pr-4 fade-up">
-            <h1 className="text-[clamp(26px,3.6vw,42px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center py-12 lg:py-16">
+          <div className="lg:col-span-6 pr-0 lg:pr-4 fade-up">
+            <h1 className="text-[clamp(28px,3.6vw,44px)] font-bold leading-[1.15] mb-7 text-[#1A1A1A]">
               Термоусадочное оборудование <span style={{ color: "var(--orange)" }}>до 3 600 упаковок в час</span>
             </h1>
 
-            <ul className="space-y-4 mb-8 max-w-2xl">
+            <ul className="space-y-4 mb-9 max-w-xl">
               {HERO_BULLETS.map((b, i) => (
-                <li key={i} className="flex items-start gap-3 text-[16px] font-medium text-[#1A1A1A] leading-snug">
-                  <Icon name="CheckCircle2" size={22} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                <li key={i} className="flex items-start gap-3 text-[17px] text-[#333] leading-snug">
+                  <Icon name="Check" size={20} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
                   <span>{b}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="flex flex-wrap gap-3">
-              <button onClick={() => openFos()} className="btn-orange text-base px-8 py-3.5">Получить КП</button>
-              <button onClick={() => scrollTo("#quiz")} className="btn-outline-orange text-base px-8 py-3.5">Подобрать оборудование</button>
-              <button onClick={() => scrollTo("#catalog")} className="btn-outline-orange text-base px-8 py-3.5">Смотреть каталог</button>
+            <div className="flex flex-col items-start gap-3">
+              <div className="flex flex-wrap gap-3">
+                <button onClick={() => openFos()} className="btn-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
+                  <Icon name="Phone" size={18} />
+                  Получить КП
+                </button>
+                <button onClick={() => scrollTo("#quiz")} className="btn-outline-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
+                  <Icon name="ClipboardList" size={18} />
+                  Подобрать оборудование
+                </button>
+              </div>
+              <button onClick={() => scrollTo("#catalog")} className="btn-outline-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
+                <Icon name="ArrowDown" size={18} />
+                Смотреть каталог
+              </button>
             </div>
           </div>
 
-          <div className="lg:col-span-5 fade-up self-stretch">
-            <img
-              src={IMG_HERO}
-              alt="Термоусадочное оборудование и продукция в термоусадочной плёнке"
-              className="w-full h-full min-h-[260px] lg:min-h-[420px] object-cover rounded-2xl shadow-xl"
-            />
+          <div className="lg:col-span-6 fade-up">
+            <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-7">
+              <img
+                src={IMG_HERO}
+                alt="Термоусадочное оборудование и продукция в термоусадочной плёнке"
+                className="w-full h-auto object-contain"
+              />
+            </div>
           </div>
         </div>
       </section>
