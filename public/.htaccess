@@ -11,6 +11,11 @@
   # Не трогаем API-обработчики
   RewriteRule ^api/ - [L]
 
+  # Боты мессенджеров и соцсетей не выполняют JS — отдаём им готовую
+  # разметку превью с заголовком, описанием и картинкой нужной страницы
+  RewriteCond %{HTTP_USER_AGENT} (TelegramBot|WhatsApp|vkShare|Viber|Discordbot|Slackbot|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|SkypeUriPreview|Iframely|redditbot|Pinterest|Google-InspectionTool|Yandexbot|YandexRenderResourcesBot) [NC]
+  RewriteRule ^ /api/og.php [L]
+
   # Всё остальное — на index.html (роутинг React Router на клиенте)
   RewriteRule . /index.html [L]
 </IfModule>

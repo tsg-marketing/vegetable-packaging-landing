@@ -13,6 +13,7 @@ import QuizSideTab from "@/components/QuizSideTab";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
 import { useSeo } from "@/lib/seo";
+import { getPageMeta } from "@/lib/pageMeta";
 import {
   CatalogProduct,
   visibleParams,
@@ -96,10 +97,7 @@ export default function Termousadka() {
   const [videoModal, setVideoModal] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
-  useSeo({
-    title: "Термоусадочное оборудование — купить термоусадочную машину | Техно-Сиб",
-    description: "Термоусадочное оборудование до 3 600 упаковок в час: аппараты для штучной и групповой упаковки, термотоннели, термоусадочные танки, термоформеры. Плёнка ПОФ, ПВХ, ПВД. Доставка по РФ и СНГ.",
-  });
+  useSeo(getPageMeta("/termousadka"));
 
   useEffect(() => {
     captureUtm();

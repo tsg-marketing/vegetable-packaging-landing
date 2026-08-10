@@ -10,6 +10,7 @@ import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 
 import { useSeo } from "@/lib/seo";
+import { getPageMeta } from "@/lib/pageMeta";
 import LegalInfo from "@/components/LegalInfo";
 
 // Страница вакуумного упаковочного оборудования /vacuum
@@ -291,10 +292,7 @@ export default function Vacuum() {
   }, [catalog]);
   const [quizOpen, setQuizOpen] = useState(false);
 
-  useSeo({
-    title: "Вакуумные упаковщики — настольные и напольные вакуум-машины | Техно-Сиб",
-    description: "Вакуумное упаковочное оборудование: одно- и двухкамерные настольные и напольные упаковщики. Герметичный шов 3,5 мм для пищевых, медицинских и промышленных товаров. Подбор за 1 день, гарантия.",
-  });
+  useSeo(getPageMeta("/vacuum"));
 
   const submitQuiz = useCallback(async (data: VacuumQuizPayload): Promise<boolean> => {
     return sendLead({

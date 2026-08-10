@@ -6,6 +6,7 @@ import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 
 import { useSeo } from "@/lib/seo";
+import { getPageMeta } from "@/lib/pageMeta";
 import LegalInfo from "@/components/LegalInfo";
 
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
@@ -103,10 +104,7 @@ export default function Home() {
   // Лайтбокс (просмотр фото в полноэкранном окне)
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
-  useSeo({
-    title: "Техно-Сиб — упаковочное оборудование для пищевых производств",
-    description: "Производство и поставка упаковочного оборудования: вакуумные, горизонтальные, картонажные машины и оборудование для упаковки овощей. Подбор за 1 день, гарантия, сервис. 20 лет на рынке.",
-  });
+  useSeo(getPageMeta("/"));
 
   useEffect(() => {
     captureUtm();

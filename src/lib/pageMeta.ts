@@ -1,0 +1,65 @@
+export type PageMeta = {
+  path: string;
+  title: string;
+  description: string;
+  image: string;
+};
+
+export const SITE_URL = "https://pack.t-sib.ru";
+
+export const PAGES_META: PageMeta[] = [
+  {
+    path: "/",
+    title: "Техно-Сиб — упаковочное оборудование для пищевых производств",
+    description: "Производство и поставка упаковочного оборудования: вакуумные, термоусадочные, горизонтальные, картонажные машины и запайщики лотков. Подбор за 1 день, гарантия, сервис.",
+    image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/6987fa02-cd88-4e57-944b-bcaecae0723b.png",
+  },
+  {
+    path: "/vegetables",
+    title: "Оборудование для упаковки овощей и фруктов в сетку и лотки — Техно-Сиб",
+    description: "Клипсаторы и автоматические линии для упаковки овощей и фруктов в сетку, плёнку и лотки. Встроенная маркировка для сетей. Подбор за 1 день, гарантия 12 мес.",
+    image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/22bbdae7-6281-4ea3-9e01-c96ce393f30f.png",
+  },
+  {
+    path: "/vacuum",
+    title: "Вакуумные упаковщики — настольные и напольные вакуум-машины | Техно-Сиб",
+    description: "Вакуумное упаковочное оборудование: одно- и двухкамерные настольные и напольные упаковщики. Герметичный шов 3,5 мм для пищевых, медицинских и промышленных товаров.",
+    image: "https://cdn.poehali.dev/files/4636d5a7-aed0-42a8-9883-c7efdaac6536.png",
+  },
+  {
+    path: "/gorizontalnoe",
+    title: "Горизонтальные упаковочные машины flow-pack — флоупак | Техно-Сиб",
+    description: "Горизонтальные упаковочные машины flow-pack: скорость до 330 уп/мин, плёнка 180–950 мм. Упаковка кондитерки, хлеба, зелени, замороженных и непищевых товаров.",
+    image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg",
+  },
+  {
+    path: "/kartonajnoe",
+    title: "Картонажное оборудование — формирователи и заклейщики коробов | Техно-Сиб",
+    description: "Картонажное упаковочное оборудование: формирователи и заклейщики коробов до 50 коробов/мин. Короба от 130×80 до 850×600 мм. Для маркетплейсов, e-commerce и логистики.",
+    image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/e080e415-acc2-4182-8331-888da44fa6e4.jpg",
+  },
+  {
+    path: "/obanderolivayushchie-mashiny",
+    title: "Обандероливающие машины BAND'ALL, BM, WK — обвязка мягкими лентами | Техно-Сиб",
+    description: "Обандероливающие машины для обвязки продукции мягкими лентами: BAND'ALL, BM, WK, HL-228. От настольных мини-моделей до автоматических линий. Гарантия 12 мес.",
+    image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/fb95c3ad-3bfd-405e-940c-a6851562a7ec.png",
+  },
+  {
+    path: "/termousadka",
+    title: "Термоусадочное оборудование — купить термоусадочную машину | Техно-Сиб",
+    description: "Термоусадочное оборудование до 3 600 упаковок в час: аппараты для штучной и групповой упаковки, термотоннели, термоусадочные танки, термоформеры. Плёнка ПОФ, ПВХ, ПВД.",
+    image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/fb8efd8b-405d-46d4-8511-ad9d9dedf599.png",
+  },
+  {
+    path: "/traysealers",
+    title: "Запайщики лотков (трейсилеры) — купить запайщик лотков | Техно-Сиб",
+    description: "Запайщики лотков до 3 600 упаковок в час: автоматические, полуавтоматические и ручные трейсилеры. Запайка в вакуум, газ (MAP), скин. Гарантия 12 месяцев, доставка по РФ и СНГ.",
+    image: "https://cdn.poehali.dev/projects/7f0941a7-b646-4462-83cf-d72a4486c6fc/bucket/8130b6af-c559-48ae-9b19-04d134f719e7.png",
+  },
+];
+
+export function getPageMeta(path: string): PageMeta {
+  let p = path || "/";
+  if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
+  return PAGES_META.find(m => m.path === p) || PAGES_META[0];
+}

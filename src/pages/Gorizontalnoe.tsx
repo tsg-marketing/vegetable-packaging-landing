@@ -10,6 +10,7 @@ import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 
 import { useSeo } from "@/lib/seo";
+import { getPageMeta } from "@/lib/pageMeta";
 import LegalInfo from "@/components/LegalInfo";
 
 // Страница горизонтальных упаковочных машин flow-pack /gorizontalnoe
@@ -249,10 +250,7 @@ export default function Gorizontalnoe() {
     return true;
   });
 
-  useSeo({
-    title: "Горизонтальные упаковочные машины flow-pack — флоупак | Техно-Сиб",
-    description: "Горизонтальные упаковочные машины flow-pack: скорость до 330 уп/мин, плёнка 180–950 мм. Упаковка кондитерки, хлеба, зелени, замороженных и непищевых товаров. Подбор за 1 день, гарантия, сервис.",
-  });
+  useSeo(getPageMeta("/gorizontalnoe"));
 
   const submitQuiz = useCallback(async (data: FlowpackQuizPayload): Promise<boolean> => {
     return sendLead({

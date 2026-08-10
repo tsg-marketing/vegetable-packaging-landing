@@ -9,6 +9,7 @@ import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 
 import { useSeo } from "@/lib/seo";
+import { getPageMeta } from "@/lib/pageMeta";
 import LegalInfo from "@/components/LegalInfo";
 
 // Страница обандероливающих машин /obanderolivayushchie-mashiny
@@ -259,10 +260,7 @@ export default function Obanderolivayushchie() {
     return true;
   });
 
-  useSeo({
-    title: "Обандероливающие машины BAND'ALL, BM, WK — обвязка мягкими лентами | Техно-Сиб",
-    description: "Обандероливающие машины для обвязки продукции мягкими лентами: BAND'ALL, BM, WK, HL-228. От настольных мини-моделей до автоматических линий. Гарантия 12 мес., доставка по РФ и странам ТС.",
-  });
+  useSeo(getPageMeta("/obanderolivayushchie-mashiny"));
 
   useEffect(() => {
     captureUtm();

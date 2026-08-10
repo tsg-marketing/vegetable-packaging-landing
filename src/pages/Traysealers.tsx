@@ -12,6 +12,7 @@ import QuizSideTab from "@/components/QuizSideTab";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal } from "@/lib/ym";
 import { useSeo } from "@/lib/seo";
+import { getPageMeta } from "@/lib/pageMeta";
 import {
   CatalogProduct,
   TRAYSEALER_CATALOG_ENDPOINT,
@@ -85,10 +86,7 @@ export default function Traysealers() {
   const [videoModal, setVideoModal] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
-  useSeo({
-    title: "Запайщики лотков (трейсилеры) — купить запайщик лотков | Техно-Сиб",
-    description: "Запайщики лотков до 3 600 упаковок в час: автоматические, полуавтоматические и ручные трейсилеры. Запайка в вакуум, газ (MAP), скин. Гарантия 12 месяцев, доставка по РФ и СНГ.",
-  });
+  useSeo(getPageMeta("/traysealers"));
 
   useEffect(() => {
     captureUtm();
