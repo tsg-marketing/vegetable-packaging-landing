@@ -1,19 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
-import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
+import { captureUtm } from "@/lib/utm";
 import QuizSideTab from "@/components/QuizSideTab";
 import FlowpackQuiz, { FlowpackQuizPayload } from "@/components/FlowpackQuiz";
 import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
-import { ymGoal, getYaClientId } from "@/lib/ym";
+
 import { useSeo } from "@/lib/seo";
 import LegalInfo from "@/components/LegalInfo";
 
 // Страница горизонтальных упаковочных машин flow-pack /gorizontalnoe
 
-const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/645b9ab5-57b6-4cb1-909a-3e9f160f751e";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg";
@@ -78,38 +78,7 @@ function formatPrice(price: number): string {
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
-  try {
-    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
-    const baseName = String(payload.name ?? "").trim();
-    const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
-    const yaClientId = await getYaClientId();
-    const baseComment = String(payload.comment ?? "").trim();
-    const comment = yaClientId
-      ? (baseComment ? `${baseComment}\nClientID: ${yaClientId}` : `ClientID: ${yaClientId}`)
-      : baseComment;
-    const res = await fetch(LEAD_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        page: currentPagePath(),
-        ...payload,
-        name: nameWithUrl,
-        comment,
-        yaClientId,
-        utm: readUtm(),
-        pageUrl,
-      }),
-    });
-    if (!res.ok) return false;
-    const j = await res.json().catch(() => ({ ok: true }));
-    const ok = j?.ok !== false;
-    if (ok) ymGoal("FOS_send");
-    return ok;
-  } catch {
-    return false;
-  }
-}
+const sendLead = createLeadSender("Горизонтальное упаковочное оборудование (flow-pack)");
 
 const HERO_BULLETS = [
   "Бренд от ведущих азиатских и европейских производителей",
@@ -291,16 +260,12 @@ export default function Gorizontalnoe() {
       name: data.name,
       phone: data.phone,
       email: data.email,
-      product: data.product,
-      size: data.size,
-      speed: data.speed,
-      options: data.options.join(", "),
-      quizAnswers: {
-        product: data.product,
-        size: data.size,
-        speed: data.speed,
-        options: data.options.join(", "),
-      },
+      quiz: [
+        { question: "Что упаковываете:", answer: data.product },
+        { question: "Размер продукта:", answer: data.size },
+        { question: "Требуемая скорость:", answer: data.speed },
+        { question: "Доп. опции:", answer: data.options.join(", ") },
+      ],
     });
   }, []);
 

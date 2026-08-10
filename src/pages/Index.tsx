@@ -1,50 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
-import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
+import { captureUtm } from "@/lib/utm";
 import Quiz, { type QuizPayload } from "@/components/Quiz";
 import QuizSideTab from "@/components/QuizSideTab";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
-import { ymGoal, getYaClientId } from "@/lib/ym";
+
 import { useSeo } from "@/lib/seo";
 import LegalInfo from "@/components/LegalInfo";
 
-const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 
-async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
-  try {
-    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
-    const baseName = String(payload.name ?? "").trim();
-    const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
-    const yaClientId = await getYaClientId();
-    const baseComment = String(payload.comment ?? "").trim();
-    const comment = yaClientId
-      ? (baseComment ? `${baseComment}\nClientID: ${yaClientId}` : `ClientID: ${yaClientId}`)
-      : baseComment;
-    const res = await fetch(LEAD_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        page: currentPagePath(),
-        ...payload,
-        name: nameWithUrl,
-        comment,
-        yaClientId,
-        utm: readUtm(),
-        pageUrl,
-      }),
-    });
-    if (!res.ok) return false;
-    const j = await res.json().catch(() => ({ ok: true }));
-    const ok = j?.ok !== false;
-    if (ok) ymGoal("FOS_send");
-    return ok;
-  } catch {
-    return false;
-  }
-}
+const sendLead = createLeadSender("Оборудование для упаковки овощей и фруктов");
 
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/22bbdae7-6281-4ea3-9e01-c96ce393f30f.png";
 const IMG_TEAM = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/758aa06d-2c1a-4f5b-a919-8eb8e70feaff.jpg";
@@ -260,17 +229,13 @@ export default function Index() {
       name: data.name,
       phone: data.phone,
       email: data.email,
-      contact: data.contact,
-      product: data.product,
-      packaging: data.packaging,
-      volume: data.volume,
-      automation: data.automation,
-      quizAnswers: {
-        product: data.product,
-        packaging: data.packaging,
-        volume: data.volume,
-        automation: data.automation,
-      },
+      quiz: [
+        { question: "Что упаковываете:", answer: data.product },
+        { question: "Тип упаковки:", answer: data.packaging },
+        { question: "Объём:", answer: data.volume },
+        { question: "Автоматизация:", answer: data.automation },
+        { question: "Удобный способ связи:", answer: data.contact },
+      ],
     });
   }, []);
 

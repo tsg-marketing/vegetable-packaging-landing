@@ -1,19 +1,19 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Icon from "@/components/ui/icon";
+import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
-import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
+import { captureUtm } from "@/lib/utm";
 import QuizSideTab from "@/components/QuizSideTab";
 import VacuumQuiz, { VacuumQuizPayload } from "@/components/VacuumQuiz";
 import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
-import { ymGoal, getYaClientId } from "@/lib/ym";
+
 import { useSeo } from "@/lib/seo";
 import LegalInfo from "@/components/LegalInfo";
 
 // Страница вакуумного упаковочного оборудования /vacuum
 
-const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/981263b7-3a88-449e-abf8-f61fbd2b5289";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/files/4636d5a7-aed0-42a8-9883-c7efdaac6536.png";
@@ -140,38 +140,7 @@ const EXTRA_VIDEOS: { id: string; name: string; url: string }[] = [
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
-  try {
-    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
-    const baseName = String(payload.name ?? "").trim();
-    const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
-    const yaClientId = await getYaClientId();
-    const baseComment = String(payload.comment ?? "").trim();
-    const comment = yaClientId
-      ? (baseComment ? `${baseComment}\nClientID: ${yaClientId}` : `ClientID: ${yaClientId}`)
-      : baseComment;
-    const res = await fetch(LEAD_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        page: currentPagePath(),
-        ...payload,
-        name: nameWithUrl,
-        comment,
-        yaClientId,
-        utm: readUtm(),
-        pageUrl,
-      }),
-    });
-    if (!res.ok) return false;
-    const j = await res.json().catch(() => ({ ok: true }));
-    const ok = j?.ok !== false;
-    if (ok) ymGoal("FOS_send");
-    return ok;
-  } catch {
-    return false;
-  }
-}
+const sendLead = createLeadSender("Вакуум-упаковочное оборудование");
 
 const PROBLEMS = [
   { icon: "Timer", title: "Короткий срок годности", desc: "Скоропортящаяся продукция теряет товарный вид и списывается из ассортимента" },
@@ -333,16 +302,12 @@ export default function Vacuum() {
       name: data.name,
       phone: data.phone,
       email: data.email,
-      product: data.product,
-      size: data.size,
-      volume: data.volume,
-      budget: data.budget,
-      quizAnswers: {
-        product: data.product,
-        size: data.size,
-        volume: data.volume,
-        budget: data.budget,
-      },
+      quiz: [
+        { question: "Что упаковываете:", answer: data.product },
+        { question: "Размер продукта:", answer: data.size },
+        { question: "Объём упаковки:", answer: data.volume },
+        { question: "Бюджет:", answer: data.budget },
+      ],
     });
   }, []);
 

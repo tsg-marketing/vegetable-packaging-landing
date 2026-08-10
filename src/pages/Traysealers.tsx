@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
-import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
+import { captureUtm } from "@/lib/utm";
 import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import LegalInfo from "@/components/LegalInfo";
@@ -9,7 +10,7 @@ import ShrinkCatalog from "@/components/ShrinkCatalog";
 import TraysealerQuiz, { TraysealerQuizPayload } from "@/components/TraysealerQuiz";
 import QuizSideTab from "@/components/QuizSideTab";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
-import { ymGoal, getYaClientId } from "@/lib/ym";
+import { ymGoal } from "@/lib/ym";
 import { useSeo } from "@/lib/seo";
 import {
   CatalogProduct,
@@ -30,7 +31,6 @@ import {
   MODEL_TYPES,
 } from "@/data/traysealersContent";
 
-const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/7f0941a7-b646-4462-83cf-d72a4486c6fc/bucket/8130b6af-c559-48ae-9b19-04d134f719e7.png";
 
@@ -61,38 +61,7 @@ const NAV = [
   { label: "Контакты", href: "#contacts" },
 ];
 
-async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
-  try {
-    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
-    const baseName = String(payload.name ?? "").trim();
-    const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
-    const yaClientId = await getYaClientId();
-    const baseComment = String(payload.comment ?? "").trim();
-    const comment = yaClientId
-      ? (baseComment ? `${baseComment}\nClientID: ${yaClientId}` : `ClientID: ${yaClientId}`)
-      : baseComment;
-    const res = await fetch(LEAD_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        page: currentPagePath(),
-        ...payload,
-        name: nameWithUrl,
-        comment,
-        yaClientId,
-        utm: readUtm(),
-        pageUrl,
-      }),
-    });
-    if (!res.ok) return false;
-    const j = await res.json().catch(() => ({ ok: true }));
-    const ok = j?.ok !== false;
-    if (ok) ymGoal("FOS_send");
-    return ok;
-  } catch {
-    return false;
-  }
-}
+const sendLead = createLeadSender("Запайщики лотков (трейсилеры)");
 
 export default function Traysealers() {
   const [scrolled, setScrolled] = useState(false);
@@ -170,9 +139,6 @@ export default function Traysealers() {
     await sendLead({
       source: "fos",
       product: fosOpen?.productName || "",
-      comment: fosOpen?.productName
-        ? `Интересует товар - ${fosOpen.productName}\nСтраница: Запайщики лотков`
-        : "Страница: Запайщики лотков",
       name: fosData.name.trim(),
       phone: fosData.phone.trim(),
       email: fosData.email.trim(),
@@ -191,19 +157,14 @@ export default function Traysealers() {
     setFormErrors(errs);
     if (Object.keys(errs).length > 0 || formSubmitting) return;
     setFormSubmitting(true);
-    const lines = [
-      "Страница: Запайщики лотков",
-      formData.company.trim() ? `Компания: ${formData.company.trim()}` : "",
-      formData.productType ? `Тип продукции: ${formData.productType}` : "",
-      formData.modelType ? `Модель / тип оборудования: ${formData.modelType}` : "",
-      formData.comment.trim(),
-    ].filter(Boolean).join("\n");
     await sendLead({
       source: "main_form",
-      company: formData.company,
-      productType: formData.productType || "-",
-      modeltype: formData.modelType || "-",
-      comment: lines,
+      company: formData.company.trim(),
+      extra: {
+        "Тип продукции": formData.productType,
+        "Модель / тип оборудования": formData.modelType,
+      },
+      comment: formData.comment.trim(),
       name: formData.name,
       phone: formData.phone,
       email: formData.email,
@@ -215,13 +176,12 @@ export default function Traysealers() {
   };
 
   const submitQuiz = useCallback(async (data: TraysealerQuizPayload): Promise<boolean> => {
-    const lines = data.answers.map(a => `${a.question} ${a.answer}`).join("\n");
     const ok = await sendLead({
       source: "quiz",
-      comment: `Квиз-подбор запайщика лотков\n${lines}\nСтраница: Запайщики лотков`,
       name: data.name,
       phone: data.phone,
       email: data.email,
+      quiz: data.answers,
     });
     if (ok) ymGoal("quiz_traysealer_sent");
     return ok;

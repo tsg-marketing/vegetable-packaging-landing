@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
-import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
+import { createLeadSender } from "@/lib/lead";
+import { captureUtm } from "@/lib/utm";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
-import { ymGoal, getYaClientId } from "@/lib/ym";
+
 import { useSeo } from "@/lib/seo";
 import LegalInfo from "@/components/LegalInfo";
 
-const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const HERO_IMG = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/6987fa02-cd88-4e57-944b-bcaecae0723b.png";
 const GROUPS_API = "https://functions.poehali.dev/ed4e9bba-a8d4-434c-af4e-52809800893d";
@@ -36,38 +36,7 @@ type Group = {
   showSubcategory?: boolean;
 };
 
-async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
-  try {
-    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
-    const baseName = String(payload.name ?? "").trim();
-    const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
-    const yaClientId = await getYaClientId();
-    const baseComment = String(payload.comment ?? "").trim();
-    const comment = yaClientId
-      ? (baseComment ? `${baseComment}\nClientID: ${yaClientId}` : `ClientID: ${yaClientId}`)
-      : baseComment;
-    const res = await fetch(LEAD_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        page: currentPagePath(),
-        ...payload,
-        name: nameWithUrl,
-        comment,
-        yaClientId,
-        utm: readUtm(),
-        pageUrl,
-      }),
-    });
-    if (!res.ok) return false;
-    const j = await res.json().catch(() => ({ ok: true }));
-    const ok = j?.ok !== false;
-    if (ok) ymGoal("FOS_send");
-    return ok;
-  } catch {
-    return false;
-  }
-}
+const sendLead = createLeadSender("Главная — упаковочное оборудование");
 
 function formatPrice(p: GroupProduct): string {
   if (!p.price || p.price <= 0) return "Запросить цену";

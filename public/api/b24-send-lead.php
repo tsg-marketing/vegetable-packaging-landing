@@ -58,6 +58,8 @@ $pack    = trim((string)($data['pack']    ?? ''));
 $source  = trim((string)($data['source']  ?? 'site'));
 $pageUrl = trim((string)($data['pageUrl'] ?? ''));
 $page    = trim((string)($data['page']    ?? ''));
+$equipment = trim((string)($data['equipment'] ?? ''));
+$company   = trim((string)($data['company']   ?? ''));
 // ClientID Яндекс.Метрики (опционально — может отсутствовать, если Метрика не загрузилась)
 $yaClientId = trim((string)($data['yaClientId'] ?? ''));
 $yaClientId = mb_substr($yaClientId, 0, 100);
@@ -89,6 +91,9 @@ foreach ($utmKeys as $k) {
 
 // ── Формируем title и комментарий ───────────────────────────
 $title = 'Заявка с сайта';
+if ($equipment !== '') {
+    $title .= ' — ' . mb_substr($equipment, 0, 120);
+}
 if ($product !== '') {
     $title .= ' — ' . mb_substr($product, 0, 150);
 } elseif ($pack !== '') {
@@ -108,11 +113,13 @@ $quizLabels = [
 ];
 
 $commentLines = [];
-if ($product !== '')  $commentLines[] = 'Товар: ' . $product;
-if ($pack !== '')     $commentLines[] = 'Что упаковывают: ' . $pack;
-if ($comment !== '')  $commentLines[] = 'Комментарий: ' . $comment;
+if ($equipment !== '' && mb_strpos($comment, $equipment) === false) $commentLines[] = 'Раздел: ' . $equipment;
+if ($product !== '' && mb_strpos($comment, $product) === false)     $commentLines[] = 'Товар: ' . $product;
+if ($company !== '' && mb_strpos($comment, $company) === false)     $commentLines[] = 'Компания: ' . $company;
+if ($pack !== '' && mb_strpos($comment, $pack) === false)           $commentLines[] = 'Что упаковывают: ' . $pack;
+if ($comment !== '')  $commentLines[] = $comment;
 if ($email !== '')    $commentLines[] = 'E-mail: ' . $email;
-if (!empty($quizClean)) {
+if (!empty($quizClean) && mb_strpos($comment, 'Ответы квиза') === false) {
     $commentLines[] = '— Ответы квиза —';
     foreach ($quizClean as $k => $v) {
         $commentLines[] = ($quizLabels[$k] ?? $k) . ': ' . $v;
@@ -146,6 +153,7 @@ $logLine = '[' . date('Y-m-d H:i:s') . '] ' . json_encode([
     'phone'       => $phone,
     'email'       => $email,
     'source'      => $source,
+    'equipment'   => $equipment,
     'product'     => $product,
     'pack'        => $pack,
     'comment'     => $comment,
@@ -182,7 +190,7 @@ $fields = [
         'EMAIL'        => $email !== '' ? [['VALUE' => $email, 'VALUE_TYPE' => 'WORK']] : [],
         'COMMENTS'     => $commentText,
         'SOURCE_ID'    => 'WEB',
-        'SOURCE_DESCRIPTION' => $source,
+        'SOURCE_DESCRIPTION' => $equipment !== '' ? ($source . ' / ' . $equipment) : $source,
         'UTM_SOURCE'   => $utmClean['utm_source']   ?? '',
         'UTM_MEDIUM'   => $utmClean['utm_medium']   ?? '',
         'UTM_CAMPAIGN' => $utmClean['utm_campaign'] ?? '',

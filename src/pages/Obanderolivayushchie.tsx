@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
-import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
+import { captureUtm } from "@/lib/utm";
 
 import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
-import { ymGoal, getYaClientId } from "@/lib/ym";
+
 import { useSeo } from "@/lib/seo";
 import LegalInfo from "@/components/LegalInfo";
 
 // Страница обандероливающих машин /obanderolivayushchie-mashiny
 
-const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/9ddae291-349d-4cd4-96e8-bfd27df0be32";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg";
@@ -77,38 +77,7 @@ function formatPrice(price: number): string {
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
-  try {
-    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
-    const baseName = String(payload.name ?? "").trim();
-    const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
-    const yaClientId = await getYaClientId();
-    const baseComment = String(payload.comment ?? "").trim();
-    const comment = yaClientId
-      ? (baseComment ? `${baseComment}\nClientID: ${yaClientId}` : `ClientID: ${yaClientId}`)
-      : baseComment;
-    const res = await fetch(LEAD_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        page: currentPagePath(),
-        ...payload,
-        name: nameWithUrl,
-        comment,
-        yaClientId,
-        utm: readUtm(),
-        pageUrl,
-      }),
-    });
-    if (!res.ok) return false;
-    const j = await res.json().catch(() => ({ ok: true }));
-    const ok = j?.ok !== false;
-    if (ok) ymGoal("FOS_send");
-    return ok;
-  } catch {
-    return false;
-  }
-}
+const sendLead = createLeadSender("Обандероливающие машины");
 
 const HERO_BULLETS = [
   "Гарантия 12 мес. завода-изготовителя",
@@ -276,7 +245,6 @@ export default function Obanderolivayushchie() {
   const [videoModal, setVideoModal] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
-
   useEffect(() => { setCatalogShow(8); }, [catalogSearch]);
 
   useEffect(() => {
@@ -295,7 +263,6 @@ export default function Obanderolivayushchie() {
     title: "Обандероливающие машины BAND'ALL, BM, WK — обвязка мягкими лентами | Техно-Сиб",
     description: "Обандероливающие машины для обвязки продукции мягкими лентами: BAND'ALL, BM, WK, HL-228. От настольных мини-моделей до автоматических линий. Гарантия 12 мес., доставка по РФ и странам ТС.",
   });
-
 
   useEffect(() => {
     captureUtm();

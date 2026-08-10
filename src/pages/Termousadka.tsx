@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
-import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
+import { captureUtm } from "@/lib/utm";
 import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import LegalInfo from "@/components/LegalInfo";
@@ -10,7 +11,7 @@ import ShrinkCatalog from "@/components/ShrinkCatalog";
 import ShrinkQuiz, { ShrinkQuizPayload } from "@/components/ShrinkQuiz";
 import QuizSideTab from "@/components/QuizSideTab";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
-import { ymGoal, getYaClientId } from "@/lib/ym";
+import { ymGoal } from "@/lib/ym";
 import { useSeo } from "@/lib/seo";
 import {
   CatalogProduct,
@@ -28,7 +29,6 @@ import {
   FAQ_GROUPS,
 } from "@/data/termousadkaContent";
 
-const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/fb8efd8b-405d-46d4-8511-ad9d9dedf599.png";
 
@@ -70,38 +70,7 @@ const NAV = [
   { label: "Контакты", href: "#contacts" },
 ];
 
-async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
-  try {
-    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
-    const baseName = String(payload.name ?? "").trim();
-    const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
-    const yaClientId = await getYaClientId();
-    const baseComment = String(payload.comment ?? "").trim();
-    const comment = yaClientId
-      ? (baseComment ? `${baseComment}\nClientID: ${yaClientId}` : `ClientID: ${yaClientId}`)
-      : baseComment;
-    const res = await fetch(LEAD_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        page: currentPagePath(),
-        ...payload,
-        name: nameWithUrl,
-        comment,
-        yaClientId,
-        utm: readUtm(),
-        pageUrl,
-      }),
-    });
-    if (!res.ok) return false;
-    const j = await res.json().catch(() => ({ ok: true }));
-    const ok = j?.ok !== false;
-    if (ok) ymGoal("FOS_send");
-    return ok;
-  } catch {
-    return false;
-  }
-}
+const sendLead = createLeadSender("Термоусадочное оборудование");
 
 export default function Termousadka() {
   const [scrolled, setScrolled] = useState(false);
@@ -172,7 +141,6 @@ export default function Termousadka() {
     await sendLead({
       source: "fos",
       product: fosOpen?.productName || "",
-      comment: fosOpen?.productName ? `Интересует товар - ${fosOpen.productName}\nСтраница: Термоусадочное оборудование` : "Страница: Термоусадочное оборудование",
       name: fosData.name.trim(),
       phone: fosData.phone.trim(),
       email: fosData.email.trim(),
@@ -193,7 +161,6 @@ export default function Termousadka() {
     setFormSubmitting(true);
     await sendLead({
       source: "main_form",
-      comment: "Страница: Термоусадочное оборудование",
       name: formData.name,
       phone: formData.phone,
       email: formData.email,
@@ -205,13 +172,12 @@ export default function Termousadka() {
   };
 
   const submitQuiz = useCallback(async (data: ShrinkQuizPayload): Promise<boolean> => {
-    const lines = data.answers.map(a => `${a.question} ${a.answer}`).join("\n");
     const ok = await sendLead({
       source: "quiz",
-      comment: `Квиз-подбор термоусадочного оборудования\n${lines}\nСтраница: Термоусадочное оборудование`,
       name: data.name,
       phone: data.phone,
       email: data.email,
+      quiz: data.answers,
     });
     if (ok) ymGoal("quiz_sent");
     return ok;
