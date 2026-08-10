@@ -41,10 +41,11 @@ export function useEquipmentGroups(): Group[] {
   return groups;
 }
 
-type Props = { currentHref?: string; variant: "desktop" | "mobile" };
+type Props = { currentHref?: string; variant: "desktop" | "mobile"; showGroups?: boolean };
 
-export default function EquipmentMenu({ currentHref, variant }: Props) {
-  const groups = useEquipmentGroups();
+export default function EquipmentMenu({ currentHref, variant, showGroups = true }: Props) {
+  const allGroups = useEquipmentGroups();
+  const groups = showGroups ? allGroups : [];
 
   if (variant === "mobile") {
     return (

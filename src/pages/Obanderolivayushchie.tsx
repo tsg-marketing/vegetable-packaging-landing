@@ -427,7 +427,7 @@ export default function Obanderolivayushchie() {
               </button>
               {equipmentOpen && (
                 <div className="absolute left-0 top-full pt-2 z-50">
-                  <EquipmentMenu variant="desktop" currentHref="/obanderolivanie" />
+                  <EquipmentMenu variant="desktop" currentHref="/obanderolivanie" showGroups={false} />
                 </div>
               )}
             </div>
@@ -463,7 +463,7 @@ export default function Obanderolivayushchie() {
             ))}
             <div className="border-b border-gray-100 pb-2">
               <p className="text-xs font-semibold text-[#999] uppercase mb-2">Оборудование</p>
-              <EquipmentMenu variant="mobile" currentHref="/obanderolivanie" />
+              <EquipmentMenu variant="mobile" currentHref="/obanderolivanie" showGroups={false} />
             </div>
             {NAV.slice(2).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
