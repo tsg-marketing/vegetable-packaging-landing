@@ -101,10 +101,9 @@ const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const sendLead = createLeadSender("Машины для обандероливания и картонной обечайки");
 
 const HERO_BULLETS = [
-  "Гарантия 12 мес. завода-изготовителя",
-  "Доставка по РФ и странам Таможенного союза",
-  "Оборудование для пищевой промышленности",
-  "Модели в наличии на складах и под заказ",
+  "Настольные, полуавтоматы и автоматы с конвейером",
+  "Гарантия 12 месяцев завода-изготовителя",
+  "Модели в наличии на складах в Новосибирске и Москве",
 ];
 
 const TASKS = [
@@ -481,41 +480,46 @@ export default function Obanderolivayushchie() {
       {/* HERO */}
       <section id="hero" className="pt-16 min-h-[88vh] flex items-center bg-[#F7F7F7] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-12 lg:py-0">
-          <div className="lg:col-span-7 pr-0 lg:pr-4 fade-up">
-            <h1 className="text-[clamp(24px,3.4vw,40px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
-              Оборудование для обвязки продукции <span style={{ color: "var(--orange)" }}>мягкими лентами</span> и картонной обечайкой
+          <div className="lg:col-span-5 pr-0 lg:pr-4 fade-up">
+            <h1 className="text-[clamp(26px,3.2vw,40px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
+              Оборудование для обвязки продукции{" "}
+              <span style={{ color: "var(--orange)" }}>мягкими лентами</span>{" "}
+              и картонной обечайкой
             </h1>
 
-            <p className="text-[17px] sm:text-[19px] text-[#444] mb-8 max-w-2xl leading-relaxed">
+            <p className="text-[17px] text-[#555] mb-8 max-w-xl leading-relaxed">
               Обандероливающие машины и автоматы для упаковки в картонную обечайку —
               от настольных мини-моделей до автоматических линий. Доставка по РФ и странам ТС,
               гарантия завода-изготовителя.
             </p>
 
-            <ul className="grid sm:grid-cols-2 gap-x-5 gap-y-4 mb-8 max-w-2xl">
-              {HERO_BULLETS.map((b, i) => (
-                <li key={i} className="flex items-start gap-3 text-[16px] font-medium text-[#1A1A1A] leading-snug">
-                  <Icon name="CheckCircle2" size={22} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 mb-10">
               <button onClick={() => openFos()} className="btn-orange text-base px-8 py-3.5">
                 Подобрать оборудование
               </button>
-              <button onClick={() => scrollTo("#about-banding")} className="btn-outline-orange text-base px-8 py-3.5">
-                Узнать подробней
+              <button onClick={() => scrollTo("#catalog")} className="btn-outline-orange text-base px-8 py-3.5">
+                Смотреть модели
               </button>
             </div>
+
+            <ul className="space-y-3">
+              {HERO_BULLETS.map(t => (
+                <li key={t} className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: "var(--orange)" }}>
+                    <Icon name="Check" size={14} className="text-white" />
+                  </div>
+                  <span className="text-[17px] text-[#1A1A1A] font-medium leading-snug">{t}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          <div className="lg:col-span-5 fade-up flex items-center justify-center">
+          <div className="lg:col-span-7 relative fade-up-1 flex items-center justify-center">
             <img
               src={IMG_HERO_MACHINE}
               alt="Оборудование для обвязки продукции мягкими лентами и картонной обечайкой"
-              className="w-full h-auto lg:h-[560px] xl:h-[620px] object-contain rounded-2xl drop-shadow-2xl"
+              loading="lazy"
+              className="w-full h-auto lg:h-[560px] xl:h-[600px] object-contain rounded-2xl drop-shadow-2xl"
             />
           </div>
         </div>
