@@ -9,7 +9,7 @@ export const EQUIPMENT_LINKS: EquipmentLink[] = [
   { label: "Упаковка овощей и фруктов", href: "/vegetables" },
   { label: "Картонажное оборудование", href: "/kartonajnoe" },
   { label: "Горизонтальные машины flow-pack", href: "/gorizontalnoe" },
-  { label: "Обандероливающие машины", href: "/obanderolivanie" },
+  { label: "Машины для обандероливания и картонной обечайки", href: "/obanderolivanie" },
 ];
 
 const GROUPS_API = "https://functions.poehali.dev/ed4e9bba-a8d4-434c-af4e-52809800893d";

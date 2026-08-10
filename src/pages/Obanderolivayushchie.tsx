@@ -11,13 +11,16 @@ import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { useSeo } from "@/lib/seo";
 import { getPageMeta } from "@/lib/pageMeta";
 import LegalInfo from "@/components/LegalInfo";
+import BandingQuiz, { BandingQuizPayload } from "@/components/BandingQuiz";
+import QuizSideTab from "@/components/QuizSideTab";
+import { ymGoal } from "@/lib/ym";
 
 // Страница обандероливающих машин /obanderolivanie
 
 const CATALOG_ENDPOINT = "https://functions.poehali.dev/9ddae291-349d-4cd4-96e8-bfd27df0be32";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg";
-const IMG_HERO_MACHINE = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/fb95c3ad-3bfd-405e-940c-a6851562a7ec.png";
+const IMG_HERO_MACHINE = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/165c86d7-856e-4b79-9f63-c8b4902a2bd0.png";
 
 type CatalogParam = { name: string; value: string };
 type CatalogProduct = {
@@ -95,7 +98,7 @@ function formatPrice(price: number): string {
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const sendLead = createLeadSender("Обандероливающие машины");
+const sendLead = createLeadSender("Машины для обандероливания и картонной обечайки");
 
 const HERO_BULLETS = [
   "Гарантия 12 мес. завода-изготовителя",
@@ -213,6 +216,8 @@ const FAQS = [
 const NAV = [
   { label: "Главная", href: "/" },
   { label: "Каталог", href: "#catalog" },
+  { label: "Видео", href: "#videos" },
+  { label: "Подбор", href: "#quiz" },
   { label: "Преимущества", href: "#advantages" },
   { label: "Типы машин", href: "#series" },
   { label: "О компании", href: "#about" },
@@ -249,6 +254,7 @@ export default function Obanderolivayushchie() {
 
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
   const [videoModal, setVideoModal] = useState<string | null>(null);
+  const [quizOpen, setQuizOpen] = useState(false);
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
   useEffect(() => { setCatalogShow(8); }, [catalogSearch]);
@@ -258,6 +264,10 @@ export default function Obanderolivayushchie() {
     document.body.style.overflow = anyOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [detailsProduct, videoModal, lightbox, fosOpen, thanksOpen]);
+
+  const catalogVideos = catalog
+    .map(p => ({ id: p.id, name: p.name, url: getVideoUrl(p.params), poster: p.pictures[0] || "" }))
+    .filter((v): v is { id: string; name: string; url: string; poster: string } => Boolean(v.url));
 
   const filteredCatalog = catalog.filter(p => {
     const q = catalogSearch.trim().toLowerCase();
@@ -353,6 +363,18 @@ export default function Obanderolivayushchie() {
     setFormData({ name: "", phone: "", pack: "", comment: "" });
     setThanksOpen(true);
   };
+
+  const submitQuiz = useCallback(async (data: BandingQuizPayload): Promise<boolean> => {
+    const ok = await sendLead({
+      source: "quiz",
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      quiz: data.answers,
+    });
+    if (ok) ymGoal("quiz_banding_sent");
+    return ok;
+  }, []);
 
   const scrollTo = (href: string) => {
     if (href.startsWith("/")) { window.location.href = href; return; }
@@ -457,8 +479,8 @@ export default function Obanderolivayushchie() {
       </header>
 
       {/* HERO */}
-      <section id="hero" className="pt-16 flex items-center bg-[#F7F7F7] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch py-6 lg:py-8">
+      <section id="hero" className="pt-16 min-h-[88vh] flex items-center bg-[#F7F7F7] overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-12 lg:py-0">
           <div className="lg:col-span-7 pr-0 lg:pr-4 fade-up">
             <h1 className="text-[clamp(24px,3.4vw,40px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
               Оборудование для обвязки продукции <span style={{ color: "var(--orange)" }}>мягкими лентами</span> и картонной обечайкой
@@ -489,11 +511,11 @@ export default function Obanderolivayushchie() {
             </div>
           </div>
 
-          <div className="lg:col-span-5 fade-up self-stretch">
+          <div className="lg:col-span-5 fade-up flex items-center justify-center">
             <img
               src={IMG_HERO_MACHINE}
               alt="Оборудование для обвязки продукции мягкими лентами и картонной обечайкой"
-              className="w-full h-full min-h-[260px] lg:min-h-[420px] object-cover rounded-2xl shadow-xl"
+              className="w-full h-auto lg:h-[560px] xl:h-[620px] object-contain rounded-2xl drop-shadow-2xl"
             />
           </div>
         </div>
@@ -716,6 +738,54 @@ export default function Obanderolivayushchie() {
               )}
             </>
           )}
+        </div>
+      </section>
+
+      {/* VIDEO GALLERY */}
+      {catalogVideos.length > 0 && (
+        <section id="videos" className="py-16 bg-[#F7F7F7]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="text-center mb-8">
+              <h2 className="section-title">Смотреть видео о нашем товаре</h2>
+              <p className="text-[#666] mt-2 max-w-2xl mx-auto">Посмотрите, как оборудование работает в реальных условиях производства</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {catalogVideos.map(v => (
+                <button
+                  key={v.id}
+                  onClick={() => setVideoModal(v.url)}
+                  className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 text-left flex flex-col"
+                >
+                  <div className="relative aspect-[16/10] bg-white overflow-hidden flex items-center justify-center">
+                    <img src={v.poster || IMG_HERO} alt={v.name} loading="lazy" className="w-full h-full object-contain p-4" />
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/25 transition-colors hover:bg-black/35">
+                      <span className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg" style={{ background: "var(--orange)" }}>
+                        <Icon name="Play" size={26} className="text-white ml-0.5" />
+                      </span>
+                    </span>
+                  </div>
+                  <div className="p-5">
+                    <h3 className="font-bold text-[#1A1A1A] text-[15px] leading-snug mb-1">{v.name}</h3>
+                    <span className="text-[13px] font-semibold inline-flex items-center gap-1.5" style={{ color: "var(--orange)" }}>
+                      <Icon name="Play" size={14} />
+                      Смотреть видео
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* QUIZ */}
+      <section id="quiz" className="py-16 bg-white scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8">
+            <h2 className="section-title">Подберите оборудование за 1 минуту</h2>
+            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Ответьте на 3 коротких вопроса — подготовим персональную подборку моделей и коммерческое предложение</p>
+          </div>
+          <BandingQuiz variant="inline" onSubmit={submitQuiz} />
         </div>
       </section>
 
@@ -1369,6 +1439,8 @@ export default function Obanderolivayushchie() {
         </div>
       )}
 
+      <QuizSideTab onClick={() => setQuizOpen(true)} />
+      <BandingQuiz variant="modal" open={quizOpen} onClose={() => setQuizOpen(false)} onSubmit={submitQuiz} />
     </div>
   );
 }
