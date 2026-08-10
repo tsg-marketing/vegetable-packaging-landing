@@ -59,11 +59,13 @@ export function formatPrice(price: number): string {
   return new Intl.NumberFormat("ru-RU").format(price) + " руб";
 }
 
-let cache: Promise<CatalogProduct[]> | null = null;
+export const TRAYSEALER_CATALOG_ENDPOINT = "https://functions.poehali.dev/82e780e2-dabb-4d9f-acdd-4987a46e05c3";
 
-export function loadShrinkCatalog(): Promise<CatalogProduct[]> {
-  if (!cache) {
-    cache = fetch(SHRINK_CATALOG_ENDPOINT)
+const caches: Record<string, Promise<CatalogProduct[]>> = {};
+
+export function loadCatalog(endpoint: string): Promise<CatalogProduct[]> {
+  if (!caches[endpoint]) {
+    caches[endpoint] = fetch(endpoint)
       .then(r => {
         if (!r.ok) throw new Error("bad status");
         return r.json();
@@ -74,9 +76,13 @@ export function loadShrinkCatalog(): Promise<CatalogProduct[]> {
         return list;
       })
       .catch(e => {
-        cache = null;
+        delete caches[endpoint];
         throw e;
       });
   }
-  return cache;
+  return caches[endpoint];
+}
+
+export function loadShrinkCatalog(): Promise<CatalogProduct[]> {
+  return loadCatalog(SHRINK_CATALOG_ENDPOINT);
 }

@@ -5,15 +5,15 @@ import { captureUtm, readUtm, currentPagePath } from "@/lib/utm";
 import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import LegalInfo from "@/components/LegalInfo";
-import VideoCard from "@/components/VideoCard";
 import ShrinkCatalog from "@/components/ShrinkCatalog";
-import ShrinkQuiz, { ShrinkQuizPayload } from "@/components/ShrinkQuiz";
+import TraysealerQuiz, { TraysealerQuizPayload } from "@/components/TraysealerQuiz";
 import QuizSideTab from "@/components/QuizSideTab";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { ymGoal, getYaClientId } from "@/lib/ym";
 import { useSeo } from "@/lib/seo";
 import {
   CatalogProduct,
+  TRAYSEALER_CATALOG_ENDPOINT,
   visibleParams,
   getVideoUrl,
   stripHtml,
@@ -22,42 +22,33 @@ import {
 import {
   ADVANTAGES,
   APPLICATIONS,
-  INDUSTRY_BADGES,
   SIGNS,
   SERVICES,
-  FAQ_GROUPS,
-} from "@/data/termousadkaContent";
+  SHOWROOMS,
+  DELIVERY_POINTS,
+  PRODUCT_TYPES,
+  MODEL_TYPES,
+} from "@/data/traysealersContent";
 
 const LEAD_ENDPOINT = "/api/b24-send-lead.php";
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
-const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/fb8efd8b-405d-46d4-8511-ad9d9dedf599.png";
+const IMG_HERO = "https://cdn.poehali.dev/projects/7f0941a7-b646-4462-83cf-d72a4486c6fc/bucket/8130b6af-c559-48ae-9b19-04d134f719e7.png";
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const MAIN_CATEGORIES = [
-  { id: "343", name: "Для штучной упаковки" },
-  { id: "341", name: "Для групповой упаковки" },
-  { id: "342", name: "Для длинномерной продукции" },
-  { id: "344", name: "Sleeve-этикетки" },
-  { id: "340", name: "Термоусадочные тоннели" },
-  { id: "295", name: "Термоусадочные танки" },
-  { id: "345", name: "Термоформеры" },
-];
-
-const CONSUMABLE_CATEGORIES = [
-  { id: "354", name: "Плёнка ПВХ" },
-  { id: "357", name: "Плёнка ПОФ" },
-];
-
-const ACCESSORY_CATEGORIES = [
-  { id: "353", name: "Лотки" },
-  { id: "355", name: "Плёнка ПВД" },
+const CATEGORIES = [
+  { id: "308", name: "Автоматические" },
+  { id: "309", name: "Полуавтоматические" },
+  { id: "310", name: "Ручные" },
+  { id: "498", name: "С газонаполнением" },
+  { id: "499", name: "С обрезкой" },
+  { id: "307", name: "Прочие модели" },
 ];
 
 const HERO_BULLETS = [
-  "Оборудование под любые размеры и формы от европейских, азиатских и российских производителей",
-  "Для штучной и групповой упаковки. Термоусадочные танки и термоформеры",
-  "Ровный шов без налипания плёнки",
+  "Автоматические, полуавтоматические, ручные запайщики в наличии",
+  "Герметичная запайка в вакуум, газ, скин",
+  "Увеличивает срок хранения в 3–5 раз",
 ];
 
 const NAV = [
@@ -65,7 +56,7 @@ const NAV = [
   { label: "Преимущества", href: "#advantages" },
   { label: "Каталог", href: "#catalog" },
   { label: "Применение", href: "#application" },
-  { label: "Когда покупать", href: "#signs" },
+  { label: "Когда пора", href: "#signs" },
   { label: "Сервис", href: "#service" },
   { label: "Контакты", href: "#contacts" },
 ];
@@ -103,14 +94,12 @@ async function sendLead(payload: Record<string, unknown>): Promise<boolean> {
   }
 }
 
-export default function Termousadka() {
+export default function Traysealers() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
-  const [openFaq, setOpenFaq] = useState<string | null>(null);
-  const [faqGroup, setFaqGroup] = useState(0);
 
-  const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
+  const [formData, setFormData] = useState({ name: "", phone: "", email: "", company: "", productType: "", modelType: "", comment: "" });
   const [formAgree, setFormAgree] = useState(false);
   const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string; email?: string; agree?: string }>({});
   const [formSubmitting, setFormSubmitting] = useState(false);
@@ -128,8 +117,8 @@ export default function Termousadka() {
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
   useSeo({
-    title: "Термоусадочное оборудование — купить термоусадочную машину | Техно-Сиб",
-    description: "Термоусадочное оборудование до 3 600 упаковок в час: аппараты для штучной и групповой упаковки, термотоннели, термоусадочные танки, термоформеры. Плёнка ПОФ, ПВХ, ПВД. Доставка по РФ и СНГ.",
+    title: "Запайщики лотков (трейсилеры) — купить запайщик лотков | Техно-Сиб",
+    description: "Запайщики лотков до 3 600 упаковок в час: автоматические, полуавтоматические и ручные трейсилеры. Запайка в вакуум, газ (MAP), скин. Гарантия 12 месяцев, доставка по РФ и СНГ.",
   });
 
   useEffect(() => {
@@ -160,6 +149,15 @@ export default function Termousadka() {
     setFosOpen({ productName });
   }, []);
 
+  const inquiryFromCatalog = useCallback((productName: string) => {
+    if (productName) {
+      setFormData(d => ({ ...d, comment: `Интересует: ${productName}` }));
+      document.getElementById("contacts")?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    openFos();
+  }, [openFos]);
+
   const submitFos = useCallback(async () => {
     const errs: { name?: string; phone?: string; email?: string; agree?: string } = {};
     if (fosData.name.trim().length < 2) errs.name = "Укажите имя";
@@ -172,7 +170,9 @@ export default function Termousadka() {
     await sendLead({
       source: "fos",
       product: fosOpen?.productName || "",
-      comment: fosOpen?.productName ? `Интересует товар - ${fosOpen.productName}\nСтраница: Термоусадочное оборудование` : "Страница: Термоусадочное оборудование",
+      comment: fosOpen?.productName
+        ? `Интересует товар - ${fosOpen.productName}\nСтраница: Запайщики лотков`
+        : "Страница: Запайщики лотков",
       name: fosData.name.trim(),
       phone: fosData.phone.trim(),
       email: fosData.email.trim(),
@@ -191,29 +191,39 @@ export default function Termousadka() {
     setFormErrors(errs);
     if (Object.keys(errs).length > 0 || formSubmitting) return;
     setFormSubmitting(true);
+    const lines = [
+      "Страница: Запайщики лотков",
+      formData.company.trim() ? `Компания: ${formData.company.trim()}` : "",
+      formData.productType ? `Тип продукции: ${formData.productType}` : "",
+      formData.modelType ? `Модель / тип оборудования: ${formData.modelType}` : "",
+      formData.comment.trim(),
+    ].filter(Boolean).join("\n");
     await sendLead({
       source: "main_form",
-      comment: "Страница: Термоусадочное оборудование",
+      company: formData.company,
+      productType: formData.productType || "-",
+      modeltype: formData.modelType || "-",
+      comment: lines,
       name: formData.name,
       phone: formData.phone,
       email: formData.email,
     });
     setFormSubmitting(false);
-    setFormData({ name: "", phone: "", email: "" });
+    setFormData({ name: "", phone: "", email: "", company: "", productType: "", modelType: "", comment: "" });
     setFormAgree(false);
     setThanksOpen(true);
   };
 
-  const submitQuiz = useCallback(async (data: ShrinkQuizPayload): Promise<boolean> => {
+  const submitQuiz = useCallback(async (data: TraysealerQuizPayload): Promise<boolean> => {
     const lines = data.answers.map(a => `${a.question} ${a.answer}`).join("\n");
     const ok = await sendLead({
       source: "quiz",
-      comment: `Квиз-подбор термоусадочного оборудования\n${lines}\nСтраница: Термоусадочное оборудование`,
+      comment: `Квиз-подбор запайщика лотков\n${lines}\nСтраница: Запайщики лотков`,
       name: data.name,
       phone: data.phone,
       email: data.email,
     });
-    if (ok) ymGoal("quiz_sent");
+    if (ok) ymGoal("quiz_traysealer_sent");
     return ok;
   }, []);
 
@@ -240,7 +250,7 @@ export default function Termousadka() {
               </button>
               {equipmentOpen && (
                 <div className="absolute left-0 top-full pt-2 z-50">
-                  <EquipmentMenu variant="desktop" currentHref="/termousadka" />
+                  <EquipmentMenu variant="desktop" currentHref="/traysealers" />
                 </div>
               )}
             </div>
@@ -257,7 +267,7 @@ export default function Termousadka() {
               8 800 505-78-31
             </a>
             <button onClick={() => openFos()} className="btn-orange text-sm py-2 px-5 whitespace-nowrap">
-              Оставить заявку
+              Заказать звонок
             </button>
           </div>
 
@@ -276,7 +286,7 @@ export default function Termousadka() {
             ))}
             <div className="border-b border-gray-100 pb-2">
               <p className="text-xs font-semibold text-[#999] uppercase mb-2">Оборудование</p>
-              <EquipmentMenu variant="mobile" currentHref="/termousadka" />
+              <EquipmentMenu variant="mobile" currentHref="/traysealers" />
             </div>
             {NAV.slice(1).map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
@@ -285,7 +295,7 @@ export default function Termousadka() {
               </button>
             ))}
             <a href="tel:88005057831" className="text-base font-bold text-[#1A1A1A] py-2">8 800 505-78-31</a>
-            <button onClick={() => { setMobileOpen(false); openFos(); }} className="btn-orange w-full mt-1">Оставить заявку</button>
+            <button onClick={() => { setMobileOpen(false); openFos(); }} className="btn-orange w-full mt-1">Заказать звонок</button>
           </div>
         )}
       </header>
@@ -295,7 +305,7 @@ export default function Termousadka() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center py-12 lg:py-16">
           <div className="lg:col-span-6 pr-0 lg:pr-4 fade-up">
             <h1 className="text-[clamp(28px,3.6vw,44px)] font-bold leading-[1.15] mb-7 text-[#1A1A1A]">
-              Термоусадочное оборудование <span style={{ color: "var(--orange)" }}>до 3 600 упаковок в час</span>
+              Запайщики лотков <span style={{ color: "var(--orange)" }}>до 3&nbsp;600 упаковок в час</span>
             </h1>
 
             <ul className="space-y-4 mb-9 max-w-xl">
@@ -307,17 +317,11 @@ export default function Termousadka() {
               ))}
             </ul>
 
-            <div className="flex flex-col items-start gap-3">
-              <div className="flex flex-wrap gap-3">
-                <button onClick={() => openFos()} className="btn-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
-                  <Icon name="Phone" size={18} />
-                  Получить КП
-                </button>
-                <button onClick={() => scrollTo("#quiz")} className="btn-outline-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
-                  <Icon name="ClipboardList" size={18} />
-                  Подобрать оборудование
-                </button>
-              </div>
+            <div className="flex flex-wrap gap-3">
+              <button onClick={() => openFos()} className="btn-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
+                <Icon name="Phone" size={18} />
+                Получить КП
+              </button>
               <button onClick={() => scrollTo("#catalog")} className="btn-outline-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
                 <Icon name="ArrowDown" size={18} />
                 Смотреть каталог
@@ -327,11 +331,7 @@ export default function Termousadka() {
 
           <div className="lg:col-span-6 fade-up">
             <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-7">
-              <img
-                src={IMG_HERO}
-                alt="Термоусадочное оборудование и продукция в термоусадочной плёнке"
-                className="w-full h-auto object-contain"
-              />
+              <img src={IMG_HERO} alt="Запайщик лотков HLV-400T" className="w-full h-auto object-contain" />
             </div>
           </div>
         </div>
@@ -341,7 +341,7 @@ export default function Termousadka() {
       <section id="advantages" className="py-16 bg-white scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title">Преимущества термоусадочного оборудования от Техно-Сиб</h2>
+            <h2 className="section-title">Преимущества запайщиков лотков от Техно-Сиб</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {ADVANTAGES.map((a, i) => (
@@ -361,40 +361,29 @@ export default function Termousadka() {
       <section id="catalog" className="py-16 bg-[#F7F7F7] scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-8">
-            <h2 className="section-title">Каталог термоусадочного оборудования</h2>
-            <p className="text-[#666] mt-2 max-w-xl mx-auto">Подберите машину под ваш продукт и объём производства</p>
+            <h2 className="section-title">Каталог запайщиков лотков</h2>
+            <p className="text-[#666] mt-2 max-w-xl mx-auto">Выберите модель по типу управления и задаче</p>
           </div>
           <ShrinkCatalog
-            categories={MAIN_CATEGORIES}
+            categories={CATEGORIES}
+            endpoint={TRAYSEALER_CATALOG_ENDPOINT}
+            allTabLabel="Все запайщики"
+            hideEmptyTabs
             fallbackImg={IMG_HERO}
             withSearch
             onDetails={setDetailsProduct}
-            onInquiry={openFos}
+            onInquiry={inquiryFromCatalog}
             onVideo={setVideoModal}
             onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
           />
         </div>
       </section>
 
-      {/* VIDEO */}
-      <section id="video" className="py-16 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 className="section-title">Посмотрите как работает наше оборудование</h2>
-            <p className="text-[#666] mt-2">Видео с реальной работой термоусадочного оборудования на производстве</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <VideoCard embedId="cea7e294490190af4e9d0dd10a018f75" title="Термоусадочная упаковка" />
-            <VideoCard embedId="3aa838c3f9ac0f034175ba042f4d88c6" title="Термоусадочный тоннель" />
-          </div>
-        </div>
-      </section>
-
       {/* APPLICATION */}
-      <section id="application" className="py-16 bg-[#F7F7F7] scroll-mt-16">
+      <section id="application" className="py-16 bg-white scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title">Применение термоусадочной упаковки</h2>
+            <h2 className="section-title">Где применяются трейсилеры?</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {APPLICATIONS.map((a, i) => (
@@ -412,24 +401,19 @@ export default function Termousadka() {
               </div>
             ))}
           </div>
-          <div className="flex flex-wrap justify-center gap-2.5 mt-10">
-            {INDUSTRY_BADGES.map(b => (
-              <span key={b} className="px-4 py-2 rounded-full text-[14px] font-semibold bg-white border border-gray-200 text-[#444]">{b}</span>
-            ))}
-          </div>
         </div>
       </section>
 
       {/* SIGNS */}
-      <section id="signs" className="py-16 bg-white scroll-mt-16">
+      <section id="signs" className="py-16 bg-[#F7F7F7] scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title">7 признаков, что вам нужен новый термоусадочный аппарат</h2>
+            <h2 className="section-title">7 признаков, что вам нужен новый трейсилер</h2>
             <p className="text-[#666] mt-2">Узнали хотя бы 2 пункта? Пора действовать.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {SIGNS.map((s, i) => (
-              <div key={i} className="card-hover rounded-2xl bg-white border border-gray-100 p-6 relative">
+              <div key={i} className="card-hover rounded-2xl bg-white border border-gray-100 p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-3xl">{s.emoji}</span>
                   <span className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-[14px]" style={{ background: "var(--orange)" }}>{i + 1}</span>
@@ -453,7 +437,7 @@ export default function Termousadka() {
           <div className="mt-10 rounded-2xl p-8 sm:p-10 text-center text-white" style={{ background: "linear-gradient(135deg, #FF6600, #FF9040)" }}>
             <h3 className="text-2xl sm:text-3xl font-bold mb-3">Узнали свою ситуацию?</h3>
             <p className="text-white/90 text-[16px] mb-6 max-w-2xl mx-auto leading-relaxed">
-              Оставьте заявку — подберём оптимальный аппарат под ваши задачи и бюджет за 1 рабочий день.
+              Оставьте заявку — подберём оптимальный трейсилер под ваши лотки, объём и бюджет за 1 рабочий день.
             </p>
             <button onClick={() => openFos()} className="bg-white text-[#1A1A1A] font-semibold px-8 py-3.5 rounded-lg hover:opacity-90 transition-opacity">
               Получить персональный подбор
@@ -462,48 +446,91 @@ export default function Termousadka() {
         </div>
       </section>
 
-      {/* CONSUMABLES */}
-      <section id="consumables" className="py-16 bg-[#F7F7F7] scroll-mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8">
-            <h2 className="section-title">Расходные материалы</h2>
+      {/* SHOWROOM */}
+      <section id="showroom" className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Посмотрите оборудование в нашем Демо-Зале</h2>
+            <p className="text-[#666] mt-2">Приезжайте посмотреть, как работают запайщики лотков, вживую</p>
           </div>
-          <ShrinkCatalog
-            categories={CONSUMABLE_CATEGORIES}
-            fallbackImg={IMG_HERO}
-            onDetails={setDetailsProduct}
-            onInquiry={openFos}
-            onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {SHOWROOMS.map(s => (
+              <div key={s.city} className="bg-white rounded-2xl border border-gray-100 card-hover p-6">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name="MapPin" size={24} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-[#1A1A1A] text-[18px] mb-1">{s.city}</h3>
+                <p className="text-[14px] text-[#666] leading-relaxed mb-5">{s.address}</p>
+                <div className="flex flex-wrap gap-2.5">
+                  <a
+                    href={`https://yandex.ru/maps/?text=${encodeURIComponent(`${s.city}, ${s.address}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-outline-orange text-[14px] px-4 py-2.5 inline-flex items-center gap-2"
+                  >
+                    <Icon name="Map" size={16} />
+                    На карте
+                  </a>
+                  <button onClick={() => openFos(`Запись в демо-зал — ${s.city}`)} className="btn-orange text-[14px] px-4 py-2.5 inline-flex items-center gap-2">
+                    <Icon name="Calendar" size={16} />
+                    Записаться
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ACCESSORIES */}
-      <section id="accessories" className="py-16 bg-white scroll-mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8">
-            <h2 className="section-title">Сопутствующие товары</h2>
+      {/* WARRANTY & DELIVERY */}
+      <section id="warranty-delivery" className="py-16 bg-[#F7F7F7]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Гарантия и доставка</h2>
+            <p className="text-[#666] mt-2">Всё, что нужно знать об условиях получения оборудования</p>
           </div>
-          <ShrinkCatalog
-            categories={ACCESSORY_CATEGORIES}
-            fallbackImg={IMG_HERO}
-            onDetails={setDetailsProduct}
-            onInquiry={openFos}
-            onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="bg-white rounded-2xl border border-gray-100 p-7">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 bg-[#1A1A1A]">
+                <Icon name="ShieldCheck" size={24} className="text-white" />
+              </div>
+              <h3 className="font-bold text-[#1A1A1A] text-[20px] mb-3">Гарантия</h3>
+              <p className="text-[15px] text-[#555] leading-relaxed">
+                Гарантийный срок на оборудование составляет <span className="font-bold text-[#1A1A1A]">12 месяцев</span> с момента передачи товара покупателю.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl border p-7" style={{ borderColor: "rgba(255,102,0,0.25)", background: "rgba(255,102,0,0.04)" }}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ background: "var(--orange)" }}>
+                <Icon name="Truck" size={24} className="text-white" />
+              </div>
+              <h3 className="font-bold text-[#1A1A1A] text-[20px] mb-3">Доставка</h3>
+              <p className="text-[15px] text-[#555] leading-relaxed mb-4">
+                Мы доставляем оборудование по всей России через транспортные компании.
+              </p>
+              <ul className="space-y-3">
+                {DELIVERY_POINTS.map((d, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-[14px] text-[#555] leading-snug">
+                    <Icon name={d.icon} fallback="Check" size={18} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                    <span>{d.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* SERVICE */}
-      <section id="service" className="py-16 bg-[#F7F7F7] scroll-mt-16">
+      <section id="service" className="py-16 bg-white scroll-mt-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="section-title">Сервис и доставка</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {SERVICES.map((s, i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 card-hover p-6">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.1)" }}>
+              <div key={i} className="bg-white rounded-xl border border-gray-100 card-hover p-6 text-center">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 mx-auto" style={{ background: "rgba(255,102,0,0.1)" }}>
                   <Icon name={s.icon} fallback="Truck" size={24} style={{ color: "var(--orange)" }} />
                 </div>
                 <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-2">{s.title}</h3>
@@ -515,18 +542,18 @@ export default function Termousadka() {
       </section>
 
       {/* QUIZ */}
-      <section id="quiz" className="py-16 bg-white scroll-mt-16">
+      <section id="quiz" className="py-16 bg-[#F7F7F7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-8">
-            <h2 className="section-title">Подберём оборудование</h2>
-            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Ответьте на 6 вопросов, и мы предложим оптимальное решение под ваши задачи</p>
+            <h2 className="section-title">Подберите трейсилер за 1 минуту</h2>
+            <p className="text-[#666] mt-2 max-w-2xl mx-auto">Ответьте на 4 коротких вопроса — подготовим персональную подборку моделей и коммерческое предложение</p>
           </div>
-          <ShrinkQuiz variant="inline" onSubmit={submitQuiz} />
+          <TraysealerQuiz variant="inline" onSubmit={submitQuiz} />
         </div>
       </section>
 
       {/* ABOUT */}
-      <section id="about" className="py-16 bg-[#F7F7F7]">
+      <section id="about" className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-3">
             <h2 className="section-title">О компании ТЕХНО-СИБ</h2>
@@ -587,66 +614,11 @@ export default function Termousadka() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8">
-            <h2 className="section-title">Часто задаваемые вопросы</h2>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            {FAQ_GROUPS.map((g, i) => {
-              const isActive = i === faqGroup;
-              return (
-                <button
-                  key={g.title}
-                  onClick={() => { setFaqGroup(i); setOpenFaq(null); }}
-                  className="px-4 py-2 rounded-lg text-[13.5px] font-semibold transition-all border"
-                  style={{
-                    background: isActive ? "var(--orange)" : "#fff",
-                    color: isActive ? "#fff" : "#444",
-                    borderColor: isActive ? "var(--orange)" : "#e5e5e5",
-                  }}
-                >
-                  {g.title}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="space-y-3">
-            {FAQ_GROUPS[faqGroup].items.map((f, i) => {
-              const key = `${faqGroup}-${i}`;
-              const isOpen = openFaq === key;
-              return (
-                <div key={key} className="border border-gray-100 rounded-xl bg-white overflow-hidden">
-                  <button
-                    onClick={() => setOpenFaq(isOpen ? null : key)}
-                    className="w-full text-left px-5 py-4 flex items-center justify-between gap-4 hover:bg-[#FFF5EE] transition-colors"
-                  >
-                    <span className="font-semibold text-[#1A1A1A] text-[16px] leading-snug">{f.q}</span>
-                    <Icon name={isOpen ? "Minus" : "Plus"} size={20} className="flex-shrink-0" style={{ color: "var(--orange)" }} />
-                  </button>
-                  {isOpen && <div className="px-5 pb-5 text-[15px] text-[#555] leading-relaxed whitespace-pre-line">{f.a}</div>}
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="text-center mt-8">
-            <button onClick={() => openFos()} className="btn-outline-orange">
-              <Icon name="HelpCircle" size={18} className="mr-2" />
-              Задать свой вопрос
-            </button>
-          </div>
-        </div>
-      </section>
-
       {/* CONTACT FORM */}
       <section id="contacts" className="py-16 bg-[#F7F7F7] scroll-mt-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="section-title mb-3">Получите коммерческое предложение</h2>
+            <h2 className="section-title mb-3">Получить коммерческое предложение</h2>
             <p className="text-[#666]">Заполните форму — менеджер свяжется в течение 15 минут</p>
           </div>
 
@@ -654,48 +626,75 @@ export default function Termousadka() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium mb-1.5">Имя *</label>
-                <input
-                  type="text"
-                  value={formData.name}
+                <input type="text" value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   className={`w-full px-4 py-3 rounded-lg border ${formErrors.name ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
-                  placeholder="Ваше имя"
-                />
+                  placeholder="Ваше имя" />
                 {formErrors.name && <p className="text-xs text-red-500 mt-1">{formErrors.name}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5">Телефон *</label>
-                <input
-                  type="tel"
-                  value={formData.phone}
+                <input type="tel" value={formData.phone}
                   onChange={e => setFormData({ ...formData, phone: formatPhoneRu(e.target.value) })}
                   onFocus={e => { if (!e.target.value) setFormData({ ...formData, phone: "+7 " }); }}
                   className={`w-full px-4 py-3 rounded-lg border ${formErrors.phone ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
-                  placeholder="+7 (999) 999-99-99"
-                />
+                  placeholder="+7 (999) 999-99-99" />
                 {formErrors.phone && <p className="text-xs text-red-500 mt-1">{formErrors.phone}</p>}
               </div>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Email *</label>
+                <input type="email" value={formData.email}
+                  onChange={e => setFormData({ ...formData, email: e.target.value })}
+                  className={`w-full px-4 py-3 rounded-lg border ${formErrors.email ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
+                  placeholder="your@email.com" />
+                {formErrors.email && <p className="text-xs text-red-500 mt-1">{formErrors.email}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Компания</label>
+                <input type="text" value={formData.company}
+                  onChange={e => setFormData({ ...formData, company: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:border-orange-500"
+                  placeholder="Название компании" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Тип продукции</label>
+                <select value={formData.productType}
+                  onChange={e => setFormData({ ...formData, productType: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:border-orange-500 bg-white">
+                  <option value="">— выберите —</option>
+                  {PRODUCT_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Модель / тип оборудования</label>
+                <select value={formData.modelType}
+                  onChange={e => setFormData({ ...formData, modelType: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:border-orange-500 bg-white">
+                  <option value="">— выберите —</option>
+                  {MODEL_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+            </div>
+
             <div className="mb-5">
-              <label className="block text-sm font-medium mb-1.5">Email *</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={e => setFormData({ ...formData, email: e.target.value })}
-                className={`w-full px-4 py-3 rounded-lg border ${formErrors.email ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`}
-                placeholder="your@email.com"
-              />
-              {formErrors.email && <p className="text-xs text-red-500 mt-1">{formErrors.email}</p>}
+              <label className="block text-sm font-medium mb-1.5">Комментарий</label>
+              <textarea value={formData.comment}
+                onChange={e => setFormData({ ...formData, comment: e.target.value })}
+                rows={3}
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:border-orange-500 resize-none"
+                placeholder="Размер лотка, объём, нужные опции..." />
             </div>
 
             <label className="flex items-start gap-2.5 cursor-pointer select-none mb-4">
-              <input
-                type="checkbox"
-                checked={formAgree}
+              <input type="checkbox" checked={formAgree}
                 onChange={e => { setFormAgree(e.target.checked); if (formErrors.agree) setFormErrors({ ...formErrors, agree: undefined }); }}
-                className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
-              />
+                className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0" />
               <PolicyDisclaimer />
             </label>
             {formErrors.agree && <p className="text-xs text-red-500 mb-2">{formErrors.agree}</p>}
@@ -722,8 +721,9 @@ export default function Termousadka() {
             <div>
               <p className="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Оборудование</p>
               <ul className="space-y-2">
-                <li><a href="/termousadka" className="text-sm text-white/65 hover:text-white transition-colors">Термоусадочное оборудование</a></li>
+                <li><a href="/traysealers" className="text-sm text-white/65 hover:text-white transition-colors">Запайщики лотков</a></li>
                 <li><a href="/vacuum" className="text-sm text-white/65 hover:text-white transition-colors">Вакуумные упаковщики</a></li>
+                <li><a href="/termousadka" className="text-sm text-white/65 hover:text-white transition-colors">Термоусадочное оборудование</a></li>
                 <li><a href="/gorizontalnoe" className="text-sm text-white/65 hover:text-white transition-colors">Горизонтальные машины flow-pack</a></li>
                 <li><a href="/obanderolivayushchie-mashiny" className="text-sm text-white/65 hover:text-white transition-colors">Обандероливающие машины</a></li>
               </ul>
@@ -764,7 +764,7 @@ export default function Termousadka() {
       </footer>
 
       <QuizSideTab onClick={() => setQuizOpen(true)} />
-      <ShrinkQuiz variant="modal" open={quizOpen} onClose={() => setQuizOpen(false)} onSubmit={submitQuiz} />
+      <TraysealerQuiz variant="modal" open={quizOpen} onClose={() => setQuizOpen(false)} onSubmit={submitQuiz} />
 
       {/* DETAILS MODAL */}
       {detailsProduct && (

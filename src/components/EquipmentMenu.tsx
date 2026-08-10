@@ -5,6 +5,7 @@ export type EquipmentLink = { label: string; href: string };
 export const EQUIPMENT_LINKS: EquipmentLink[] = [
   { label: "Вакуумные упаковщики", href: "/vacuum" },
   { label: "Термоусадочное оборудование", href: "/termousadka" },
+  { label: "Запайщики лотков (трейсилеры)", href: "/traysealers" },
   { label: "Упаковка овощей и фруктов", href: "/vegetables" },
   { label: "Картонажное оборудование", href: "/kartonajnoe" },
   { label: "Горизонтальные машины flow-pack", href: "/gorizontalnoe" },

@@ -3,7 +3,8 @@ import Icon from "@/components/ui/icon";
 import ProductGallery from "@/components/ProductGallery";
 import {
   CatalogProduct,
-  loadShrinkCatalog,
+  loadCatalog,
+  SHRINK_CATALOG_ENDPOINT,
   visibleParams,
   getVideoUrl,
   formatPrice,
@@ -15,16 +16,24 @@ type Props = {
   categories: Category[];
   fallbackImg: string;
   withSearch?: boolean;
+  endpoint?: string;
+  allTabLabel?: string;
+  hideEmptyTabs?: boolean;
   onDetails: (p: CatalogProduct) => void;
   onInquiry: (productName: string) => void;
   onVideo?: (url: string) => void;
   onImageClick?: (pictures: string[], idx: number) => void;
 };
 
+const ALL_ID = "__all__";
+
 export default function ShrinkCatalog({
   categories,
   fallbackImg,
   withSearch = false,
+  endpoint = SHRINK_CATALOG_ENDPOINT,
+  allTabLabel,
+  hideEmptyTabs = false,
   onDetails,
   onInquiry,
   onVideo,
@@ -33,31 +42,38 @@ export default function ShrinkCatalog({
   const [products, setProducts] = useState<CatalogProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [active, setActive] = useState(categories[0]?.id || "");
+  const [active, setActive] = useState(allTabLabel ? ALL_ID : (categories[0]?.id || ""));
   const [search, setSearch] = useState("");
   const [show, setShow] = useState(8);
 
   useEffect(() => {
     let cancelled = false;
-    loadShrinkCatalog()
+    loadCatalog(endpoint)
       .then(list => { if (!cancelled) setProducts(list); })
       .catch(() => { if (!cancelled) setError(true); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, []);
+  }, [endpoint]);
 
   useEffect(() => { setShow(8); }, [active, search]);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = {};
     for (const p of products) map[p.categoryId] = (map[p.categoryId] || 0) + 1;
+    map[ALL_ID] = products.length;
     return map;
   }, [products]);
+
+  const tabs = useMemo(() => {
+    const base = hideEmptyTabs ? categories.filter(c => (counts[c.id] || 0) > 0) : categories;
+    return allTabLabel ? [{ id: ALL_ID, name: allTabLabel }, ...base] : base;
+  }, [categories, counts, hideEmptyTabs, allTabLabel]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return products.filter(p => {
       if (q) return p.name.toLowerCase().includes(q);
+      if (active === ALL_ID) return true;
       return p.categoryId === active;
     });
   }, [products, active, search]);
@@ -110,9 +126,9 @@ export default function ShrinkCatalog({
         </div>
       )}
 
-      {categories.length > 1 && !search && (
+      {tabs.length > 1 && !search && (
         <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {categories.map(c => {
+          {tabs.map(c => {
             const isActive = c.id === active;
             return (
               <button
