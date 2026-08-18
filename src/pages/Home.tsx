@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Icon from "@/components/ui/icon";
+import useProductHash from "@/hooks/useProductHash";
 import { createLeadSender } from "@/lib/lead";
 import { captureUtm } from "@/lib/utm";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
@@ -157,6 +158,9 @@ export default function Home() {
     setModalSlideIdx(cardSlideIdx[p.id] ?? 0);
     setOpenProduct(p);
   };
+
+  const allGroupProducts = useMemo(() => groups.flatMap(g => g.products), [groups]);
+  useProductHash(allGroupProducts, openProduct, (p) => { setOpenProduct(p); setModalSlideIdx(0); });
   const modalSlide = (dir: 1 | -1) => {
     if (!openProduct || openProduct.pictures.length === 0) return;
     setModalSlideIdx(i => (i + dir + openProduct.pictures.length) % openProduct.pictures.length);

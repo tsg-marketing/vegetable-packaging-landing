@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/ui/icon";
 import ProductGallery from "@/components/ProductGallery";
 import {
@@ -20,6 +20,7 @@ type Props = {
   allTabLabel?: string;
   hideEmptyTabs?: boolean;
   onDetails: (p: CatalogProduct) => void;
+  onLoaded?: (list: CatalogProduct[]) => void;
   onInquiry: (productName: string) => void;
   onVideo?: (url: string) => void;
   onImageClick?: (pictures: string[], idx: number) => void;
@@ -35,11 +36,14 @@ export default function ShrinkCatalog({
   allTabLabel,
   hideEmptyTabs = false,
   onDetails,
+  onLoaded,
   onInquiry,
   onVideo,
   onImageClick,
 }: Props) {
   const [products, setProducts] = useState<CatalogProduct[]>([]);
+  const onLoadedRef = useRef(onLoaded);
+  onLoadedRef.current = onLoaded;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [active, setActive] = useState(allTabLabel ? ALL_ID : (categories[0]?.id || ""));
@@ -49,7 +53,7 @@ export default function ShrinkCatalog({
   useEffect(() => {
     let cancelled = false;
     loadCatalog(endpoint)
-      .then(list => { if (!cancelled) setProducts(list); })
+      .then(list => { if (!cancelled) { setProducts(list); onLoadedRef.current?.(list); } })
       .catch(() => { if (!cancelled) setError(true); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };

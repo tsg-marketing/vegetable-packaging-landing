@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import useProductHash from "@/hooks/useProductHash";
 import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
 import { captureUtm } from "@/lib/utm";
@@ -94,6 +95,16 @@ export default function Termousadka() {
   const [thanksOpen, setThanksOpen] = useState(false);
   const [quizOpen, setQuizOpen] = useState(false);
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
+  const [hashProducts, setHashProducts] = useState<CatalogProduct[]>([]);
+  const collectProducts = useCallback((list: CatalogProduct[]) => {
+    setHashProducts(prev => {
+      const seen = new Set(prev.map(p => p.id));
+      const add = list.filter(p => !seen.has(p.id));
+      return add.length ? [...prev, ...add] : prev;
+    });
+  }, []);
+
+  useProductHash(hashProducts, detailsProduct, setDetailsProduct);
   const [videoModal, setVideoModal] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
 
@@ -333,6 +344,7 @@ export default function Termousadka() {
             fallbackImg={IMG_HERO}
             withSearch
             onDetails={setDetailsProduct}
+            onLoaded={collectProducts}
             onInquiry={openFos}
             onVideo={setVideoModal}
             onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
@@ -436,6 +448,7 @@ export default function Termousadka() {
             categories={CONSUMABLE_CATEGORIES}
             fallbackImg={IMG_HERO}
             onDetails={setDetailsProduct}
+            onLoaded={collectProducts}
             onInquiry={openFos}
             onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
           />
@@ -452,6 +465,7 @@ export default function Termousadka() {
             categories={ACCESSORY_CATEGORIES}
             fallbackImg={IMG_HERO}
             onDetails={setDetailsProduct}
+            onLoaded={collectProducts}
             onInquiry={openFos}
             onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
           />

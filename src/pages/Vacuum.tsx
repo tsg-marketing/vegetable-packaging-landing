@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Icon from "@/components/ui/icon";
+import useProductHash from "@/hooks/useProductHash";
 import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
 import { captureUtm } from "@/lib/utm";
@@ -254,6 +255,8 @@ export default function Vacuum() {
   const [catalogSearch, setCatalogSearch] = useState("");
 
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
+
+  useProductHash(catalog, detailsProduct, setDetailsProduct);
   const [videoModal, setVideoModal] = useState<string | null>(null);
 
   const catalogCounts = (() => {

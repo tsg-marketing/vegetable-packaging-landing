@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import useProductHash from "@/hooks/useProductHash";
 import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
 import { captureUtm } from "@/lib/utm";
@@ -374,6 +375,8 @@ export default function Index() {
     setOpenProduct(p);
     setModalSlideIdx(cardSlideIdx[p.id] ?? 0);
   };
+
+  useProductHash(products, openProduct, (p) => { setOpenProduct(p); setModalSlideIdx(0); });
 
   const modalSlide = (dir: 1 | -1) => {
     if (!openProduct || openProduct.pictures.length === 0) return;
