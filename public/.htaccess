@@ -11,12 +11,6 @@
   # Не трогаем API-обработчики
   RewriteRule ^api/ - [L]
 
-  # XML-фид товаров лендингов: если PHP-обработчик залит — отдаём через него,
-  # иначе перенаправляем на облачную функцию с тем же содержимым
-  RewriteCond %{DOCUMENT_ROOT}/api/feed.php -f
-  RewriteRule ^feed\.xml$ /api/feed.php [L,QSA]
-  RewriteRule ^feed\.xml$ https://functions.poehali.dev/9684a3e5-bba2-413b-9b77-f0bc4b2a7db2 [R=302,L,QSA]
-
   # Старый адрес раздела обандероливания — постоянный редирект на новый
   RewriteRule ^obanderolivayushchie-mashiny/?$ /obanderolivanie [R=301,L]
 
