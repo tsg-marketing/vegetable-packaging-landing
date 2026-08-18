@@ -13,7 +13,8 @@ from xml.sax.saxutils import escape
 
 FEED_URL = "https://t-sib.ru/upload/catalog.xml"
 SITE = "https://pack.t-sib.ru"
-CACHE_TTL_SECONDS = 600
+CHECK_INTERVAL_SECONDS = 300
+REBUILD_DELAY_SECONDS = 600
 
 PAGES = [
     {"slug": "/vegetables", "name": "Упаковка овощей и фруктов", "categories": {"405"}},
@@ -37,7 +38,29 @@ TRANSLIT = {
     'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
 }
 
-_CACHE: dict = {'xml': None, 'updated_at': None, 'expires_at': None}
+_CACHE: dict = {
+    'xml': None,
+    'updated_at': None,
+    'source_modified': None,
+    'built_for_source': None,
+    'next_check': None,
+}
+
+
+def _source_last_modified() -> str:
+    """Читает Last-Modified исходного каталога t-sib.ru без скачивания тела."""
+    req = urllib.request.Request(FEED_URL, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        return resp.headers.get('Last-Modified') or resp.headers.get('ETag') or ''
+
+
+def _parse_http_date(value: str):
+    for fmt in ('%a, %d %b %Y %H:%M:%S %Z', '%a, %d %b %Y %H:%M:%S GMT'):
+        try:
+            return datetime.strptime(value, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    return None
 
 
 def product_anchor(name: str) -> str:
@@ -197,29 +220,52 @@ def handler(event: dict, context: Any) -> dict:
                 'headers': {
                     'Content-Type': 'application/xml; charset=utf-8',
                     'Access-Control-Allow-Origin': '*',
-                    'Cache-Control': f'public, max-age={CACHE_TTL_SECONDS}',
+                    'Cache-Control': f'public, max-age={CHECK_INTERVAL_SECONDS}',
                 },
                 'isBase64Encoded': False,
                 'body': xml,
             }
 
-        fresh = (
-            _CACHE['xml'] is not None
-            and _CACHE['expires_at'] is not None
-            and now < _CACHE['expires_at']
-            and not force
-        )
-        if not fresh:
+        need_rebuild = _CACHE['xml'] is None or force
+
+        if not need_rebuild:
+            due_check = _CACHE['next_check'] is None or now >= _CACHE['next_check']
+            if due_check:
+                _CACHE['next_check'] = now + timedelta(seconds=CHECK_INTERVAL_SECONDS)
+                try:
+                    stamp = _source_last_modified()
+                except Exception:
+                    stamp = _CACHE['source_modified']
+
+                if stamp and stamp != _CACHE['source_modified']:
+                    _CACHE['source_modified'] = stamp
+
+                if _CACHE['source_modified'] and _CACHE['source_modified'] != _CACHE['built_for_source']:
+                    changed_at = _parse_http_date(_CACHE['source_modified'])
+                    ready = changed_at is None or now >= changed_at + timedelta(seconds=REBUILD_DELAY_SECONDS)
+                    if ready:
+                        need_rebuild = True
+                    else:
+                        _CACHE['next_check'] = changed_at + timedelta(seconds=REBUILD_DELAY_SECONDS)
+
+        if need_rebuild:
             _CACHE['xml'] = _build_xml()
             _CACHE['updated_at'] = now
-            _CACHE['expires_at'] = now + timedelta(seconds=CACHE_TTL_SECONDS)
+            try:
+                _CACHE['source_modified'] = _source_last_modified() or _CACHE['source_modified']
+            except Exception:
+                pass
+            _CACHE['built_for_source'] = _CACHE['source_modified']
+            _CACHE['next_check'] = now + timedelta(seconds=CHECK_INTERVAL_SECONDS)
 
         return {
             'statusCode': 200,
             'headers': {
                 'Content-Type': 'application/xml; charset=utf-8',
                 'Access-Control-Allow-Origin': '*',
-                'Cache-Control': f'public, max-age={CACHE_TTL_SECONDS}',
+                'Cache-Control': f'public, max-age={CHECK_INTERVAL_SECONDS}',
+                'X-Feed-Built': (_CACHE['updated_at'] or now).isoformat(),
+                'X-Source-Modified': _CACHE['source_modified'] or '',
             },
             'isBase64Encoded': False,
             'body': _CACHE['xml'],

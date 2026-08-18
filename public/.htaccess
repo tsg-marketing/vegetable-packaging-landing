@@ -11,6 +11,9 @@
   # Не трогаем API-обработчики
   RewriteRule ^api/ - [L]
 
+  # XML-фид товаров лендингов
+  RewriteRule ^feed\.xml$ /api/feed.php [L,QSA]
+
   # Старый адрес раздела обандероливания — постоянный редирект на новый
   RewriteRule ^obanderolivayushchie-mashiny/?$ /obanderolivanie [R=301,L]
 

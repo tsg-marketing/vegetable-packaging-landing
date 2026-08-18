@@ -1,3 +1,4 @@
 /obanderolivayushchie-mashiny    /obanderolivanie    301
+/feed.xml    /api/feed.php    200
 /api/*    /api/:splat    200
 /*        /index.html    200
