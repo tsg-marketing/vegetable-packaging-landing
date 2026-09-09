@@ -8,6 +8,7 @@ import ProductGallery from "@/components/ProductGallery";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import LegalInfo from "@/components/LegalInfo";
 import PalletCatalog from "@/components/PalletCatalog";
+import PalletVideos from "@/components/PalletVideos";
 import PalletQuiz, { PalletQuizPayload } from "@/components/PalletQuiz";
 import FilmCalculator, { CalcInputs, CalcRow } from "@/components/FilmCalculator";
 import QuizSideTab from "@/components/QuizSideTab";
@@ -41,6 +42,7 @@ const NAV = [
   { label: "Главная", href: "/" },
   { label: "Преимущества", href: "#advantages" },
   { label: "Каталог", href: "#catalog" },
+  { label: "Видеообзоры", href: "#video" },
   { label: "Калькулятор", href: "#film-calc" },
   { label: "Сервис", href: "#service" },
   { label: "FAQ", href: "#faq" },
@@ -384,8 +386,24 @@ export default function Pallet() {
         </div>
       </section>
 
+      {/* VIDEO REVIEWS */}
+      <section id="video" className="py-16 bg-white scroll-mt-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Видеообзоры оборудования</h2>
+            <p className="text-[#666] mt-2">Посмотрите, как машины работают вживую — перед тем как выбрать</p>
+          </div>
+          <PalletVideos
+            fallbackImg={IMG_HERO}
+            onVideo={setVideoModal}
+            onDetails={setDetailsProduct}
+            onInquiry={inquiryFromCatalog}
+          />
+        </div>
+      </section>
+
       {/* FILM CALCULATOR */}
-      <section id="film-calc" className="py-16 bg-white scroll-mt-16">
+      <section id="film-calc" className="py-16 bg-[#F7F7F7] scroll-mt-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="section-title">Калькулятор расхода стрейч-плёнки</h2>
@@ -398,7 +416,7 @@ export default function Pallet() {
       </section>
 
       {/* AUDIENCE */}
-      <section id="audience" className="py-16 bg-[#F7F7F7] scroll-mt-16">
+      <section id="audience" className="py-16 bg-white scroll-mt-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="section-title">Для кого предназначены</h2>
