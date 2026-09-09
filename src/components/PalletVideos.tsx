@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Icon from "@/components/ui/icon";
-import { formatPrice } from "@/lib/shrinkCatalog";
 import { PalletProduct, loadPalletCatalog } from "@/lib/palletCatalog";
 
 type Props = {
@@ -10,18 +9,39 @@ type Props = {
   onInquiry: (productName: string) => void;
 };
 
-const INITIAL = 3;
+/** Короткое имя модели для подписи на превью: TS3000MR-H, ROBO-MS, ECOPLAT PLUS FRD. */
+function shortModel(name: string): string {
+  const direct = name.match(/\b(TS\d+[A-Z0-9-]*|ROBO-[A-Z]+|HL-[\dA-Za-z-]+)/);
+  if (direct) return direct[1].replace(/[.,;]$/, "");
+
+  const words = name.split(/\s+/).filter(Boolean);
+  const latin: string[] = [];
+  for (const w of words) {
+    const clean = w.replace(/[«»(),.;]/g, "");
+    if (/^[A-Z0-9][A-Z0-9-]*$/.test(clean) && clean.length > 1) latin.push(clean);
+    else if (latin.length) break;
+  }
+  if (latin.length) return latin.join(" ");
+  return words.slice(-2).join(" ");
+}
+
+function kindLabel(p: PalletProduct): string {
+  if (p.mobility === "mobile") return "Мобильный обмотчик";
+  if (p.kind === "palletizer") return "Робот-паллетайзер";
+  return "Паллетоупаковщик";
+}
 
 export default function PalletVideos({ fallbackImg, onVideo, onDetails, onInquiry }: Props) {
   const [items, setItems] = useState<PalletProduct[]>([]);
-  const [show, setShow] = useState(INITIAL);
 
   useEffect(() => {
     let cancelled = false;
     loadPalletCatalog()
       .then(({ products }) => {
         if (cancelled) return;
-        setItems(products.filter(p => p.video));
+        const withVideo = products.filter(p => p.video);
+        withVideo.sort((a, b) => (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER));
+        setItems(withVideo);
       })
       .catch(() => { if (!cancelled) setItems([]); });
     return () => { cancelled = true; };
@@ -30,67 +50,61 @@ export default function PalletVideos({ fallbackImg, onVideo, onDetails, onInquir
   if (items.length === 0) return null;
 
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {items.slice(0, show).map(p => (
-          <div key={p.id} className="rounded-2xl overflow-hidden border border-gray-100 bg-white card-hover flex flex-col">
-            <button
-              onClick={() => onVideo(p.video)}
-              className="relative aspect-video bg-[#111] group w-full"
-              aria-label={`Смотреть видео: ${p.name}`}
-            >
-              <img
-                src={p.pictures[0] || fallbackImg}
-                alt={p.name}
-                loading="lazy"
-                className="w-full h-full object-contain p-3 opacity-70 transition-transform duration-300 group-hover:scale-105"
-              />
-              <span className="absolute inset-0 bg-black/25" />
-              <span
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-transform group-hover:scale-110"
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {items.map(p => (
+        <div key={p.id} className="rounded-xl overflow-hidden border border-gray-200 bg-white card-hover flex flex-col">
+          <button
+            onClick={() => onVideo(p.video)}
+            className="relative aspect-video w-full overflow-hidden bg-[#1F2937] group"
+            aria-label={`Смотреть видео: ${p.name}`}
+          >
+            <img
+              src={p.pictures[0] || fallbackImg}
+              alt={p.name}
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            <span className="absolute inset-0 bg-gradient-to-r from-[#1F2937]/90 via-[#1F2937]/55 to-transparent" />
+
+            <span className="absolute left-4 top-4 right-16 text-left">
+              <span className="block text-white/75 text-[11px] font-semibold uppercase tracking-[0.12em] leading-tight">
+                {kindLabel(p)}
+              </span>
+              <span className="block text-white font-bold text-[22px] leading-tight mt-0.5">
+                {shortModel(p.name)}
+              </span>
+            </span>
+
+            <span className="absolute left-4 bottom-3 text-white/45 text-[11px] font-semibold uppercase tracking-[0.2em]">
+              ТЕХНОСИБ
+            </span>
+
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 bg-[#E02B20]">
+              <Icon name="Play" size={24} className="text-white ml-1" />
+            </span>
+          </button>
+
+          <div className="p-4 flex-1 flex flex-col">
+            <h3 className="font-bold text-[#1A1A1A] text-[18px] text-center mb-3">{shortModel(p.name)}</h3>
+            <div className="mt-auto space-y-2">
+              <button
+                onClick={() => onDetails(p)}
+                className="w-full text-[14px] font-medium px-4 py-2.5 rounded-md border border-gray-200 text-[#444] hover:border-orange-300 transition-all inline-flex items-center justify-center gap-2"
+              >
+                <Icon name="FileText" size={15} className="text-[#888]" />
+                Детальные характеристики
+              </button>
+              <button
+                onClick={() => onInquiry(p.name)}
+                className="w-full text-[15px] font-semibold px-4 py-2.5 rounded-md transition-all text-white"
                 style={{ background: "var(--orange)" }}
               >
-                <Icon name="Play" size={28} className="text-white ml-1" />
-              </span>
-              <span className="absolute top-3 left-3 text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-white/90 text-[#444]">
-                {p.brand}
-              </span>
-            </button>
-
-            <div className="p-5 flex-1 flex flex-col">
-              <h3 className="font-bold text-[#1A1A1A] text-[15px] leading-snug mb-2 min-h-[44px]">{p.name}</h3>
-              <div className="font-bold text-[18px] mb-4" style={{ color: "var(--orange)" }}>{formatPrice(p.price)}</div>
-              <div className="mt-auto space-y-2">
-                <button
-                  onClick={() => onDetails(p)}
-                  className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all inline-flex items-center justify-center gap-2"
-                  style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}
-                >
-                  <Icon name="Eye" size={16} />
-                  Детальные характеристики
-                </button>
-                <button
-                  onClick={() => onInquiry(p.name)}
-                  className="w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all text-white inline-flex items-center justify-center gap-2"
-                  style={{ background: "var(--orange)" }}
-                >
-                  <Icon name="MessageSquare" size={16} />
-                  Оставить заявку
-                </button>
-              </div>
+                Оставить заявку
+              </button>
             </div>
           </div>
-        ))}
-      </div>
-
-      {items.length > show && (
-        <div className="mt-8 text-center">
-          <button onClick={() => setShow(s => s + 3)} className="btn-outline-orange">
-            <Icon name="ChevronDown" size={18} className="mr-2" />
-            Показать ещё видео ({items.length - show})
-          </button>
         </div>
-      )}
-    </>
+      ))}
+    </div>
   );
 }

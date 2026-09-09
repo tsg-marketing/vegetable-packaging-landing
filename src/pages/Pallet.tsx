@@ -35,6 +35,7 @@ import {
 
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "/img/pallet-hero.png";
+const IMG_LOGO = "/img/technosib-logo.png";
 const IMG_FALLBACK = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/54937e2d-7e2e-40fc-bf2c-3abc5b06839c.jpg";
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -308,34 +309,43 @@ export default function Pallet() {
       <section id="hero" className="pt-16 bg-[#F7F7F7] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center py-12 lg:py-16">
           <div className="lg:col-span-6 pr-0 lg:pr-4 fade-up">
-            <h1 className="text-[clamp(28px,3.6vw,44px)] font-bold leading-[1.15] mb-4 text-[#1A1A1A]">
-              Паллетоупаковщики <span style={{ color: "var(--orange)" }}>от ТЕХНОСИБ</span>
+            <h1 className="text-[clamp(30px,3.5vw,48px)] font-bold leading-[1.12] mb-3 text-[#1A1A1A] whitespace-nowrap">
+              Паллетообмотчики <span className="text-[#555] font-bold">от</span>
             </h1>
-            <p className="text-[18px] text-[#555] mb-7">Надёжное оборудование по доступной цене</p>
+            <img
+              src={IMG_LOGO}
+              alt="ТЕХНОСИБ"
+              width={1579}
+              height={160}
+              className="h-[clamp(30px,3.3vw,46px)] w-auto mb-5"
+            />
+            <p className="text-[clamp(18px,1.7vw,24px)] font-semibold text-[#374151] mb-8">
+              Надежное оборудование по доступной цене
+            </p>
 
-            <ul className="space-y-4 mb-9 max-w-xl">
+            <ul className="space-y-3.5 mb-9 max-w-xl">
               {HERO_BULLETS.map((b, i) => (
-                <li key={i} className="flex items-start gap-3 text-[17px] text-[#333] leading-snug">
-                  <Icon name="Check" size={20} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                <li key={i} className="flex items-start gap-3 text-[clamp(17px,1.4vw,21px)] text-[#333] leading-snug">
+                  <Icon name="Check" size={22} className="mt-1 flex-shrink-0" style={{ color: "var(--orange)" }} />
                   <span>{b}</span>
                 </li>
               ))}
             </ul>
 
             <div className="flex flex-wrap gap-3">
-              <button onClick={() => openFos()} className="btn-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
+              <button onClick={() => openFos()} className="btn-orange text-[17px] px-8 py-4 inline-flex items-center gap-2">
                 <Icon name="Phone" size={18} />
                 Получить предложение
               </button>
-              <button onClick={() => scrollTo("#film-calc")} className="btn-teal text-base px-7 py-3.5 inline-flex items-center gap-2">
+              <button onClick={() => scrollTo("#film-calc")} className="btn-teal text-[17px] px-8 py-4 inline-flex items-center gap-2">
                 <Icon name="BarChart3" size={18} />
                 Рассчитать экономию стреч-пленки
               </button>
-              <button onClick={() => scrollTo("#promo")} className="btn-peach text-base px-7 py-3.5 inline-flex items-center gap-2 animate-pulse">
+              <button onClick={() => scrollTo("#promo")} className="btn-peach text-[17px] px-8 py-4 inline-flex items-center gap-2 animate-pulse">
                 <Icon name="Gift" size={18} />
                 Акция
               </button>
-              <button onClick={() => scrollTo("#catalog")} className="btn-neutral text-base px-7 py-3.5 inline-flex items-center gap-2">
+              <button onClick={() => scrollTo("#catalog")} className="btn-neutral text-[17px] px-8 py-4 inline-flex items-center gap-2">
                 Посмотреть модели
               </button>
             </div>
@@ -347,7 +357,7 @@ export default function Pallet() {
               alt="Паллетоупаковщик ТЕХНОСИБ"
               width={680}
               height={800}
-              className="w-full max-w-[520px] h-auto object-contain"
+              className="w-full max-w-[460px] h-auto object-contain"
             />
           </div>
         </div>
@@ -442,30 +452,56 @@ export default function Pallet() {
       </section>
 
       {/* PROMO */}
-      <section id="promo" className="py-16 scroll-mt-16" style={{ background: "linear-gradient(120deg, #FF6600 0%, #FFB020 100%)" }}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div className="text-white">
-              <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 mb-4">
-                <Icon name="Sparkles" size={16} className="text-white" />
-                <span className="text-[13px] font-bold uppercase tracking-wide">Акция</span>
+      <section id="promo" className="py-14 sm:py-16 scroll-mt-16" style={{ background: "linear-gradient(135deg, #FF7A00 0%, #FF9500 45%, #FFC01E 100%)" }}>
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
+          <div className="rounded-2xl overflow-hidden shadow-2xl">
+            <div className="flex items-center gap-4 px-6 py-5" style={{ background: "rgba(255,255,255,0.16)" }}>
+              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                <Icon name="Gift" size={24} className="text-white" />
               </div>
-              <h2 className="text-[clamp(24px,3vw,34px)] font-bold leading-tight mb-4">{PROMO.title}</h2>
-              <p className="text-[16px] leading-relaxed text-white/90">{PROMO.text}</p>
+              <div className="text-white">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-white/85 leading-tight">{PROMO.badge}</p>
+                <p className="font-bold text-[clamp(18px,2vw,24px)] leading-tight mt-0.5">{PROMO.title}</p>
+              </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 sm:p-7">
+            <div className="bg-white px-6 sm:px-8 py-7">
               {promoDone ? (
-                <div className="text-center py-6">
-                  <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(255,102,0,0.1)" }}>
-                    <Icon name="Check" size={28} style={{ color: "var(--orange)" }} />
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(255,102,0,0.1)" }}>
+                    <Icon name="Check" size={32} style={{ color: "var(--orange)" }} />
                   </div>
-                  <h3 className="font-bold text-[20px] text-[#1A1A1A] mb-2">Спасибо за обращение</h3>
+                  <h3 className="font-bold text-[22px] text-[#1A1A1A] mb-2">Спасибо за обращение</h3>
                   <p className="text-[#666] text-[15px]">Менеджер свяжется с вами в ближайшее время и расскажет об условиях акции.</p>
                 </div>
               ) : (
                 <>
-                  <h3 className="font-bold text-[20px] text-[#1A1A1A] mb-4">Узнать условия акции</h3>
+                  <h3 className="font-bold text-[clamp(21px,2.4vw,28px)] text-[#1A1A1A] mb-5">{PROMO.title}</h3>
+
+                  <div className="space-y-3 mb-6">
+                    {PROMO.items.map((it, i) => (
+                      <div key={i} className="flex items-start gap-3 rounded-lg border-l-[3px] px-4 py-3.5"
+                        style={{ borderColor: "var(--orange)", background: "#FFF6EF" }}>
+                        <Icon name={it.icon} fallback="Gift" size={20} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                        <p className="text-[15px] text-[#333] leading-snug">
+                          {it.accentFirst ? (
+                            <>
+                              <span className="font-bold" style={{ color: "var(--orange)" }}>{it.accent}</span>
+                              {it.text}
+                            </>
+                          ) : (
+                            <>
+                              {it.text}
+                              <span className="font-bold" style={{ color: "var(--orange)" }}>{it.accent}</span>
+                            </>
+                          )}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="font-bold text-[16px] text-[#1A1A1A] mb-5">{PROMO.note}</p>
+
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium mb-1.5">Имя *</label>
@@ -476,7 +512,7 @@ export default function Pallet() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1.5">Телефон *</label>
-                      <input type="tel" value={promoData.phone} placeholder="+7 (999) 999-99-99"
+                      <input type="tel" value={promoData.phone} placeholder="+7 (___) ___-__-__"
                         onChange={e => { setPromoData({ ...promoData, phone: formatPhoneRu(e.target.value) }); if (promoErrors.phone) setPromoErrors({ ...promoErrors, phone: undefined }); }}
                         onFocus={e => { if (!e.target.value) setPromoData({ ...promoData, phone: "+7 " }); }}
                         className={`w-full px-4 py-3 rounded-lg border ${promoErrors.phone ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`} />
@@ -490,8 +526,9 @@ export default function Pallet() {
                     </label>
                     {promoErrors.agree && <p className="text-xs text-red-500">{promoErrors.agree}</p>}
                     <button onClick={submitPromo} disabled={promoSubmitting} className="btn-orange w-full py-3.5 disabled:opacity-60">
-                      {promoSubmitting ? "Отправляем..." : "Получить условия"}
+                      {promoSubmitting ? "Отправляем..." : PROMO.submitLabel}
                     </button>
+                    <p className="text-[12px] italic text-[#999]">{PROMO.footnote}</p>
                   </div>
                 </>
               )}

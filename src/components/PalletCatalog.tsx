@@ -28,7 +28,6 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
   const [brand, setBrand] = useState(ALL);
   const [kind, setKind] = useState("wrapper");
   const [search, setSearch] = useState("");
-  const [show, setShow] = useState(8);
 
   const onLoadedRef = useRef(onLoaded);
   onLoadedRef.current = onLoaded;
@@ -46,8 +45,6 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, []);
-
-  useEffect(() => { setShow(8); }, [brand, kind, search]);
 
   const kindCounts = useMemo(() => {
     const m: Record<string, number> = {};
@@ -182,7 +179,7 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filtered.slice(0, show).map(p => {
+          {filtered.map(p => {
             const params = keyParamsFor(p);
             return (
               <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24">
@@ -244,14 +241,6 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
         </div>
       )}
 
-      {filtered.length > show && (
-        <div className="mt-8 text-center">
-          <button onClick={() => setShow(s => s + 8)} className="btn-outline-orange">
-            <Icon name="ChevronDown" size={18} className="mr-2" />
-            Показать ещё ({filtered.length - show})
-          </button>
-        </div>
-      )}
     </>
   );
 }
