@@ -3,6 +3,8 @@ Business: XML-фид (YML) товаров всех лендингов pack.t-sib
 Args: event с httpMethod (GET/OPTIONS), queryStringParameters (refresh=1); context — объект с request_id.
 Returns: XML-документ формата Яндекс.Маркет (yml_catalog) со всеми товарами лендингов.
 """
+import base64
+import gzip
 import json
 import re
 import urllib.request
@@ -27,6 +29,8 @@ PAGES = [
     {"slug": "/kartonajnoe", "name": "Картонажное оборудование", "categories": {"559", "558", "325"}},
     {"slug": "/gorizontalnoe", "name": "Горизонтальные машины flow-pack", "categories": {"306"}},
     {"slug": "/obanderolivanie", "name": "Обандероливающие машины", "categories": {"331"}},
+    {"slug": "/pallet", "name": "Паллетоупаковщики (паллетообмотчики)",
+     "categories": {"332", "452", "333", "334"}},
 ]
 
 BANDALL_RE = re.compile(r"band\s*['\u2019]?\s*all", re.IGNORECASE)
@@ -82,6 +86,15 @@ def product_anchor(name: str) -> str:
             upper = True
     res = re.sub(r'-{2,}', '-', ''.join(out)).strip('-')
     return res or 'product'
+
+
+SERVICE_PARAM_MARKERS = ('guid', 'наличие ', 'картинки товара', 'видео в фид', 'фид авито', 'avito')
+
+
+def _is_service_param(name: str) -> bool:
+    """Служебные параметры фида, не нужные в товарной выгрузке."""
+    low = name.strip().lower()
+    return any(m in low for m in SERVICE_PARAM_MARKERS)
 
 
 def _clean_html(text: str) -> str:
@@ -180,7 +193,7 @@ def _build_xml(slug_filter: str = '') -> str:
             for prm in offer.findall('param'):
                 pname = (prm.get('name') or '').strip()
                 pval = (prm.text or '').strip()
-                if not pname or not pval or pname.upper() == 'GUID':
+                if not pname or not pval or _is_service_param(pname):
                     continue
                 parts.append(f'<param name="{escape(pname)}">{escape(pval)}</param>')
             parts.append('</offer>')
@@ -190,6 +203,24 @@ def _build_xml(slug_filter: str = '') -> str:
     parts.append('</shop>')
     parts.append('</yml_catalog>')
     return '\n'.join(parts)
+
+
+def _xml_response(xml: str, headers: dict, accept_encoding: str) -> dict:
+    """Отдаёт XML, при поддержке клиентом — в сжатом виде (фид крупный)."""
+    if 'gzip' in (accept_encoding or '').lower():
+        packed = gzip.compress(xml.encode('utf-8'), 6)
+        return {
+            'statusCode': 200,
+            'headers': {**headers, 'Content-Encoding': 'gzip'},
+            'isBase64Encoded': True,
+            'body': base64.b64encode(packed).decode('ascii'),
+        }
+    return {
+        'statusCode': 200,
+        'headers': headers,
+        'isBase64Encoded': False,
+        'body': xml,
+    }
 
 
 def handler(event: dict, context: Any) -> dict:
@@ -210,21 +241,18 @@ def handler(event: dict, context: Any) -> dict:
         params = event.get('queryStringParameters') or {}
         force = str(params.get('refresh', '')).lower() in ('1', 'true', 'yes')
 
+        headers_in = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
+        accept_encoding = headers_in.get('accept-encoding', '')
+
         slug = str(params.get('page', '') or '').strip()
         if slug and not slug.startswith('/'):
             slug = '/' + slug
         if slug:
-            xml = _build_xml(slug)
-            return {
-                'statusCode': 200,
-                'headers': {
-                    'Content-Type': 'application/xml; charset=utf-8',
-                    'Access-Control-Allow-Origin': '*',
-                    'Cache-Control': f'public, max-age={CHECK_INTERVAL_SECONDS}',
-                },
-                'isBase64Encoded': False,
-                'body': xml,
-            }
+            return _xml_response(_build_xml(slug), {
+                'Content-Type': 'application/xml; charset=utf-8',
+                'Access-Control-Allow-Origin': '*',
+                'Cache-Control': f'public, max-age={CHECK_INTERVAL_SECONDS}',
+            }, accept_encoding)
 
         need_rebuild = _CACHE['xml'] is None or force
 
@@ -258,18 +286,13 @@ def handler(event: dict, context: Any) -> dict:
             _CACHE['built_for_source'] = _CACHE['source_modified']
             _CACHE['next_check'] = now + timedelta(seconds=CHECK_INTERVAL_SECONDS)
 
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'application/xml; charset=utf-8',
-                'Access-Control-Allow-Origin': '*',
-                'Cache-Control': f'public, max-age={CHECK_INTERVAL_SECONDS}',
-                'X-Feed-Built': (_CACHE['updated_at'] or now).isoformat(),
-                'X-Source-Modified': _CACHE['source_modified'] or '',
-            },
-            'isBase64Encoded': False,
-            'body': _CACHE['xml'],
-        }
+        return _xml_response(_CACHE['xml'], {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': f'public, max-age={CHECK_INTERVAL_SECONDS}',
+            'X-Feed-Built': (_CACHE['updated_at'] or now).isoformat(),
+            'X-Source-Modified': _CACHE['source_modified'] or '',
+        }, accept_encoding)
     except Exception as e:
         return {
             'statusCode': 500,

@@ -13,6 +13,7 @@ import Kartonajnoe from "./pages/Kartonajnoe";
 import Obanderolivayushchie from "./pages/Obanderolivayushchie";
 import Termousadka from "./pages/Termousadka";
 import Traysealers from "./pages/Traysealers";
+import Pallet from "./pages/Pallet";
 import NotFound from "./pages/NotFound";
 import { ymGoal } from "@/lib/ym";
 
@@ -48,6 +49,7 @@ const App = () => {
             <Route path="/obanderolivanie" element={<Obanderolivayushchie />} />
             <Route path="/termousadka" element={<Termousadka />} />
             <Route path="/traysealers" element={<Traysealers />} />
+            <Route path="/pallet" element={<Pallet />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -62,6 +62,7 @@ function sortParams(params: Param[]): Param[] {
 type EquipmentItem = { label: string; href: string; external?: boolean };
 const EQUIPMENT_SUBMENU: EquipmentItem[] = [
   { label: "Вакуум-упаковочное оборудование", href: "/vacuum", external: true },
+  { label: "Паллетоупаковщики (паллетообмотчики)", href: "/pallet", external: true },
   { label: "Термоусадочное оборудование", href: "/termousadka", external: true },
   { label: "Запайщики лотков (трейсилеры)", href: "/traysealers", external: true },
   { label: "Оборудование для упаковки овощей", href: "/vegetables", external: true },

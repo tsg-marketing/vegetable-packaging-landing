@@ -56,6 +56,12 @@ export const PAGES_META: PageMeta[] = [
     description: "Запайщики лотков до 3 600 упаковок в час: автоматические, полуавтоматические и ручные трейсилеры. Запайка в вакуум, газ (MAP), скин. Гарантия 12 месяцев, доставка по РФ и СНГ.",
     image: "https://cdn.poehali.dev/projects/7f0941a7-b646-4462-83cf-d72a4486c6fc/bucket/8130b6af-c559-48ae-9b19-04d134f719e7.png",
   },
+  {
+    path: "/pallet",
+    title: "Паллетоупаковщики и паллетообмотчики — купить с доставкой | Техно-Сиб",
+    description: "Паллетоупаковщики ТЕХНОСИБ, Robopac и Hualian: стационарные, мобильные и с вращающейся рукой. Предрастяжение плёнки до 250%, паллеты до 2 т. Гарантия 12 мес., доставка по РФ.",
+    image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/54937e2d-7e2e-40fc-bf2c-3abc5b06839c.jpg",
+  },
 ];
 
 export function getPageMeta(path: string): PageMeta {
