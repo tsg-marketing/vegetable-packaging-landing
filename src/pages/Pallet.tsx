@@ -34,7 +34,8 @@ import {
 } from "@/data/palletContent";
 
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
-const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/54937e2d-7e2e-40fc-bf2c-3abc5b06839c.jpg";
+const IMG_HERO = "/img/pallet-hero.png";
+const IMG_FALLBACK = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/54937e2d-7e2e-40fc-bf2c-3abc5b06839c.jpg";
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -326,23 +327,28 @@ export default function Pallet() {
                 <Icon name="Phone" size={18} />
                 Получить предложение
               </button>
-              <button onClick={() => scrollTo("#film-calc")} className="btn-outline-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
-                <Icon name="Calculator" size={18} />
-                Рассчитать экономию плёнки
+              <button onClick={() => scrollTo("#film-calc")} className="btn-teal text-base px-7 py-3.5 inline-flex items-center gap-2">
+                <Icon name="BarChart3" size={18} />
+                Рассчитать экономию стреч-пленки
               </button>
-              <button onClick={() => scrollTo("#promo")} className="btn-outline-orange text-base px-7 py-3.5 inline-flex items-center gap-2 animate-pulse">
-                <Icon name="Sparkles" size={18} />
+              <button onClick={() => scrollTo("#promo")} className="btn-peach text-base px-7 py-3.5 inline-flex items-center gap-2 animate-pulse">
+                <Icon name="Gift" size={18} />
                 Акция
               </button>
-              <button onClick={() => scrollTo("#catalog")} className="btn-outline-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
-                <Icon name="ArrowDown" size={18} />
+              <button onClick={() => scrollTo("#catalog")} className="btn-neutral text-base px-7 py-3.5 inline-flex items-center gap-2">
                 Посмотреть модели
               </button>
             </div>
           </div>
 
-          <div className="lg:col-span-6">
-            <img src={IMG_HERO} alt="Паллетоупаковщик в работе" className="w-full rounded-2xl shadow-lg object-cover aspect-[4/3]" />
+          <div className="lg:col-span-6 flex items-center justify-center">
+            <img
+              src={IMG_HERO}
+              alt="Паллетоупаковщик ТЕХНОСИБ"
+              width={680}
+              height={800}
+              className="w-full max-w-[520px] h-auto object-contain"
+            />
           </div>
         </div>
       </section>
@@ -373,10 +379,10 @@ export default function Pallet() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-8">
             <h2 className="section-title">Каталог паллетоупаковщиков</h2>
-            <p className="text-[#666] mt-2">Актуальные модели, цены и наличие обновляются автоматически</p>
+            <p className="text-[#666] mt-2">Актуальные модели и цены обновляются автоматически три раза в сутки</p>
           </div>
           <PalletCatalog
-            fallbackImg={IMG_HERO}
+            fallbackImg={IMG_FALLBACK}
             onDetails={setDetailsProduct}
             onLoaded={collectProducts}
             onInquiry={inquiryFromCatalog}
@@ -394,7 +400,7 @@ export default function Pallet() {
             <p className="text-[#666] mt-2">Посмотрите, как машины работают вживую — перед тем как выбрать</p>
           </div>
           <PalletVideos
-            fallbackImg={IMG_HERO}
+            fallbackImg={IMG_FALLBACK}
             onVideo={setVideoModal}
             onDetails={setDetailsProduct}
             onInquiry={inquiryFromCatalog}
@@ -835,7 +841,7 @@ export default function Pallet() {
                 <ProductGallery
                   images={detailsProduct.pictures}
                   alt={detailsProduct.name}
-                  fallback={IMG_HERO}
+                  fallback={IMG_FALLBACK}
                   className="bg-[#F7F7F7] rounded-xl aspect-square flex items-center justify-center overflow-hidden"
                   imgClassName="w-full h-full object-contain p-4"
                 />
@@ -845,10 +851,6 @@ export default function Pallet() {
                     <p className="text-2xl sm:text-3xl font-bold" style={{ color: "var(--orange)" }}>{formatPrice(detailsProduct.price)}</p>
                   </div>
                   <p className="text-sm text-[#666] mb-2"><span className="text-[#999]">Бренд: </span><span className="text-[#1A1A1A] font-semibold">{detailsProduct.brand}</span></p>
-                  <p className="text-sm text-[#666] mb-2">
-                    <span className="text-[#999]">Наличие: </span>
-                    <span className="text-[#1A1A1A] font-semibold">{detailsProduct.inStock ? "В наличии" : "Под заказ"}</span>
-                  </p>
                   {detailsProduct.video && (
                     <button onClick={() => setVideoModal(detailsProduct.video)}
                       className="mt-2 w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all border border-gray-200 hover:border-orange-300 text-[#1A1A1A] inline-flex items-center justify-center gap-2">

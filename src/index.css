@@ -26,6 +26,9 @@
     --radius: 0.5rem;
     --orange: #ff6600;
     --orange-light: #ff8533;
+    --teal: #0d9488;
+    --teal-light: #14a89a;
+    --peach: #fcb98a;
     --dark: #1a1a1a;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 10%;
@@ -115,6 +118,74 @@
 .btn-outline-orange:hover {
   background: var(--orange);
   color: #fff;
+}
+
+.btn-teal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--teal);
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 13px 28px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
+  white-space: nowrap;
+}
+.btn-teal:hover {
+  background: var(--teal-light);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.3);
+}
+
+.btn-peach {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--peach);
+  color: #b34700;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 13px 28px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.15s;
+  white-space: nowrap;
+}
+.btn-peach:hover {
+  background: #fbaa74;
+  transform: translateY(-1px);
+}
+
+.btn-neutral {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #1a1a1a;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 12px 28px;
+  border-radius: 6px;
+  border: 1px solid #d4d4d4;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+  white-space: nowrap;
+}
+.btn-neutral:hover {
+  border-color: #9a9a9a;
+  background: #fafafa;
 }
 
 .btn-white {

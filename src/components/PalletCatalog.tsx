@@ -73,10 +73,9 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
       if (brand !== ALL && p.brand !== brand) return false;
       return true;
     });
-    return list.sort((a, b) => {
-      if (a.brand !== b.brand) return 0;
-      return (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER);
-    });
+    return list.sort(
+      (a, b) => (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER),
+    );
   }, [products, brand, kind, search]);
 
   if (loading) {
@@ -187,24 +186,14 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
             const params = keyParamsFor(p);
             return (
               <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24">
-                <div className="relative">
-                  <ProductGallery
-                    images={p.pictures}
-                    alt={p.name}
-                    fallback={fallbackImg}
-                    className="aspect-[16/10] bg-white flex items-center justify-center overflow-hidden"
-                    imgClassName="w-full h-full object-contain p-4"
-                    onImageClick={onImageClick}
-                  />
-                  <span
-                    className="absolute top-3 left-3 text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full"
-                    style={p.inStock
-                      ? { background: "rgba(34,160,80,0.12)", color: "#1F8A4C" }
-                      : { background: "rgba(0,0,0,0.06)", color: "#777" }}
-                  >
-                    {p.inStock ? "В наличии" : "Под заказ"}
-                  </span>
-                </div>
+                <ProductGallery
+                  images={p.pictures}
+                  alt={p.name}
+                  fallback={fallbackImg}
+                  className="aspect-[16/10] bg-white flex items-center justify-center overflow-hidden"
+                  imgClassName="w-full h-full object-contain p-4"
+                  onImageClick={onImageClick}
+                />
                 <div className="p-5 flex-1 flex flex-col">
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-[#999] mb-1.5">{p.brand}</p>
                   <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-3 leading-snug min-h-[44px]">{p.name}</h3>
