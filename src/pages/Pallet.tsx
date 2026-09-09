@@ -123,12 +123,7 @@ export default function Pallet() {
   }, []);
 
   const inquiryFromCatalog = useCallback((productName: string) => {
-    if (productName) {
-      setFormData(d => ({ ...d, comment: `Интересует: ${productName}` }));
-      document.getElementById("contacts")?.scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-    openFos();
+    openFos(productName || undefined, "Получить коммерческое предложение");
   }, [openFos]);
 
   const calcExtra = calcSummary
@@ -147,7 +142,7 @@ export default function Pallet() {
 
   const submitFos = useCallback(async () => {
     const errs: { name?: string; phone?: string; email?: string; agree?: string } = {};
-    if (fosData.name.trim().length < 2) errs.name = "Укажите имя";
+    if (fosData.name.trim() && fosData.name.trim().length < 2) errs.name = "Укажите имя";
     if (!isValidPhoneRu(fosData.phone)) errs.phone = "Введите телефон в формате +7 и 10 цифр";
     if (fosData.email.trim() && !EMAIL_RE.test(fosData.email.trim())) errs.email = "Укажите корректный e-mail";
     if (!fosAgree) errs.agree = "Необходимо согласие";
@@ -987,19 +982,27 @@ export default function Pallet() {
               <Icon name="X" size={18} className="text-[#1A1A1A]" />
             </button>
 
-            <h3 className="font-bold text-2xl text-[#1A1A1A] mb-2 pr-10">
-              {fosOpen.title || "Получить предложение"}
+            <h3 className="font-bold text-[22px] text-[#1A1A1A] mb-1.5 pr-10 leading-tight">
+              {fosOpen.title || "Получить коммерческое предложение"}
             </h3>
-            <p className="text-[15px] text-[#666] mb-5 leading-relaxed break-words">
-              {fosOpen.productName
-                ? <>По товару: <span className="font-semibold text-[#1A1A1A]">{fosOpen.productName}</span></>
-                : "Менеджер свяжется в течение 15 минут."}
+            <p className="text-[15px] text-[#8A8F98] mb-5 leading-snug">
+              Заполните форму и мы отправим КП на указанный номер
             </p>
 
             <div className="space-y-4">
               <div>
-                <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">Имя <span style={{ color: "var(--orange)" }}>*</span></label>
-                <input type="text" placeholder="Иван Петров" value={fosData.name}
+                <label className="text-[14px] font-semibold text-[#1A1A1A] mb-1.5 block">Телефон <span style={{ color: "var(--orange)" }}>*</span></label>
+                <input type="tel" autoFocus placeholder="+7 (___) ___-__-__" value={fosData.phone}
+                  onChange={e => { setFosData({ ...fosData, phone: formatPhoneRu(e.target.value) }); if (fosErrors.phone) setFosErrors({ ...fosErrors, phone: undefined }); }}
+                  onFocus={e => { if (!e.target.value) setFosData({ ...fosData, phone: "+7 " }); }}
+                  className="w-full px-4 py-3 rounded-lg border-2 bg-white text-[#1A1A1A] text-base outline-none transition-colors"
+                  style={{ borderColor: fosErrors.phone ? "#E53935" : "#1A1A1A" }} />
+                {fosErrors.phone && <p className="text-[13px] text-red-500 mt-1">{fosErrors.phone}</p>}
+              </div>
+
+              <div>
+                <label className="text-[14px] font-semibold text-[#1A1A1A] mb-1.5 block">Имя</label>
+                <input type="text" placeholder="Ваше имя" value={fosData.name}
                   onChange={e => { setFosData({ ...fosData, name: e.target.value }); if (fosErrors.name) setFosErrors({ ...fosErrors, name: undefined }); }}
                   className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
                   style={{ borderColor: fosErrors.name ? "#E53935" : "#E0E0E0" }} />
@@ -1007,23 +1010,19 @@ export default function Pallet() {
               </div>
 
               <div>
-                <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">Телефон <span style={{ color: "var(--orange)" }}>*</span></label>
-                <input type="tel" placeholder="+7 (___) ___-__-__" value={fosData.phone}
-                  onChange={e => { setFosData({ ...fosData, phone: formatPhoneRu(e.target.value) }); if (fosErrors.phone) setFosErrors({ ...fosErrors, phone: undefined }); }}
-                  onFocus={e => { if (!e.target.value) setFosData({ ...fosData, phone: "+7 " }); }}
-                  className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
-                  style={{ borderColor: fosErrors.phone ? "#E53935" : "#E0E0E0" }} />
-                {fosErrors.phone && <p className="text-[13px] text-red-500 mt-1">{fosErrors.phone}</p>}
-              </div>
-
-              <div>
-                <label className="text-[13px] font-semibold text-[#888] uppercase tracking-wide mb-1.5 block">Email</label>
+                <label className="text-[14px] font-semibold text-[#1A1A1A] mb-1.5 block">Email</label>
                 <input type="email" placeholder="your@email.com" value={fosData.email}
                   onChange={e => { setFosData({ ...fosData, email: e.target.value }); if (fosErrors.email) setFosErrors({ ...fosErrors, email: undefined }); }}
                   className="w-full px-4 py-3 rounded-lg border bg-white text-[#1A1A1A] text-base outline-none transition-colors"
                   style={{ borderColor: fosErrors.email ? "#E53935" : "#E0E0E0" }} />
                 {fosErrors.email && <p className="text-[13px] text-red-500 mt-1">{fosErrors.email}</p>}
               </div>
+
+              {fosOpen.productName && (
+                <p className="text-[14px] text-[#666] leading-snug break-words">
+                  Модель: <span className="font-semibold" style={{ color: "var(--orange)" }}>{fosOpen.productName}</span>
+                </p>
+              )}
 
               <label className="flex items-start gap-2.5 cursor-pointer">
                 <input type="checkbox" checked={fosAgree}
