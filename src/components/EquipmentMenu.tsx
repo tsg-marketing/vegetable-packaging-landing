@@ -11,6 +11,7 @@ export const EQUIPMENT_LINKS: EquipmentLink[] = [
   { label: "Картонажное оборудование", href: "/kartonajnoe" },
   { label: "Горизонтальные машины flow-pack", href: "/gorizontalnoe" },
   { label: "Машины для обандероливания и картонной обечайки", href: "/obanderolivanie" },
+  { label: "Плёнка ПОФ термоусадочная", href: "/poff_plenka" },
 ];
 
 const GROUPS_API = "https://functions.poehali.dev/ed4e9bba-a8d4-434c-af4e-52809800893d";

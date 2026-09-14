@@ -62,6 +62,12 @@ export const PAGES_META: PageMeta[] = [
     description: "Паллетоупаковщики ТЕХНОСИБ, Robopac и Hualian: стационарные, мобильные и с вращающейся рукой. Предрастяжение плёнки до 250%, паллеты до 2 т. Гарантия 12 мес., доставка по РФ.",
     image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/54937e2d-7e2e-40fc-bf2c-3abc5b06839c.jpg",
   },
+  {
+    path: "/poff_plenka",
+    title: "ПОФ термоусадочная плёнка — купить полиолефиновую плёнку | Техно-Сиб",
+    description: "Плёнка ПОФ термоусадочная 12,5 / 15 / 19 / 24 мкм в наличии в Москве, Новосибирске и Челябинске. Без хлора и запаха, для пищевой и непищевой продукции. Подбор толщины, расчёт цены за метр, бесплатная доставка.",
+    image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/345dddaf-6da2-4b63-a8da-f379591e7ba5.jpg",
+  },
 ];
 
 export function getPageMeta(path: string): PageMeta {
