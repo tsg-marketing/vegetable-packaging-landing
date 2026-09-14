@@ -235,7 +235,7 @@ export default function PoffPlenka() {
             </h1>
 
             <p className="text-[19px] sm:text-[21px] font-semibold text-[#1A1A1A] mb-8 max-w-xl leading-snug">
-              5 позиций по толщине и намотке. Подберём под вашу продукцию и рассчитаем <span style={{ color: "var(--orange)" }}>цену за метр</span>.
+              Подберём под вашу продукцию и рассчитаем <span style={{ color: "var(--orange)" }}>цену за метр</span>.
             </p>
 
             <ul className="grid sm:grid-cols-2 gap-x-5 gap-y-4 mb-8 max-w-2xl">
@@ -256,17 +256,19 @@ export default function PoffPlenka() {
               </button>
             </div>
 
-            <div className="mt-6 rounded-xl border-2 bg-white px-5 py-4 flex items-start gap-3.5 max-w-2xl"
-              style={{ borderColor: "var(--orange)" }}>
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,102,0,0.1)" }}>
-                <Icon name="BadgePercent" size={20} style={{ color: "var(--orange)" }} />
-              </div>
-              <div>
-                <p className="font-bold text-[16px] text-[#1A1A1A] leading-snug mb-0.5">
-                  Специальные условия для клиентов Уральского федерального округа
+            <div className="mt-7 -ml-4 sm:-ml-6 max-w-2xl relative">
+              <div className="text-white pl-4 sm:pl-6 pr-7 py-3 flex items-center gap-3 shadow-lg"
+                style={{
+                  background: "linear-gradient(90deg, #E85D00 0%, #FF7A00 55%, #FF9500 100%)",
+                  clipPath: "polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%)",
+                }}>
+                <Icon name="BadgePercent" size={22} className="text-white flex-shrink-0" />
+                <p className="text-[14px] sm:text-[15px] leading-snug">
+                  <span className="font-bold">Специальные условия для клиентов Уральского федерального округа.</span>
+                  <span className="text-white/90"> Подробности уточняйте у менеджера</span>
                 </p>
-                <p className="text-[14px] text-[#666] leading-snug">Подробности уточняйте у менеджера</p>
               </div>
+              <div className="absolute left-0 top-full w-0 h-0 border-t-[10px] border-r-[10px] border-t-[#A33F00] border-r-transparent" />
             </div>
           </div>
 
