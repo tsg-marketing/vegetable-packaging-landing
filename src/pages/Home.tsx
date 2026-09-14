@@ -69,6 +69,7 @@ const EQUIPMENT_SUBMENU: EquipmentItem[] = [
   { label: "Горизонтальное упаковочное оборудование", href: "/gorizontalnoe", external: true },
   { label: "Картонажное оборудование", href: "/kartonajnoe", external: true },
   { label: "Машины для обандероливания и картонной обечайки", href: "/obanderolivanie", external: true },
+  { label: "Плёнка ПОФ термоусадочная", href: "/poff_plenka", external: true },
 ];
 // Категории, идущие к якорям группы на главной — заполняются динамически после загрузки
 
