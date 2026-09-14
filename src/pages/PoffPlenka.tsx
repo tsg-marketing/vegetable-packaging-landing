@@ -227,8 +227,8 @@ export default function PoffPlenka() {
       </header>
 
       {/* ЭКРАН 1 — HERO */}
-      <section id="hero" className="pt-16 min-h-[88vh] flex items-center bg-[#F7F7F7] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-12 lg:py-0">
+      <section id="hero" className="pt-16 bg-[#F7F7F7] overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-8 lg:py-10">
           <div className="lg:col-span-6 pr-0 lg:pr-4 fade-up">
             <h1 className="text-[clamp(26px,4vw,46px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
               ПОФ термоусадочная плёнка <span style={{ color: "var(--orange)" }}>в наличии</span>
@@ -255,13 +255,26 @@ export default function PoffPlenka() {
                 Смотреть каталог
               </button>
             </div>
+
+            <div className="mt-6 rounded-xl border-2 bg-white px-5 py-4 flex items-start gap-3.5 max-w-2xl"
+              style={{ borderColor: "var(--orange)" }}>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,102,0,0.1)" }}>
+                <Icon name="BadgePercent" size={20} style={{ color: "var(--orange)" }} />
+              </div>
+              <div>
+                <p className="font-bold text-[16px] text-[#1A1A1A] leading-snug mb-0.5">
+                  Специальные условия для клиентов Уральского федерального округа
+                </p>
+                <p className="text-[14px] text-[#666] leading-snug">Подробности уточняйте у менеджера</p>
+              </div>
+            </div>
           </div>
 
           <div className="lg:col-span-6 fade-up flex items-center justify-center">
             <img
               src={IMG_HERO}
               alt="Рулоны ПОФ термоусадочной плёнки и упакованная продукция"
-              className="w-full h-auto lg:h-[520px] xl:h-[580px] object-contain drop-shadow-2xl"
+              className="w-full h-auto max-h-[300px] lg:max-h-[340px] object-contain"
             />
           </div>
         </div>
@@ -297,14 +310,34 @@ export default function PoffPlenka() {
           <div className="text-center mb-10">
             <h2 className="section-title">Каталог плёнки ПОФ</h2>
             <p className="text-[#666] mt-2 max-w-2xl mx-auto">
-              Актуальные позиции и наличие по складам обновляются автоматически
+              Актуальные позиции обновляются автоматически — уточним остатки под ваш объём
             </p>
           </div>
 
           <ShrinkCatalog
             categories={CATALOG_CATEGORIES}
             fallbackImg={IMG_FALLBACK}
-            priorityParams={["Толщина", "Намотка", "Ширина", "Наличие"]}
+            priorityParams={["Толщина", "Намотка", "Ширина"]}
+            excludeParams={["Наличие"]}
+            gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+            tail={
+              <div className="rounded-xl overflow-hidden flex flex-col text-white"
+                style={{ background: "linear-gradient(135deg, #FF7A00 0%, #FF9500 60%, #FFB020 100%)" }}>
+                <div className="bg-white p-4 flex items-center justify-center">
+                  <img src={IMG_HERO} alt="Рулоны ПОФ термоусадочной плёнки" loading="lazy" className="w-full h-auto max-h-[190px] object-contain" />
+                </div>
+                <div className="p-6 flex flex-col">
+                  <h3 className="font-bold text-[20px] mb-2.5 leading-tight">Не знаете, какая позиция нужна?</h3>
+                  <p className="text-[15px] text-white/90 leading-relaxed mb-5">
+                    Опишите продукцию и тип упаковочного аппарата — подберём толщину и намотку,
+                    посчитаем расход и цену за метр.
+                  </p>
+                  <button onClick={() => openFos(undefined, "Подбор позиции плёнки ПОФ")} className="btn-white w-full">
+                    Получить подбор
+                  </button>
+                </div>
+              </div>
+            }
             onDetails={setDetailsProduct}
             onLoaded={collectProducts}
             onInquiry={name => openFos(name || undefined, "Запрос цены на плёнку ПОФ")}
@@ -312,23 +345,6 @@ export default function PoffPlenka() {
             onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
           />
 
-          <div className="mt-8 rounded-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2"
-            style={{ background: "linear-gradient(135deg, #FF7A00 0%, #FF9500 60%, #FFB020 100%)" }}>
-            <div className="p-7 sm:p-9 flex flex-col justify-center text-white">
-              <Icon name="MessageSquare" size={32} className="text-white mb-4" />
-              <h3 className="font-bold text-[clamp(21px,2.4vw,28px)] mb-3 leading-tight">Не знаете, какая позиция нужна?</h3>
-              <p className="text-[16px] text-white/90 leading-relaxed mb-6">
-                Опишите продукцию и тип упаковочного аппарата — подберём толщину и намотку,
-                посчитаем расход и цену за метр под ваш объём.
-              </p>
-              <button onClick={() => openFos(undefined, "Подбор позиции плёнки ПОФ")} className="btn-white self-start">
-                Получить подбор
-              </button>
-            </div>
-            <div className="min-h-[240px]">
-              <img src={IMG_LINE} alt="Упаковочная линия с термоусадочной плёнкой" loading="lazy" className="w-full h-full object-cover" />
-            </div>
-          </div>
         </div>
       </section>
 

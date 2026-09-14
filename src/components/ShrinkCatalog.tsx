@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/ui/icon";
 import ProductGallery from "@/components/ProductGallery";
 import {
@@ -21,6 +21,12 @@ type Props = {
   hideEmptyTabs?: boolean;
   /** Названия параметров, которые показываются в карточке первыми. */
   priorityParams?: string[];
+  /** Подстроки названий параметров, которые полностью скрываются. */
+  excludeParams?: string[];
+  /** Классы сетки карточек. */
+  gridClassName?: string;
+  /** Дополнительный блок, который выводится последней ячейкой сетки. */
+  tail?: React.ReactNode;
   onDetails: (p: CatalogProduct) => void;
   onLoaded?: (list: CatalogProduct[]) => void;
   onInquiry: (productName: string) => void;
@@ -38,6 +44,9 @@ export default function ShrinkCatalog({
   allTabLabel,
   hideEmptyTabs = false,
   priorityParams,
+  excludeParams,
+  gridClassName = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5",
+  tail,
   onDetails,
   onLoaded,
   onInquiry,
@@ -164,9 +173,11 @@ export default function ShrinkCatalog({
           <button onClick={() => onInquiry("")} className="btn-outline-orange">Запросить подбор</button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className={gridClassName}>
           {filtered.slice(0, show).map(p => {
-            const all = visibleParams(p.params);
+            const all = visibleParams(p.params).filter(
+              pr => !excludeParams?.some(k => pr.name.toLowerCase().includes(k.toLowerCase()))
+            );
             const ranked = priorityParams
               ? [...all].sort((a, b) => {
                   const rank = (n: string) => {
@@ -234,6 +245,7 @@ export default function ShrinkCatalog({
               </div>
             );
           })}
+          {tail && filtered.length <= show && tail}
         </div>
       )}
 
