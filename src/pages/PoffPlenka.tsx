@@ -256,28 +256,38 @@ export default function PoffPlenka() {
               </button>
             </div>
 
-            <div className="mt-7 -ml-4 sm:-ml-6 max-w-2xl relative">
-              <div className="text-white pl-4 sm:pl-6 pr-7 py-3 flex items-center gap-3 shadow-lg"
-                style={{
-                  background: "linear-gradient(90deg, #E85D00 0%, #FF7A00 55%, #FF9500 100%)",
-                  clipPath: "polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%)",
-                }}>
-                <Icon name="BadgePercent" size={22} className="text-white flex-shrink-0" />
-                <p className="text-[14px] sm:text-[15px] leading-snug">
-                  <span className="font-bold">Специальные условия для клиентов Уральского федерального округа.</span>
-                  <span className="text-white/90"> Подробности уточняйте у менеджера</span>
-                </p>
-              </div>
-              <div className="absolute left-0 top-full w-0 h-0 border-t-[10px] border-r-[10px] border-t-[#A33F00] border-r-transparent" />
-            </div>
           </div>
 
           <div className="lg:col-span-6 fade-up flex items-center justify-center">
-            <img
-              src={IMG_HERO}
-              alt="Рулоны ПОФ термоусадочной плёнки и упакованная продукция"
-              className="w-full h-auto max-h-[300px] lg:max-h-[340px] object-contain"
-            />
+            <div className="relative w-full rounded-2xl overflow-hidden bg-white">
+              <img
+                src={IMG_HERO}
+                alt="Рулоны ПОФ термоусадочной плёнки и упакованная продукция"
+                className="w-full h-auto max-h-[300px] lg:max-h-[340px] object-contain"
+              />
+
+              <div className="absolute top-0 right-0 w-[260px] h-[260px] sm:w-[300px] sm:h-[300px] overflow-hidden pointer-events-none">
+                <div
+                  className="absolute text-white text-center shadow-xl"
+                  style={{
+                    width: 420,
+                    right: -108,
+                    top: 76,
+                    transform: "rotate(45deg)",
+                    transformOrigin: "center",
+                    background: "linear-gradient(90deg, #E85D00 0%, #FF7A00 50%, #FF9500 100%)",
+                    padding: "10px 0",
+                  }}
+                >
+                  <p className="font-bold text-[15px] leading-tight">
+                    Спецусловия для УрФО
+                  </p>
+                  <p className="text-[11px] text-white/90 leading-tight mt-0.5">
+                    Подробности у менеджера
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
