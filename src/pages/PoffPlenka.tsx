@@ -339,7 +339,7 @@ export default function PoffPlenka() {
                   <img src={IMG_HERO} alt="Рулоны ПОФ термоусадочной плёнки" loading="lazy" className="w-full h-auto max-h-[190px] object-contain" />
                 </div>
                 <div className="p-6 flex flex-col">
-                  <h3 className="font-bold text-[21px] mb-2.5 leading-tight text-white">Не знаете, какая позиция нужна?</h3>
+                  <h3 className="font-bold text-[21px] mb-2.5 leading-tight text-white">Не знаете, какая плёнка нужна?</h3>
                   <p className="text-[15px] text-white leading-relaxed mb-5">
                     Опишите продукцию и тип упаковочного аппарата — подберём толщину и намотку,
                     посчитаем расход и цену за метр.
