@@ -7,6 +7,9 @@ import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import LegalInfo from "@/components/LegalInfo";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import ShrinkCatalog from "@/components/ShrinkCatalog";
+import QuizSideTab from "@/components/QuizSideTab";
+import PoffQuiz, { PoffQuizPayload } from "@/components/PoffQuiz";
+import { ymGoal } from "@/lib/ym";
 import ProductGallery from "@/components/ProductGallery";
 import useProductHash from "@/hooks/useProductHash";
 import {
@@ -63,6 +66,7 @@ export default function PoffPlenka() {
   const [formSubmitting, setFormSubmitting] = useState(false);
 
   const [thanksOpen, setThanksOpen] = useState(false);
+  const [quizOpen, setQuizOpen] = useState(false);
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
   const [videoModal, setVideoModal] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
@@ -129,6 +133,19 @@ export default function PoffPlenka() {
     setFosOpen(null);
     setThanksOpen(true);
   }, [fosData, fosAgree, fosOpen, fosSubmitting]);
+
+  const submitQuiz = useCallback(async (data: PoffQuizPayload): Promise<boolean> => {
+    const ok = await sendLead({
+      source: "quiz",
+      comment: "Подбор плёнки ПОФ через квиз",
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      quiz: data.answers,
+    });
+    if (ok) ymGoal("quiz_poff_sent");
+    return ok;
+  }, []);
 
   const submitMainForm = async () => {
     const errs: Errors = {};
@@ -947,6 +964,9 @@ export default function PoffPlenka() {
           <img src={lightbox.pictures[lightbox.idx]} alt="" onClick={e => e.stopPropagation()} className="max-w-[92vw] max-h-[88vh] object-contain" />
         </div>
       )}
+
+      <QuizSideTab onClick={() => setQuizOpen(true)} label="Подобрать плёнку" />
+      <PoffQuiz open={quizOpen} onClose={() => setQuizOpen(false)} onSubmit={submitQuiz} />
 
       {/* FOS MODAL */}
       {fosOpen && (

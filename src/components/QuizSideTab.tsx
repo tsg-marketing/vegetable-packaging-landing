@@ -1,12 +1,12 @@
 import Icon from "@/components/ui/icon";
 
-type Props = { onClick: () => void };
+type Props = { onClick: () => void; label?: string };
 
-export default function QuizSideTab({ onClick }: Props) {
+export default function QuizSideTab({ onClick, label = "Подобрать оборудование" }: Props) {
   return (
     <button
       onClick={onClick}
-      aria-label="Подобрать оборудование"
+      aria-label={label}
       className="fixed right-0 top-1/2 -translate-y-1/2 z-[90] shadow-lg hover:shadow-xl transition-shadow rounded-l-xl flex items-center justify-center"
       style={{
         background: "var(--orange)",
@@ -24,7 +24,7 @@ export default function QuizSideTab({ onClick }: Props) {
         }}
       >
         <Icon name="Smile" size={18} className="text-white" />
-        Подобрать оборудование
+        {label}
       </span>
     </button>
   );
