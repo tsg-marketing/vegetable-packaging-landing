@@ -19,6 +19,8 @@ type Props = {
   endpoint?: string;
   allTabLabel?: string;
   hideEmptyTabs?: boolean;
+  /** Названия параметров, которые показываются в карточке первыми. */
+  priorityParams?: string[];
   onDetails: (p: CatalogProduct) => void;
   onLoaded?: (list: CatalogProduct[]) => void;
   onInquiry: (productName: string) => void;
@@ -35,6 +37,7 @@ export default function ShrinkCatalog({
   endpoint = SHRINK_CATALOG_ENDPOINT,
   allTabLabel,
   hideEmptyTabs = false,
+  priorityParams,
   onDetails,
   onLoaded,
   onInquiry,
@@ -163,7 +166,17 @@ export default function ShrinkCatalog({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filtered.slice(0, show).map(p => {
-            const keyParams = visibleParams(p.params).slice(0, 4);
+            const all = visibleParams(p.params);
+            const ranked = priorityParams
+              ? [...all].sort((a, b) => {
+                  const rank = (n: string) => {
+                    const i = priorityParams.findIndex(k => n.toLowerCase().includes(k.toLowerCase()));
+                    return i === -1 ? priorityParams.length : i;
+                  };
+                  return rank(a.name) - rank(b.name);
+                })
+              : all;
+            const keyParams = ranked.slice(0, 4);
             const videoUrl = getVideoUrl(p.params);
             return (
               <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24">

@@ -6,6 +6,16 @@ import { captureUtm } from "@/lib/utm";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import LegalInfo from "@/components/LegalInfo";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
+import ShrinkCatalog from "@/components/ShrinkCatalog";
+import ProductGallery from "@/components/ProductGallery";
+import useProductHash from "@/hooks/useProductHash";
+import {
+  CatalogProduct,
+  visibleParams,
+  getVideoUrl,
+  stripHtml,
+  formatPrice,
+} from "@/lib/shrinkCatalog";
 import { useSeo } from "@/lib/seo";
 import { getPageMeta } from "@/lib/pageMeta";
 import {
@@ -22,11 +32,14 @@ import {
 } from "@/data/poffContent";
 
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
-const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/345dddaf-6da2-4b63-a8da-f379591e7ba5.jpg";
+const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/ea77bc7e-f6ce-4b89-a17a-1eaa0bbd19fa.png";
+const IMG_FALLBACK = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/345dddaf-6da2-4b63-a8da-f379591e7ba5.jpg";
 const IMG_LINE = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/aee03e0b-761e-465d-824f-c0e4b733cc0f.jpg";
 const IMG_WAREHOUSE = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0283427-6185-4778-a071-851ecf325c4f.jpg";
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+const CATALOG_CATEGORIES = [{ id: "357", name: "Плёнка ПОФ" }];
 
 const sendLead = createLeadSender("Плёнка ПОФ термоусадочная");
 
@@ -44,17 +57,26 @@ export default function PoffPlenka() {
   const [fosErrors, setFosErrors] = useState<Errors>({});
   const [fosSubmitting, setFosSubmitting] = useState(false);
 
-  const [heroData, setHeroData] = useState({ name: "", phone: "" });
-  const [heroAgree, setHeroAgree] = useState(false);
-  const [heroErrors, setHeroErrors] = useState<Errors>({});
-  const [heroSubmitting, setHeroSubmitting] = useState(false);
-
   const [formData, setFormData] = useState({ name: "", phone: "", email: "", company: "", comment: "" });
   const [formAgree, setFormAgree] = useState(false);
   const [formErrors, setFormErrors] = useState<Errors>({});
   const [formSubmitting, setFormSubmitting] = useState(false);
 
   const [thanksOpen, setThanksOpen] = useState(false);
+  const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
+  const [videoModal, setVideoModal] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ pictures: string[]; idx: number } | null>(null);
+  const [hashProducts, setHashProducts] = useState<CatalogProduct[]>([]);
+
+  const collectProducts = useCallback((list: CatalogProduct[]) => {
+    setHashProducts(prev => {
+      const seen = new Set(prev.map(p => p.id));
+      const add = list.filter(p => !seen.has(p.id));
+      return add.length ? [...prev, ...add] : prev;
+    });
+  }, []);
+
+  useProductHash(hashProducts, detailsProduct, setDetailsProduct);
 
   useSeo(getPageMeta("/poff_plenka"));
 
@@ -66,10 +88,10 @@ export default function PoffPlenka() {
   }, []);
 
   useEffect(() => {
-    const anyOpen = fosOpen || thanksOpen;
+    const anyOpen = fosOpen || thanksOpen || detailsProduct || videoModal || lightbox;
     document.body.style.overflow = anyOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
-  }, [fosOpen, thanksOpen]);
+  }, [fosOpen, thanksOpen, detailsProduct, videoModal, lightbox]);
 
   const scrollTo = (href: string) => {
     if (href.startsWith("/")) { window.location.href = href; return; }
@@ -107,26 +129,6 @@ export default function PoffPlenka() {
     setFosOpen(null);
     setThanksOpen(true);
   }, [fosData, fosAgree, fosOpen, fosSubmitting]);
-
-  const submitHero = async () => {
-    const errs: Errors = {};
-    if (heroData.name.trim() && heroData.name.trim().length < 2) errs.name = "Укажите имя";
-    if (!isValidPhoneRu(heroData.phone)) errs.phone = "Введите телефон в формате +7 и 10 цифр";
-    if (!heroAgree) errs.agree = "Необходимо согласие";
-    setHeroErrors(errs);
-    if (Object.keys(errs).length > 0 || heroSubmitting) return;
-    setHeroSubmitting(true);
-    await sendLead({
-      source: "hero_form",
-      comment: "Заявка на подбор плёнки ПОФ и расчёт цены за метр",
-      name: heroData.name.trim(),
-      phone: heroData.phone.trim(),
-    });
-    setHeroSubmitting(false);
-    setHeroData({ name: "", phone: "" });
-    setHeroAgree(false);
-    setThanksOpen(true);
-  };
 
   const submitMainForm = async () => {
     const errs: Errors = {};
@@ -225,87 +227,112 @@ export default function PoffPlenka() {
       </header>
 
       {/* ЭКРАН 1 — HERO */}
-      <section id="hero" className="pt-16 bg-[#F7F7F7] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center py-12 lg:py-16">
-          <div className="lg:col-span-7 fade-up">
-            <p className="text-[13px] font-semibold uppercase tracking-[0.14em] mb-3" style={{ color: "var(--orange)" }}>
-              Расходные материалы для термоусадочной упаковки
-            </p>
-            <h1 className="text-[clamp(28px,3.6vw,44px)] font-bold leading-[1.15] mb-4 text-[#1A1A1A]">
+      <section id="hero" className="pt-16 min-h-[88vh] flex items-center bg-[#F7F7F7] overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center py-12 lg:py-0">
+          <div className="lg:col-span-6 pr-0 lg:pr-4 fade-up">
+            <h1 className="text-[clamp(26px,4vw,46px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
               ПОФ термоусадочная плёнка <span style={{ color: "var(--orange)" }}>в наличии</span>
             </h1>
-            <p className="text-[18px] text-[#555] mb-7 max-w-2xl leading-relaxed">
-              Полиолефиновая плёнка для штучной и групповой упаковки. Подберём толщину под вашу продукцию,
-              рассчитаем цену за метр и расход под ваш объём.
+
+            <p className="text-[19px] sm:text-[21px] font-semibold text-[#1A1A1A] mb-8 max-w-xl leading-snug">
+              5 позиций по толщине и намотке. Подберём под вашу продукцию и рассчитаем <span style={{ color: "var(--orange)" }}>цену за метр</span>.
             </p>
 
-            <ul className="space-y-3.5 mb-8 max-w-2xl">
+            <ul className="grid sm:grid-cols-2 gap-x-5 gap-y-4 mb-8 max-w-2xl">
               {HERO_BULLETS.map((b, i) => (
-                <li key={i} className="flex items-start gap-3 text-[16px] text-[#333] leading-snug">
-                  <Icon name="Check" size={20} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
+                <li key={i} className="flex items-start gap-3 text-[17px] font-medium text-[#1A1A1A] leading-snug">
+                  <Icon name="CheckCircle2" size={24} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
                   <span>{b}</span>
                 </li>
               ))}
             </ul>
 
             <div className="flex flex-wrap gap-3">
-              <button onClick={() => openFos(undefined, "Подбор плёнки ПОФ и расчёт цены за метр")} className="btn-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
-                <Icon name="Calculator" size={18} />
-                Рассчитать цену за метр
+              <button onClick={() => openFos(undefined, "Подбор плёнки ПОФ и расчёт цены за метр")} className="btn-orange text-base px-8 py-3.5">
+                Подобрать плёнку
               </button>
-              <button onClick={() => scrollTo("#line")} className="btn-outline-orange text-base px-7 py-3.5 inline-flex items-center gap-2">
-                <Icon name="ArrowDown" size={18} />
-                Смотреть линейку
+              <button onClick={() => scrollTo("#catalog")} className="btn-outline-orange text-base px-8 py-3.5">
+                Смотреть каталог
               </button>
             </div>
           </div>
 
-          <div className="lg:col-span-5 fade-up space-y-5">
-            <div className="bg-white rounded-2xl shadow-xl p-4 overflow-hidden">
-              <img
-                src={IMG_HERO}
-                alt="Рулоны ПОФ термоусадочной плёнки"
-                className="w-full h-auto object-cover rounded-xl"
-                loading="eager"
-              />
-            </div>
+          <div className="lg:col-span-6 fade-up flex items-center justify-center">
+            <img
+              src={IMG_HERO}
+              alt="Рулоны ПОФ термоусадочной плёнки и упакованная продукция"
+              className="w-full h-auto lg:h-[520px] xl:h-[580px] object-contain drop-shadow-2xl"
+            />
+          </div>
+        </div>
+      </section>
 
-            <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-6 border border-gray-100">
-              <h2 className="font-bold text-[19px] mb-1.5 leading-tight">Подберём плёнку под вашу продукцию</h2>
-              <p className="text-[14px] text-[#777] mb-4 leading-snug">Оставьте телефон — уточним задачу и пришлём цену за метр</p>
+      {/* ЭКРАН 2 — СВОЙСТВА ПЛЁНКИ */}
+      <section id="properties" className="py-16 bg-white scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Свойства плёнки ПОФ</h2>
+            <p className="text-[#666] mt-2 max-w-2xl mx-auto">
+              Что даёт полиолефиновая плёнка на производстве и в упаковочном цехе
+            </p>
+          </div>
 
-              <div className="space-y-3">
-                <div>
-                  <input type="tel" placeholder="+7 (___) ___-__-__" value={heroData.phone}
-                    onChange={e => { setHeroData({ ...heroData, phone: formatPhoneRu(e.target.value) }); if (heroErrors.phone) setHeroErrors({ ...heroErrors, phone: undefined }); }}
-                    onFocus={e => { if (!e.target.value) setHeroData({ ...heroData, phone: "+7 " }); }}
-                    className={`w-full px-4 py-3 rounded-lg border ${heroErrors.phone ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`} />
-                  {heroErrors.phone && <p className="text-xs text-red-500 mt-1">{heroErrors.phone}</p>}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {PRODUCT_FACTS.map((f, i) => (
+              <div key={i} className="rounded-2xl border border-gray-100 bg-white p-7 card-hover">
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name={f.icon} fallback="Check" size={28} style={{ color: "var(--orange)" }} />
                 </div>
-                <div>
-                  <input type="text" placeholder="Ваше имя" value={heroData.name}
-                    onChange={e => { setHeroData({ ...heroData, name: e.target.value }); if (heroErrors.name) setHeroErrors({ ...heroErrors, name: undefined }); }}
-                    className={`w-full px-4 py-3 rounded-lg border ${heroErrors.name ? "border-red-400" : "border-gray-200"} focus:outline-none focus:border-orange-500`} />
-                  {heroErrors.name && <p className="text-xs text-red-500 mt-1">{heroErrors.name}</p>}
-                </div>
-                <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                  <input type="checkbox" checked={heroAgree}
-                    onChange={e => { setHeroAgree(e.target.checked); if (heroErrors.agree) setHeroErrors({ ...heroErrors, agree: undefined }); }}
-                    className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0" />
-                  <PolicyDisclaimer />
-                </label>
-                {heroErrors.agree && <p className="text-xs text-red-500">{heroErrors.agree}</p>}
-                <button onClick={submitHero} disabled={heroSubmitting} className="btn-orange w-full py-3.5 disabled:opacity-60">
-                  {heroSubmitting ? "Отправляем..." : "Получить подбор и цену"}
-                </button>
-                <p className="text-[12px] text-[#999] text-center">Или позвоните: <a href="tel:88005057831" className="font-semibold text-[#1A1A1A] hover:text-orange-600">8 800 505-78-31</a></p>
+                <h3 className="font-bold text-[19px] mb-2.5 leading-snug">{f.title}</h3>
+                <p className="text-[15px] text-[#666] leading-relaxed">{f.text}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ЭКРАН 3 — КАТАЛОГ */}
+      <section id="catalog" className="py-16 bg-[#F7F7F7] scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Каталог плёнки ПОФ</h2>
+            <p className="text-[#666] mt-2 max-w-2xl mx-auto">
+              Актуальные позиции и наличие по складам обновляются автоматически
+            </p>
+          </div>
+
+          <ShrinkCatalog
+            categories={CATALOG_CATEGORIES}
+            fallbackImg={IMG_FALLBACK}
+            priorityParams={["Толщина", "Намотка", "Ширина", "Наличие"]}
+            onDetails={setDetailsProduct}
+            onLoaded={collectProducts}
+            onInquiry={name => openFos(name || undefined, "Запрос цены на плёнку ПОФ")}
+            onVideo={setVideoModal}
+            onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
+          />
+
+          <div className="mt-8 rounded-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2"
+            style={{ background: "linear-gradient(135deg, #FF7A00 0%, #FF9500 60%, #FFB020 100%)" }}>
+            <div className="p-7 sm:p-9 flex flex-col justify-center text-white">
+              <Icon name="MessageSquare" size={32} className="text-white mb-4" />
+              <h3 className="font-bold text-[clamp(21px,2.4vw,28px)] mb-3 leading-tight">Не знаете, какая позиция нужна?</h3>
+              <p className="text-[16px] text-white/90 leading-relaxed mb-6">
+                Опишите продукцию и тип упаковочного аппарата — подберём толщину и намотку,
+                посчитаем расход и цену за метр под ваш объём.
+              </p>
+              <button onClick={() => openFos(undefined, "Подбор позиции плёнки ПОФ")} className="btn-white self-start">
+                Получить подбор
+              </button>
+            </div>
+            <div className="min-h-[240px]">
+              <img src={IMG_LINE} alt="Упаковочная линия с термоусадочной плёнкой" loading="lazy" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ЭКРАН 2 — ДЛЯ КАКИХ ЗАДАЧ */}
+      {/* ЭКРАН 3.1 — ДЛЯ КАКИХ ЗАДАЧ */}
       <section id="use-cases" className="py-16 bg-white scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
@@ -317,31 +344,21 @@ export default function PoffPlenka() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {USE_CASES.map((c, i) => (
-              <div key={i} className="rounded-xl border border-gray-100 bg-white p-5 card-hover">
-                <div className="w-11 h-11 rounded-lg flex items-center justify-center mb-3" style={{ background: "rgba(255,102,0,0.1)" }}>
-                  <Icon name={c.icon} fallback="Package" size={22} style={{ color: "var(--orange)" }} />
+              <div key={i} className="rounded-xl border border-gray-100 bg-white overflow-hidden card-hover flex flex-col">
+                <div className="aspect-[4/3] overflow-hidden bg-[#F7F7F7]">
+                  <img src={c.img} alt={c.title} loading="lazy" className="w-full h-full object-cover" />
                 </div>
-                <h3 className="font-bold text-[16px] mb-2 leading-snug">{c.title}</h3>
-                <p className="text-[14px] text-[#666] leading-relaxed">{c.text}</p>
+                <div className="p-5 flex-1 flex flex-col">
+                  <h3 className="font-bold text-[16px] mb-2 leading-snug">{c.title}</h3>
+                  <p className="text-[14px] text-[#666] leading-relaxed">{c.text}</p>
+                </div>
               </div>
             ))}
-          </div>
-
-          <div className="mt-9 rounded-2xl p-6 sm:p-7" style={{ background: "#F7F7F7" }}>
-            <h3 className="font-bold text-[18px] mb-4">Свойства плёнки ПОФ</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3">
-              {PRODUCT_FACTS.map((f, i) => (
-                <div key={i} className="flex items-start gap-2.5 text-[15px] text-[#333] leading-snug">
-                  <Icon name="Check" size={18} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                  <span>{f}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
 
-      {/* ЭКРАН 3 — ЛИНЕЙКА */}
+      {/* ЭКРАН 3.2 — ЛИНЕЙКА ПО ТОЛЩИНЕ */}
       <section id="line" className="py-16 bg-[#F7F7F7] scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
@@ -388,18 +405,6 @@ export default function PoffPlenka() {
                 </button>
               </div>
             ))}
-
-            <div className="rounded-xl p-6 flex flex-col justify-center text-white"
-              style={{ background: "linear-gradient(135deg, #FF7A00 0%, #FF9500 60%, #FFB020 100%)" }}>
-              <Icon name="MessageSquare" size={30} className="text-white mb-3" />
-              <h3 className="font-bold text-[20px] mb-2 leading-tight">Не знаете, какая позиция нужна?</h3>
-              <p className="text-[15px] text-white/90 mb-5 leading-relaxed">
-                Опишите продукцию и тип упаковочного аппарата — подберём толщину и намотку, посчитаем расход и цену за метр.
-              </p>
-              <button onClick={() => openFos(undefined, "Подбор позиции плёнки ПОФ")} className="btn-white w-full">
-                Получить подбор
-              </button>
-            </div>
           </div>
         </div>
       </section>
@@ -513,6 +518,27 @@ export default function PoffPlenka() {
             <div className="min-h-[260px]">
               <img src={IMG_WAREHOUSE} alt="Склад с рулонами термоусадочной плёнки" loading="lazy" className="w-full h-full object-cover" />
             </div>
+          </div>
+
+          <div className="mt-6 rounded-2xl border-2 bg-white p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center gap-6"
+            style={{ borderColor: "var(--orange)" }}>
+            <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,102,0,0.1)" }}>
+              <Icon name="BadgePercent" size={28} style={{ color: "var(--orange)" }} />
+            </div>
+            <div className="flex-1">
+              <p className="text-[12px] font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "var(--orange)" }}>
+                Специальные условия
+              </p>
+              <h3 className="font-bold text-[clamp(19px,2.1vw,24px)] mb-2 leading-tight">
+                Для клиентов из Уральского федерального округа
+              </h3>
+              <p className="text-[15px] text-[#666] leading-relaxed">
+                Действуют специальные условия поставки плёнки ПОФ. Подробности — у менеджера.
+              </p>
+            </div>
+            <button onClick={() => openFos(undefined, "Специальные условия для клиентов из УрФО")} className="btn-orange px-7 py-3.5 flex-shrink-0">
+              Узнать условия
+            </button>
           </div>
         </div>
       </section>
@@ -631,7 +657,7 @@ export default function PoffPlenka() {
       {/* ЭКРАН 9 — ФИНАЛЬНАЯ ФОРМА */}
       <section id="contacts" className="py-16 scroll-mt-16 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={IMG_HERO} alt="" aria-hidden className="w-full h-full object-cover" loading="lazy" />
+          <img src={IMG_FALLBACK} alt="" aria-hidden className="w-full h-full object-cover" loading="lazy" />
           <div className="absolute inset-0" style={{ background: "rgba(26,26,26,0.88)" }} />
         </div>
 
@@ -769,6 +795,130 @@ export default function PoffPlenka() {
           </div>
         </div>
       </footer>
+
+      {/* DETAILS MODAL */}
+      {detailsProduct && (
+        <div className="fixed inset-0 z-[100] bg-black/60 flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto" onClick={() => setDetailsProduct(null)}>
+          <div className="bg-white rounded-2xl max-w-3xl w-full my-4 relative flex flex-col max-h-[95vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4 px-5 sm:px-7 pt-5 pb-3 border-b border-gray-100">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#1A1A1A] pr-8 leading-tight">{detailsProduct.name}</h3>
+              <button onClick={() => setDetailsProduct(null)} className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <Icon name="X" size={20} className="text-[#666]" />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto px-5 sm:px-7 py-5 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <ProductGallery
+                  images={detailsProduct.pictures}
+                  alt={detailsProduct.name}
+                  fallback={IMG_FALLBACK}
+                  className="bg-[#F7F7F7] rounded-xl aspect-square flex items-center justify-center overflow-hidden"
+                  imgClassName="w-full h-full object-contain p-4"
+                  onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
+                />
+                <div>
+                  <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(255,102,0,0.08)" }}>
+                    <p className="text-xs uppercase tracking-wider text-[#666] mb-1">Цена</p>
+                    <p className="text-2xl sm:text-3xl font-bold" style={{ color: "var(--orange)" }}>{formatPrice(detailsProduct.price)}</p>
+                  </div>
+                  {detailsProduct.vendor && (
+                    <p className="text-sm text-[#666] mb-2"><span className="text-[#999]">Производитель: </span><span className="text-[#1A1A1A] font-semibold">{detailsProduct.vendor}</span></p>
+                  )}
+                  {getVideoUrl(detailsProduct.params) && (
+                    <button
+                      onClick={() => setVideoModal(getVideoUrl(detailsProduct.params) as string)}
+                      className="mt-2 w-full text-[14px] font-semibold px-4 py-2.5 rounded-lg transition-all border border-gray-200 hover:border-orange-300 text-[#1A1A1A] inline-flex items-center justify-center gap-2"
+                    >
+                      <Icon name="Play" size={16} style={{ color: "var(--orange)" }} />
+                      Смотреть видео
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {detailsProduct.description && stripHtml(detailsProduct.description) && (
+                <div className="mb-6">
+                  <h4 className="font-bold text-[13px] uppercase tracking-wider mb-2" style={{ color: "var(--orange)" }}>Описание</h4>
+                  <p className="text-[14px] text-[#444] leading-relaxed whitespace-pre-line">{stripHtml(detailsProduct.description)}</p>
+                </div>
+              )}
+
+              {visibleParams(detailsProduct.params).length > 0 && (
+                <div>
+                  <h4 className="font-bold text-[13px] uppercase tracking-wider mb-3" style={{ color: "var(--orange)" }}>Характеристики</h4>
+                  <div className="rounded-xl border border-gray-100 divide-y divide-gray-100">
+                    {visibleParams(detailsProduct.params).map((pr, i) => (
+                      <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 px-4 py-2.5 odd:bg-[#FAFAFA]">
+                        <span className="text-[13px] text-[#666] sm:w-1/2">{pr.name}</span>
+                        <span className="text-[13.5px] text-[#1A1A1A] font-medium sm:flex-1">{pr.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="px-5 sm:px-7 py-4 border-t border-gray-100 bg-white">
+              <button
+                onClick={() => { const name = detailsProduct.name; setDetailsProduct(null); openFos(name, "Получить коммерческое предложение"); }}
+                className="btn-orange w-full text-base py-3.5 inline-flex items-center justify-center gap-2"
+              >
+                <Icon name="MessageSquare" size={18} />
+                Оставить заявку
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIDEO MODAL */}
+      {videoModal && (
+        <div className="fixed inset-0 z-[110] bg-black/80 flex items-center justify-center p-4" onClick={() => setVideoModal(null)}>
+          <div className="relative w-full max-w-4xl" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setVideoModal(null)} className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+              <Icon name="X" size={22} />
+            </button>
+            <div className="relative aspect-video bg-black rounded-xl overflow-hidden">
+              {(() => {
+                const ytMatch = videoModal.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/);
+                const rtMatch = videoModal.match(/rutube\.ru\/video\/([\w-]+)/);
+                if (ytMatch) return <iframe className="absolute inset-0 w-full h-full" src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1`} title="Видео" allow="autoplay; encrypted-media" allowFullScreen />;
+                if (rtMatch) return <iframe className="absolute inset-0 w-full h-full" src={`https://rutube.ru/play/embed/${rtMatch[1]}`} title="Видео" allow="autoplay" allowFullScreen />;
+                if (/rutube\.ru\/play\/embed/i.test(videoModal)) return <iframe className="absolute inset-0 w-full h-full" src={videoModal} title="Видео" allow="autoplay" allowFullScreen />;
+                return (
+                  <video src={videoModal} controls autoPlay playsInline className="absolute inset-0 w-full h-full">
+                    <a href={videoModal} target="_blank" rel="noopener noreferrer">Открыть видео</a>
+                  </video>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* LIGHTBOX */}
+      {lightbox && (
+        <div className="fixed inset-0 z-[115] bg-black/95 flex items-center justify-center" onClick={() => setLightbox(null)}>
+          <button onClick={() => setLightbox(null)} className="absolute top-5 right-5 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center" aria-label="Закрыть">
+            <Icon name="X" size={22} />
+          </button>
+          <div className="absolute top-5 left-5 text-white/80 text-sm font-medium">{lightbox.idx + 1} / {lightbox.pictures.length}</div>
+          {lightbox.pictures.length > 1 && (
+            <>
+              <button onClick={e => { e.stopPropagation(); setLightbox(lb => lb ? { ...lb, idx: (lb.idx - 1 + lb.pictures.length) % lb.pictures.length } : lb); }}
+                className="absolute left-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center" aria-label="Предыдущее">
+                <Icon name="ChevronLeft" size={26} />
+              </button>
+              <button onClick={e => { e.stopPropagation(); setLightbox(lb => lb ? { ...lb, idx: (lb.idx + 1) % lb.pictures.length } : lb); }}
+                className="absolute right-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center" aria-label="Следующее">
+                <Icon name="ChevronRight" size={26} />
+              </button>
+            </>
+          )}
+          <img src={lightbox.pictures[lightbox.idx]} alt="" onClick={e => e.stopPropagation()} className="max-w-[92vw] max-h-[88vh] object-contain" />
+        </div>
+      )}
 
       {/* FOS MODAL */}
       {fosOpen && (

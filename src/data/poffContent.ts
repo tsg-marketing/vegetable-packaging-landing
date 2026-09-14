@@ -1,5 +1,5 @@
 export const HERO_BULLETS = [
-  "Толщина 12,5 / 15 / 19 / 24 мкм — подбираем под ваш продукт и оборудование",
+  "Толщина 12,5 / 15 / 19 / 24 мкм под ваш продукт",
   "Без хлора и без запаха, подходит для пищевой и непищевой продукции",
   "Прозрачная и глянцевая — товар выглядит аккуратно на полке",
   "Работает на ручных, полуавтоматических и автоматических линиях",
@@ -7,46 +7,54 @@ export const HERO_BULLETS = [
   "Сертификат качества на каждую партию",
 ];
 
-export type UseCase = { icon: string; title: string; text: string };
+export type UseCase = { icon: string; img: string; title: string; text: string };
 
 export const USE_CASES: UseCase[] = [
   {
     icon: "Beef",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/ca13e1b1-4825-4761-bc62-404129905bd2.jpg",
     title: "Мясо, птица, рыба и морепродукты",
     text: "Плёнка устойчива к жирам и маслам, поэтому упаковка сохраняет вид при контакте с жирной продукцией",
   },
   {
     icon: "Soup",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/6cf021aa-f6cc-45f8-8420-60037aa374d9.jpg",
     title: "Полуфабрикаты и готовые блюда",
     text: "Штучная и групповая упаковка порционной продукции на потоке — без запаха и постороннего привкуса",
   },
   {
     icon: "Croissant",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/528b12d2-f54d-4f2f-8b34-77af47b7e3dd.jpg",
     title: "Хлебобулочные и кондитерские изделия",
     text: "Аккуратная прозрачная упаковка выпечки, тортов, печенья и наборов сладостей",
   },
   {
     icon: "Apple",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/7418773f-90b4-4fda-b87c-ff97f229e8b3.jpg",
     title: "Фрукты и овощи",
     text: "Упаковка на лотке и групповые наборы с чистым внешним видом и хорошей видимостью товара",
   },
   {
     icon: "Sparkles",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/29441ec1-0bff-45da-8e43-7d207c1a8099.jpg",
     title: "Косметика и фармацевтика",
     text: "Плёнка без хлора и запаха подходит для упаковки коробок, флаконов, наборов и промонаборов",
   },
   {
     icon: "BookOpen",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/816cbb47-3bcd-4bba-9b98-fd09b4c1cd0d.jpg",
     title: "Полиграфия",
     text: "Книги, журналы, каталоги и печатная продукция — защита от пыли и влаги при хранении и отгрузке",
   },
   {
     icon: "SprayCan",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/3cafaee2-521f-4637-baf1-f867af5ba228.jpg",
     title: "Бытовая химия",
     text: "Устойчивость к ряду агрессивных сред позволяет упаковывать бытовую химию и промонаборы",
   },
   {
     icon: "Wrench",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/f6b4137e-b762-4182-a46f-65bbb97ebac4.jpg",
     title: "Промтовары, запчасти и комплектующие",
     text: "Игрушки, метизы, запчасти и комплектующие — штучная и групповая упаковка под логистику",
   },
@@ -193,13 +201,39 @@ export const COMPANY_ADVANTAGES: Advantage[] = [
   },
 ];
 
-export const PRODUCT_FACTS = [
-  "Без хлора и без запаха",
-  "Подходит для пищевой и непищевой продукции",
-  "Прозрачная и глянцевая — аккуратный товарный вид",
-  "Устойчива к жирам, маслам и ряду агрессивных сред",
-  "Не даёт самопроизвольной усадки",
-  "Хранение и транспортировка от −40 до +40 °C",
+export type ProductFact = { icon: string; title: string; text: string };
+
+export const PRODUCT_FACTS: ProductFact[] = [
+  {
+    icon: "ShieldCheck",
+    title: "Без хлора и без запаха",
+    text: "В составе нет хлора, плёнка не даёт постороннего запаха при усадке и не передаёт его продукту",
+  },
+  {
+    icon: "UtensilsCrossed",
+    title: "Для пищевой и непищевой продукции",
+    text: "Одна плёнка закрывает и продукты питания, и промышленные товары — не нужно держать разные материалы",
+  },
+  {
+    icon: "Sparkle",
+    title: "Прозрачная и глянцевая",
+    text: "Товар хорошо видно через упаковку, глянец даёт аккуратный товарный вид на полке",
+  },
+  {
+    icon: "Droplets",
+    title: "Устойчива к жирам и маслам",
+    text: "Выдерживает контакт с жирной продукцией и рядом агрессивных сред без потери внешнего вида",
+  },
+  {
+    icon: "Lock",
+    title: "Не даёт самопроизвольной усадки",
+    text: "Рулон сохраняет параметры при хранении — упаковка получается стабильной от партии к партии",
+  },
+  {
+    icon: "Thermometer",
+    title: "Хранение от −40 до +40 °C",
+    text: "Подходит для хранения и транспортировки в широком диапазоне температур, включая холодные склады",
+  },
 ];
 
 export type ApplicationItem = { icon: string; label: string };
@@ -261,10 +295,11 @@ export const FAQ: FaqItem[] = [
 
 export const NAV = [
   { label: "Главная", href: "/" },
+  { label: "Свойства", href: "#properties" },
+  { label: "Каталог", href: "#catalog" },
   { label: "Применение", href: "#use-cases" },
-  { label: "Линейка", href: "#line" },
   { label: "Выбор толщины", href: "#thickness" },
-  { label: "Преимущества", href: "#advantages" },
+  { label: "Условия", href: "#advantages" },
   { label: "Вопросы", href: "#faq" },
   { label: "Контакты", href: "#contacts" },
 ];
