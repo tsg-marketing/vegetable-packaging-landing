@@ -15,7 +15,7 @@ from xml.sax.saxutils import escape
 
 FEED_URL = "https://t-sib.ru/upload/catalog.xml"
 SITE = "https://pack.t-sib.ru"
-CHECK_INTERVAL_SECONDS = 300
+CHECK_INTERVAL_SECONDS = 3600
 REBUILD_DELAY_SECONDS = 600
 
 PAGES = [
