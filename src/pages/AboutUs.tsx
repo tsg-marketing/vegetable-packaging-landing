@@ -10,7 +10,7 @@ import { useSeo } from "@/lib/seo";
 import { getPageMeta } from "@/lib/pageMeta";
 
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
-const HERO_IMG = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/6987fa02-cd88-4e57-944b-bcaecae0723b.png";
+const HERO_IMG = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/df0d000a-c5e8-4574-9771-dec9fe7de41c.png";
 
 const NAV = [
   { label: "Главная", href: "/" },
@@ -22,7 +22,7 @@ const NAV = [
 
 const DIRECTIONS = [
   {
-    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/2f750b53-0c53-4ebe-872d-15f9d47cacfe.jpg",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/5df63be8-69b2-4dcf-af4b-4b9082c0a93b.png",
     title: "Мясо- и рыбопереработка",
     intro: "Полные линии от приёмки сырья до готовой продукции. Поставляем проверенное оборудование для каждого этапа переработки:",
     items: [
@@ -34,7 +34,7 @@ const DIRECTIONS = [
     note: "Подберём комплект оборудования под вашу производительность — от небольшого цеха на 500 кг/смену до крупного завода.",
   },
   {
-    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/ddd3e004-0b3a-4368-94bd-ab1cd92a9562.jpg",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/df0d000a-c5e8-4574-9771-dec9fe7de41c.png",
     title: "Фасовка и упаковка",
     intro: "Решения для упаковки пищевых и промышленных товаров любого формата — от штучной единицы до паллеты:",
     items: [
@@ -45,7 +45,7 @@ const DIRECTIONS = [
     note: "Автоматизируем участок упаковки целиком: от дозирования до обмотки готовой паллеты.",
   },
   {
-    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/2f4b2395-14a3-4c41-af24-b8a73fc597da.jpg",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/55ed5636-82ad-4e27-9727-bd5b42607376.png",
     title: "Кондитерское и хлебопекарное производство",
     intro: "Оборудование для выпечки, формовки, глазирования и декорирования — всё для выпуска кондитерских и хлебобулочных изделий стабильно высокого качества.",
     items: [],
@@ -253,7 +253,7 @@ export default function AboutUs() {
             </div>
           </div>
           <div className="relative">
-            <img src={HERO_IMG} alt="Упаковочное оборудование Техно-Сиб" className="w-full rounded-2xl shadow-lg object-cover" loading="lazy" />
+            <img src={HERO_IMG} alt="Упаковочное оборудование Техно-Сиб" className="w-full object-contain" loading="lazy" />
           </div>
         </div>
       </section>
@@ -284,7 +284,7 @@ export default function AboutUs() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {DIRECTIONS.map(d => (
               <div key={d.title} className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col">
-                <img src={d.img} alt={d.title} loading="lazy" className="w-full h-52 sm:h-60 object-cover" />
+                <img src={d.img} alt={d.title} loading="lazy" className="w-full h-52 sm:h-60 object-contain bg-white p-4" />
                 <div className="p-7 flex-1">
                   <h3 className="text-[22px] font-bold mb-3">{d.title}</h3>
                   <p className="text-[17px] text-[#555] leading-relaxed mb-4">{d.intro}</p>
