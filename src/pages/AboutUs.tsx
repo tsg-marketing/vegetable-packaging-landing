@@ -10,7 +10,7 @@ import { useSeo } from "@/lib/seo";
 import { getPageMeta } from "@/lib/pageMeta";
 
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
-const HERO_IMG = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/df0d000a-c5e8-4574-9771-dec9fe7de41c.png";
+const HERO_IMG = "/hero-line.png";
 
 const NAV = [
   { label: "Главная", href: "/" },
@@ -34,7 +34,7 @@ const DIRECTIONS = [
     note: "Подберём комплект оборудования под вашу производительность — от небольшого цеха на 500 кг/смену до крупного завода.",
   },
   {
-    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/df0d000a-c5e8-4574-9771-dec9fe7de41c.png",
+    img: "/hero-line.png",
     title: "Фасовка и упаковка",
     intro: "Решения для упаковки пищевых и промышленных товаров любого формата — от штучной единицы до паллеты:",
     items: [
