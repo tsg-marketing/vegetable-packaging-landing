@@ -22,7 +22,7 @@ const NAV = [
 
 const DIRECTIONS = [
   {
-    icon: "Beef",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/2f750b53-0c53-4ebe-872d-15f9d47cacfe.jpg",
     title: "Мясо- и рыбопереработка",
     intro: "Полные линии от приёмки сырья до готовой продукции. Поставляем проверенное оборудование для каждого этапа переработки:",
     items: [
@@ -34,7 +34,7 @@ const DIRECTIONS = [
     note: "Подберём комплект оборудования под вашу производительность — от небольшого цеха на 500 кг/смену до крупного завода.",
   },
   {
-    icon: "Package",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/ddd3e004-0b3a-4368-94bd-ab1cd92a9562.jpg",
     title: "Фасовка и упаковка",
     intro: "Решения для упаковки пищевых и промышленных товаров любого формата — от штучной единицы до паллеты:",
     items: [
@@ -45,14 +45,14 @@ const DIRECTIONS = [
     note: "Автоматизируем участок упаковки целиком: от дозирования до обмотки готовой паллеты.",
   },
   {
-    icon: "CakeSlice",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/2f4b2395-14a3-4c41-af24-b8a73fc597da.jpg",
     title: "Кондитерское и хлебопекарное производство",
     intro: "Оборудование для выпечки, формовки, глазирования и декорирования — всё для выпуска кондитерских и хлебобулочных изделий стабильно высокого качества.",
     items: [],
     note: "",
   },
   {
-    icon: "Layers",
+    img: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/c36ed4e6-fb45-4c70-a571-ca070954b1c2.jpg",
     title: "Упаковочные и расходные материалы",
     intro: "Стабильные поставки плёнок, лотков, пакетов и комплектующих. Собственный склад — отгружаем в день заказа без задержек.",
     items: [],
@@ -60,25 +60,37 @@ const DIRECTIONS = [
   },
 ];
 
+const B = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/";
+
 const ADVANTAGES = [
-  { icon: "Award", title: "Более 25 лет на рынке", desc: "Сотни успешно реализованных проектов. Нам доверяют как небольшие цеха, так и крупные федеральные производства." },
-  { icon: "Boxes", title: "Комплексное оснащение под ключ", desc: "Не нужно искать десять поставщиков — мы подберём, доставим, установим и запустим всю линию целиком." },
-  { icon: "Warehouse", title: "Большой склад запчастей — ремонт без ожидания", desc: "Собственный склад оригинальных запчастей и комплектующих в Москве и Новосибирске. Минимум простоя — максимум прибыли." },
-  { icon: "Users", title: "Бесплатная консультация специалиста", desc: "Расскажите о задаче — наши эксперты предложат оптимальное решение по оборудованию, компоновке и бюджету." },
-  { icon: "SearchCheck", title: "Демонстрация и тестирование на вашем сырье", desc: "Приезжайте в наши демозалы, протестируйте оборудование в реальных условиях и убедитесь в результате до покупки." },
-  { icon: "PackageCheck", title: "Оборудование в наличии или кратчайшие сроки", desc: "Широкий ассортимент на собственных складах. Нужной модели нет в наличии? Организуем поставку с завода в минимальные сроки." },
-  { icon: "Plane", title: "Доставка в любую точку России и СНГ", desc: "Отправим оборудование в ваш город — бесплатно до транспортной компании. Работаем со всеми крупными перевозчиками." },
-  { icon: "Coins", title: "Доступные цены", desc: "Прямые контракты с производителями = лучшие цены для вас. Запросите расчёт — сравните сами." },
+  { img: B + "e456e6b6-f0c8-4a71-8cda-2f5e2409b318.jpg", title: "Более 25 лет на рынке", desc: "Сотни успешно реализованных проектов. Нам доверяют как небольшие цеха, так и крупные федеральные производства." },
+  { img: B + "a9989c12-1659-4e4b-89e4-2c6ad0e57899.jpg", title: "Комплексное оснащение под ключ", desc: "Не нужно искать десять поставщиков — мы подберём, доставим, установим и запустим всю линию целиком." },
+  { img: B + "1d278c08-eb23-4cfb-9ac6-759d1e682a10.jpg", title: "Большой склад запчастей — ремонт без ожидания", desc: "Собственный склад оригинальных запчастей и комплектующих в Москве, Новосибирске и Челябинске. Минимум простоя — максимум прибыли." },
+  { img: B + "dade84bf-2be3-4931-9dee-12aa8c24e95a.jpg", title: "Бесплатная консультация специалиста", desc: "Расскажите о задаче — наши эксперты предложат оптимальное решение по оборудованию, компоновке и бюджету." },
+  { img: B + "6fcf82e8-721c-467b-a823-a31c0644f64f.jpg", title: "Демонстрация и тестирование на вашем сырье", desc: "Приезжайте в наши демозалы, протестируйте оборудование в реальных условиях и убедитесь в результате до покупки." },
+  { img: B + "4937113c-a1df-4068-917f-073116494109.jpg", title: "Оборудование в наличии или кратчайшие сроки", desc: "Широкий ассортимент на собственных складах. Нужной модели нет в наличии? Организуем поставку с завода в минимальные сроки." },
+  { img: B + "198a8d95-ac6c-4e47-bd4e-e012a94a1149.jpg", title: "Доставка в любую точку России и СНГ", desc: "Отправим оборудование в ваш город — бесплатно до транспортной компании. Работаем со всеми крупными перевозчиками." },
+  { img: B + "b4c71b96-2b82-4235-afce-78e0b08593c0.jpg", title: "Доступные цены", desc: "Прямые контракты с производителями = лучшие цены для вас. Запросите расчёт — сравните сами." },
 ];
 
-const OFFICES = [
+type Office = { city: string; tag: string; address: string; warehouseOnly?: boolean };
+
+const OFFICES: Office[] = [
   {
     city: "Москва",
+    tag: "Офис и склад",
     address: "ш. Энтузиастов, д. 56, стр. 32, офис 115",
   },
   {
     city: "Новосибирск",
+    tag: "Офис и склад",
     address: "ул. Электрозаводская, 2 к1, офис 304, 314",
+  },
+  {
+    city: "Челябинск",
+    tag: "Склад",
+    address: "Отгрузка со склада — адрес уточняйте у менеджера",
+    warehouseOnly: true,
   },
 ];
 
@@ -230,7 +242,7 @@ export default function AboutUs() {
             <h1 className="text-[30px] sm:text-[40px] lg:text-[46px] font-bold leading-tight mb-5">
               «Техно-Сиб» — ваш надёжный партнёр в оснащении пищевых производств с 2001 года
             </h1>
-            <p className="text-[17px] text-[#555] leading-relaxed mb-4">
+            <p className="text-[19px] text-[#555] leading-relaxed mb-4">
               Более 25 лет мы помогаем пищевым предприятиям по всей России выходить на новый уровень производительности.
               Поставляем профессиональное оборудование, обеспечиваем сервис и снабжаем упаковочными материалами — всё,
               чтобы ваше производство работало без простоев.
@@ -251,13 +263,13 @@ export default function AboutUs() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { v: "25+", l: "лет на рынке" },
-            { v: "2", l: "офиса со складами — Москва и Новосибирск" },
+            { v: "3", l: "склада — Москва, Новосибирск, Челябинск" },
             { v: "4", l: "направления оснащения производств" },
             { v: "РФ и СНГ", l: "география поставок" },
           ].map(s => (
             <div key={s.l} className="text-center">
               <p className="text-[28px] sm:text-[34px] font-bold text-orange-600 leading-none mb-2">{s.v}</p>
-              <p className="text-[14px] text-[#666] leading-snug">{s.l}</p>
+              <p className="text-[15.5px] text-[#666] leading-snug">{s.l}</p>
             </div>
           ))}
         </div>
@@ -267,27 +279,27 @@ export default function AboutUs() {
       <section id="directions" className="py-16 md:py-20 bg-[#F7F7F7] scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="text-[26px] sm:text-[34px] font-bold mb-3">Четыре направления — одно комплексное решение</h2>
-          <p className="text-[17px] text-[#555] mb-10">Мы закрываем ключевые потребности пищевых и промышленных предприятий:</p>
+          <p className="text-[19px] text-[#555] mb-10">Мы закрываем ключевые потребности пищевых и промышленных предприятий:</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {DIRECTIONS.map(d => (
-              <div key={d.title} className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.12)" }}>
-                  <Icon name={d.icon} size={24} style={{ color: "var(--orange)" }} />
+              <div key={d.title} className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col">
+                <img src={d.img} alt={d.title} loading="lazy" className="w-full h-52 sm:h-60 object-cover" />
+                <div className="p-7 flex-1">
+                  <h3 className="text-[22px] font-bold mb-3">{d.title}</h3>
+                  <p className="text-[17px] text-[#555] leading-relaxed mb-4">{d.intro}</p>
+                  {d.items.length > 0 && (
+                    <ul className="space-y-2.5 mb-4">
+                      {d.items.map(i => (
+                        <li key={i} className="flex gap-2.5 text-[16.5px] text-[#444] leading-relaxed">
+                          <Icon name="Check" size={19} className="text-orange-600 flex-shrink-0 mt-1" />
+                          <span>{i}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {d.note && <p className="text-[16.5px] text-[#1A1A1A] font-medium bg-orange-50 rounded-lg px-4 py-3 leading-relaxed">{d.note}</p>}
                 </div>
-                <h3 className="text-[20px] font-bold mb-3">{d.title}</h3>
-                <p className="text-[15.5px] text-[#555] leading-relaxed mb-3">{d.intro}</p>
-                {d.items.length > 0 && (
-                  <ul className="space-y-2 mb-3">
-                    {d.items.map(i => (
-                      <li key={i} className="flex gap-2.5 text-[15px] text-[#444] leading-relaxed">
-                        <Icon name="Check" size={17} className="text-orange-600 flex-shrink-0 mt-1" />
-                        <span>{i}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {d.note && <p className="text-[15px] text-[#1A1A1A] font-medium bg-orange-50 rounded-lg px-4 py-3">{d.note}</p>}
               </div>
             ))}
           </div>
@@ -298,19 +310,19 @@ export default function AboutUs() {
       <section id="advantages" className="py-16 md:py-20 bg-white scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="text-[26px] sm:text-[34px] font-bold mb-3">Почему производства по всей России выбирают «Техно-Сиб»</h2>
-          <p className="text-[17px] text-[#555] mb-10 max-w-3xl">
+          <p className="text-[19px] text-[#555] mb-10 max-w-3xl">
             Мы работаем напрямую с ведущими заводами Европы, России и Китая — без посредников. Это значит конкурентные цены
             и гарантия подлинности каждой единицы оборудования.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {ADVANTAGES.map(a => (
-              <div key={a.title}>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: "rgba(255,102,0,0.12)" }}>
-                  <Icon name={a.icon} size={24} style={{ color: "var(--orange)" }} />
+              <div key={a.title} className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col">
+                <img src={a.img} alt={a.title} loading="lazy" className="w-full h-44 object-cover" />
+                <div className="p-5 flex-1">
+                  <h3 className="text-[18px] font-bold mb-2 leading-snug">{a.title}</h3>
+                  <p className="text-[16px] text-[#666] leading-relaxed">{a.desc}</p>
                 </div>
-                <h3 className="text-[16px] font-bold mb-2 leading-snug">{a.title}</h3>
-                <p className="text-[14.5px] text-[#666] leading-relaxed">{a.desc}</p>
               </div>
             ))}
           </div>
@@ -321,16 +333,19 @@ export default function AboutUs() {
       <section id="contacts" className="py-16 md:py-20 bg-[#F7F7F7] scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="text-[26px] sm:text-[34px] font-bold mb-3">Контакты</h2>
-          <p className="text-[17px] text-[#555] mb-10 max-w-3xl">
-            Два собственных офиса — в Москве и Новосибирске — со складами, сервисными центрами и выстроенной логистикой
-            позволяют нам оперативно обслуживать клиентов от Калининграда до Владивостока.
+          <p className="text-[19px] text-[#555] mb-10 max-w-3xl">
+            Собственные офисы в Москве и Новосибирске, склады в трёх городах — включая Челябинск — сервисные центры
+            и выстроенная логистика позволяют оперативно обслуживать клиентов от Калининграда до Владивостока.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {OFFICES.map(o => (
               <div key={o.city} className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm">
-                <h3 className="text-[22px] font-bold mb-1">{o.city}</h3>
-                <p className="text-[15px] text-[#666] mb-6">{o.address}</p>
+                <div className="flex items-center gap-3 mb-1.5">
+                  <h3 className="text-[24px] font-bold">{o.city}</h3>
+                  <span className="text-[12px] font-semibold uppercase tracking-wide text-orange-600 bg-orange-50 rounded-full px-2.5 py-1">{o.tag}</span>
+                </div>
+                <p className="text-[16.5px] text-[#666] mb-6">{o.address}</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-4">
@@ -339,8 +354,8 @@ export default function AboutUs() {
                         <Icon name="Phone" size={16} className="text-[#444]" />
                       </div>
                       <div>
-                        <p className="text-[12px] text-[#999] leading-none mb-1.5">Телефон</p>
-                        <a href="tel:88005057831" className="text-[15px] font-semibold hover:text-orange-600 transition-colors">8 800 505-78-31</a>
+                        <p className="text-[13px] text-[#999] leading-none mb-1.5">Телефон</p>
+                        <a href="tel:88005057831" className="text-[16.5px] font-semibold hover:text-orange-600 transition-colors">8 800 505-78-31</a>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -348,8 +363,8 @@ export default function AboutUs() {
                         <Icon name="Mail" size={16} className="text-[#444]" />
                       </div>
                       <div>
-                        <p className="text-[12px] text-[#999] leading-none mb-1.5">Почта</p>
-                        <a href="mailto:pack@t-sib.ru" className="text-[15px] text-orange-600 hover:underline">pack@t-sib.ru</a>
+                        <p className="text-[13px] text-[#999] leading-none mb-1.5">Почта</p>
+                        <a href="mailto:pack@t-sib.ru" className="text-[16.5px] text-orange-600 hover:underline">pack@t-sib.ru</a>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -357,29 +372,31 @@ export default function AboutUs() {
                         <Icon name="Wrench" size={16} className="text-[#444]" />
                       </div>
                       <div>
-                        <p className="text-[12px] text-[#999] leading-none mb-1.5">Сервис</p>
-                        <a href="mailto:service@t-sib.ru" className="text-[15px] text-orange-600 hover:underline">service@t-sib.ru</a>
+                        <p className="text-[13px] text-[#999] leading-none mb-1.5">Сервис</p>
+                        <a href="mailto:service@t-sib.ru" className="text-[16.5px] text-orange-600 hover:underline">service@t-sib.ru</a>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
+                    {!o.warehouseOnly && (
+                      <div className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-full bg-[#F2F2F2] flex items-center justify-center flex-shrink-0">
+                          <Icon name="Clock" size={16} className="text-[#444]" />
+                        </div>
+                        <div>
+                          <p className="text-[13px] text-[#999] leading-none mb-1.5">График работы офиса</p>
+                          <p className="text-[16.5px]">Пн–Пт <span className="font-semibold">09:00–18:00</span></p>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex items-start gap-3">
                       <div className="w-9 h-9 rounded-full bg-[#F2F2F2] flex items-center justify-center flex-shrink-0">
                         <Icon name="Clock" size={16} className="text-[#444]" />
                       </div>
                       <div>
-                        <p className="text-[12px] text-[#999] leading-none mb-1.5">График работы офиса</p>
-                        <p className="text-[15px]">Пн–Пт <span className="font-semibold">09:00–18:00</span></p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-full bg-[#F2F2F2] flex items-center justify-center flex-shrink-0">
-                        <Icon name="Clock" size={16} className="text-[#444]" />
-                      </div>
-                      <div>
-                        <p className="text-[12px] text-[#999] leading-none mb-1.5">График работы склада</p>
-                        <p className="text-[15px]">Пн–Пт <span className="font-semibold">09:00–17:00</span></p>
+                        <p className="text-[13px] text-[#999] leading-none mb-1.5">График работы склада</p>
+                        <p className="text-[16.5px]">Пн–Пт <span className="font-semibold">09:00–17:00</span></p>
                       </div>
                     </div>
                   </div>
@@ -394,10 +411,10 @@ export default function AboutUs() {
       <section id="requisites" className="py-16 md:py-20 bg-white scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-10">
           <div>
-            <h2 className="text-[22px] font-bold mb-5">Реквизиты</h2>
+            <h2 className="text-[24px] font-bold mb-5">Реквизиты</h2>
             <ul className="space-y-2.5">
               {REQUISITES.map(r => (
-                <li key={r.label} className="text-[15px] text-[#555] leading-relaxed">
+                <li key={r.label} className="text-[16.5px] text-[#555] leading-relaxed">
                   <span className="text-[#999]">{r.label} — </span>
                   <span className="text-[#1A1A1A]">{r.value}</span>
                 </li>
@@ -405,10 +422,10 @@ export default function AboutUs() {
             </ul>
           </div>
           <div>
-            <h2 className="text-[22px] font-bold mb-5">Банковские реквизиты</h2>
+            <h2 className="text-[24px] font-bold mb-5">Банковские реквизиты</h2>
             <ul className="space-y-2.5">
               {BANK.map(r => (
-                <li key={r.label} className="text-[15px] text-[#555] leading-relaxed">
+                <li key={r.label} className="text-[16.5px] text-[#555] leading-relaxed">
                   <span className="text-[#999]">{r.label} — </span>
                   <span className="text-[#1A1A1A]">{r.value}</span>
                 </li>
@@ -422,7 +439,7 @@ export default function AboutUs() {
       <section id="contact-form" className="py-16 md:py-20 bg-[#1A1A1A] text-white scroll-mt-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-[26px] sm:text-[34px] font-bold mb-3">Расскажите о задаче — предложим решение</h2>
-          <p className="text-[16px] text-white/60 mb-8">
+          <p className="text-[18px] text-white/60 mb-8">
             Бесплатная консультация специалиста: подберём оборудование, компоновку линии и бюджет под вашу производительность.
           </p>
 
@@ -483,7 +500,7 @@ export default function AboutUs() {
               <div className="inline-block bg-white rounded-lg px-3 py-2 mb-4">
                 <img src={LOGO_URL} alt="Техно-Сиб" className="h-8 w-auto" />
               </div>
-              <p className="text-sm text-white/55 leading-relaxed max-w-xs">
+              <p className="text-[15px] text-white/55 leading-relaxed max-w-xs">
                 Поставка и сервис оборудования для пищевых производств. 25 лет на рынке.
               </p>
             </div>
@@ -517,7 +534,7 @@ export default function AboutUs() {
                 {OFFICES.map(o => (
                   <li key={o.city} className="flex items-start gap-2">
                     <Icon name="MapPin" size={14} className="text-orange-500 mt-1 flex-shrink-0" />
-                    <span className="text-[14px] text-white/65 leading-relaxed">{o.city}, {o.address}</span>
+                    <span className="text-[15px] text-white/65 leading-relaxed">{o.city} — {o.tag.toLowerCase()}</span>
                   </li>
                 ))}
               </ul>
