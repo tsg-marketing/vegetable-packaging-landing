@@ -74,7 +74,7 @@ const EQUIPMENT_SUBMENU: EquipmentItem[] = [
 // Категории, идущие к якорям группы на главной — заполняются динамически после загрузки
 
 const NAV = [
-  { label: "О компании", href: "#about" },
+  { label: "О компании", href: "/about_us" },
   { label: "Наши преимущества", href: "#advantages" },
   { label: "Сервис", href: "#service" },
   { label: "Доставка", href: "#delivery" },
@@ -209,6 +209,7 @@ export default function Home() {
   const scrollTo = (href: string) => {
     setMenuOpen(false);
     setEquipmentOpen(false);
+    if (href.startsWith("/")) { window.location.href = href; return; }
     const id = href.startsWith("#") ? href.slice(1) : href;
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });

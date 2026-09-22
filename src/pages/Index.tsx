@@ -156,7 +156,7 @@ const NAV = [
   { label: "Каталог", href: "#catalog" },
   { label: "Видео", href: "#videos" },
   { label: "Преимущества", href: "#advantages" },
-  { label: "О компании", href: "#about" },
+  { label: "О компании", href: "/about_us" },
   { label: "Кейсы", href: "#cases" },
   { label: "Как работаем", href: "#steps" },
   { label: "Вопросы", href: "#faq" },

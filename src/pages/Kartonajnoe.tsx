@@ -86,7 +86,7 @@ const NAV = [
   { label: "Преимущества", href: "#advantages" },
   { label: "Решения", href: "#solutions" },
   { label: "Подбор", href: "#selector" },
-  { label: "О компании", href: "#about" },
+  { label: "О компании", href: "/about_us" },
   { label: "FAQ", href: "#faq" },
   { label: "Контакты", href: "#contacts" },
 ];

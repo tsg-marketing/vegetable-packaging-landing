@@ -301,5 +301,6 @@ export const NAV = [
   { label: "Выбор толщины", href: "#thickness" },
   { label: "Условия", href: "#advantages" },
   { label: "Вопросы", href: "#faq" },
+  { label: "О компании", href: "/about_us" },
   { label: "Контакты", href: "#contacts" },
 ];

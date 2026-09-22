@@ -224,6 +224,7 @@ const NAV = [
   { label: "Опции", href: "#options" },
   { label: "Сервис", href: "#service" },
   { label: "FAQ", href: "#faq" },
+  { label: "О компании", href: "/about_us" },
   { label: "Контакты", href: "#contacts" },
 ];
 

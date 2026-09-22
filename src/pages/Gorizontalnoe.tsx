@@ -200,7 +200,7 @@ const NAV = [
   { label: "Каталог", href: "#catalog" },
   { label: "Преимущества", href: "#advantages" },
   { label: "Применение", href: "#applications" },
-  { label: "О компании", href: "#about" },
+  { label: "О компании", href: "/about_us" },
   { label: "Сервис", href: "#service" },
   { label: "FAQ", href: "#faq" },
   { label: "Контакты", href: "#contacts" },

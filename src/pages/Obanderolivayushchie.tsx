@@ -220,7 +220,7 @@ const NAV = [
   { label: "Подбор", href: "#quiz" },
   { label: "Преимущества", href: "#advantages" },
   { label: "Типы машин", href: "#series" },
-  { label: "О компании", href: "#about" },
+  { label: "О компании", href: "/about_us" },
   { label: "Сервис", href: "#service" },
   { label: "FAQ", href: "#faq" },
   { label: "Контакты", href: "#contacts" },

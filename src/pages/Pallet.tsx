@@ -48,6 +48,7 @@ const NAV = [
   { label: "Калькулятор", href: "#film-calc" },
   { label: "Сервис", href: "#service" },
   { label: "FAQ", href: "#faq" },
+  { label: "О компании", href: "/about_us" },
   { label: "Контакты", href: "#contacts" },
 ];
 

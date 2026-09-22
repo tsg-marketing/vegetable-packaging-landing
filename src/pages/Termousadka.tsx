@@ -69,6 +69,7 @@ const NAV = [
   { label: "Применение", href: "#application" },
   { label: "Когда покупать", href: "#signs" },
   { label: "Сервис", href: "#service" },
+  { label: "О компании", href: "/about_us" },
   { label: "Контакты", href: "#contacts" },
 ];
 
