@@ -250,10 +250,6 @@ export default function PoffPlenka() {
               Термоусадочная ПОФ плёнка по <span style={{ color: "var(--orange)" }}>260 руб/кг*</span>. В наличии
             </h1>
 
-            <p className="text-[13px] text-[#777] leading-snug mb-5 max-w-xl">
-              * цена действительна для клиентов из Уральского федерального округа, Республики Башкортостан
-              и Оренбургской области
-            </p>
 
             <p className="text-[19px] sm:text-[21px] font-semibold text-[#1A1A1A] mb-8 max-w-xl leading-snug">
               Подберём под вашу продукцию и рассчитаем <span style={{ color: "var(--orange)" }}>цену за метр</span>.
@@ -276,6 +272,11 @@ export default function PoffPlenka() {
                 Смотреть каталог
               </button>
             </div>
+
+            <p className="text-[13px] text-[#777] leading-snug mt-4 max-w-xl">
+              * цена действительна для клиентов из Уральского федерального округа, Республики Башкортостан
+              и Оренбургской области
+            </p>
 
           </div>
 
