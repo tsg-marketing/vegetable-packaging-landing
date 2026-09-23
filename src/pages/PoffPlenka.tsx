@@ -326,8 +326,7 @@ export default function PoffPlenka() {
                 <div className="p-6 flex flex-col">
                   <h3 className="font-bold text-[21px] mb-2.5 leading-tight text-white">Не знаете, какая плёнка нужна?</h3>
                   <p className="text-[15px] text-white leading-relaxed mb-5">
-                    Опишите продукцию и тип упаковочного аппарата — подберём толщину и намотку,
-                    посчитаем расход и цену за метр.
+                    Оставьте заявку и получите консультацию специалиста
                   </p>
                   <button onClick={() => openFos(undefined, "Подбор позиции плёнки ПОФ")} className="btn-white w-full">
                     Получить подбор
@@ -421,7 +420,7 @@ export default function PoffPlenka() {
 
               <button onClick={() => openFos(undefined, "Подбор толщины плёнки ПОФ под продукцию")} className="btn-orange px-7 py-3.5 inline-flex items-center gap-2">
                 <Icon name="ClipboardList" size={18} />
-                Подобрать толщину под продукцию
+                Получить консультацию
               </button>
             </div>
 
@@ -477,13 +476,9 @@ export default function PoffPlenka() {
 
           <div className="rounded-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 bg-white border border-gray-100">
             <div className="p-7 sm:p-9 flex flex-col justify-center">
-              <h3 className="font-bold text-[clamp(20px,2.2vw,26px)] mb-3 leading-tight">Плёнка в наличии на трёх складах</h3>
-              <p className="text-[#666] text-[15px] leading-relaxed mb-5">
-                Москва, Новосибирск и Челябинск. По этим городам действует бесплатная адресная доставка.
-                Уточним остатки по нужной толщине и намотке под ваш объём.
-              </p>
+              <h3 className="font-bold text-[clamp(20px,2.2vw,26px)] mb-5 leading-tight">Плёнка в наличии в г. Челябинск</h3>
               <div className="flex flex-wrap gap-2 mb-6">
-                {["Москва", "Новосибирск", "Челябинск"].map(c => (
+                {["Челябинск"].map(c => (
                   <span key={c} className="inline-flex items-center gap-1.5 text-[14px] font-semibold px-3 py-1.5 rounded-lg"
                     style={{ background: "rgba(255,102,0,0.1)", color: "#B34700" }}>
                     <Icon name="MapPin" size={15} />
@@ -493,7 +488,7 @@ export default function PoffPlenka() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <button onClick={() => openFos(undefined, "Запрос наличия плёнки ПОФ на складе")} className="btn-orange px-7 py-3.5">
-                  Уточнить наличие
+                  Оставить заявку
                 </button>
                 <a href="tel:88005057831" className="btn-outline-orange px-7 py-3.5 inline-flex items-center gap-2">
                   <Icon name="Phone" size={18} />
@@ -506,26 +501,6 @@ export default function PoffPlenka() {
             </div>
           </div>
 
-          <div className="mt-6 rounded-2xl border-2 bg-white p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center gap-6"
-            style={{ borderColor: "var(--orange)" }}>
-            <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,102,0,0.1)" }}>
-              <Icon name="BadgePercent" size={28} style={{ color: "var(--orange)" }} />
-            </div>
-            <div className="flex-1">
-              <p className="text-[12px] font-bold uppercase tracking-[0.14em] mb-1.5" style={{ color: "var(--orange)" }}>
-                Специальные условия
-              </p>
-              <h3 className="font-bold text-[clamp(19px,2.1vw,24px)] mb-2 leading-tight">
-                Для клиентов из Уральского федерального округа
-              </h3>
-              <p className="text-[15px] text-[#666] leading-relaxed">
-                Действуют специальные условия поставки плёнки ПОФ. Подробности — у менеджера.
-              </p>
-            </div>
-            <button onClick={() => openFos(undefined, "Специальные условия для клиентов из УрФО")} className="btn-orange px-7 py-3.5 flex-shrink-0">
-              Узнать условия
-            </button>
-          </div>
         </div>
       </section>
 
