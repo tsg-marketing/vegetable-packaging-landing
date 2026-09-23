@@ -24,7 +24,6 @@ import { getPageMeta } from "@/lib/pageMeta";
 import {
   HERO_BULLETS,
   USE_CASES,
-  POFF_LINE,
   THICKNESS_SCALE,
   CHOICE_POINTS,
   COMPANY_ADVANTAGES,
@@ -399,57 +398,6 @@ export default function PoffPlenka() {
                   <h3 className="font-bold text-[16px] mb-2 leading-snug">{c.title}</h3>
                   <p className="text-[14px] text-[#666] leading-relaxed">{c.text}</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ЭКРАН 3.2 — ЛИНЕЙКА ПО ТОЛЩИНЕ */}
-      <section id="line" className="py-16 bg-[#F7F7F7] scroll-mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 className="section-title">Линейка плёнки по толщине и намотке</h2>
-            <p className="text-[#666] mt-2 max-w-2xl mx-auto">
-              Пять позиций под разные задачи: от лёгкой серийной фасовки до упаковки тяжёлых и крупногабаритных товаров
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {POFF_LINE.map(p => (
-              <div key={p.id} className="rounded-xl bg-white border border-gray-100 p-6 card-hover flex flex-col">
-                <span className="self-start text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-4"
-                  style={{ background: "rgba(255,102,0,0.1)", color: "var(--orange)" }}>
-                  {p.tag}
-                </span>
-
-                <h3 className="font-bold text-[18px] mb-4 leading-snug">{p.name}</h3>
-
-                <div className="flex gap-3 mb-4">
-                  <div className="flex-1 rounded-lg px-3 py-2.5" style={{ background: "#F7F7F7" }}>
-                    <p className="text-[11px] text-[#999] uppercase tracking-wide font-semibold">Толщина</p>
-                    <p className="font-bold text-[17px] text-[#1A1A1A]">{p.thickness}</p>
-                  </div>
-                  <div className="flex-1 rounded-lg px-3 py-2.5" style={{ background: "#F7F7F7" }}>
-                    <p className="text-[11px] text-[#999] uppercase tracking-wide font-semibold">Намотка</p>
-                    <p className="font-bold text-[17px] text-[#1A1A1A]">{p.winding}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2.5 mb-5 flex-1">
-                  <div className="flex items-start gap-2.5">
-                    <Icon name="Target" size={17} className="mt-0.5 flex-shrink-0 text-[#999]" />
-                    <p className="text-[14px] text-[#555] leading-snug">{p.purpose}</p>
-                  </div>
-                  <div className="flex items-start gap-2.5">
-                    <Icon name="Check" size={17} className="mt-0.5 flex-shrink-0" style={{ color: "var(--orange)" }} />
-                    <p className="text-[14px] text-[#333] leading-snug font-medium">{p.benefit}</p>
-                  </div>
-                </div>
-
-                <button onClick={() => openFos(p.name, "Запрос цены на плёнку ПОФ")} className="btn-orange w-full py-3">
-                  Запросить цену
-                </button>
               </div>
             ))}
           </div>
