@@ -309,32 +309,8 @@ export default function PoffPlenka() {
         </div>
       </section>
 
-      {/* ЭКРАН 2 — СВОЙСТВА ПЛЁНКИ */}
-      <section id="properties" className="py-16 bg-white scroll-mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 className="section-title">Свойства плёнки ПОФ</h2>
-            <p className="text-[#666] mt-2 max-w-2xl mx-auto">
-              Что даёт полиолефиновая плёнка на производстве и в упаковочном цехе
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {PRODUCT_FACTS.map((f, i) => (
-              <div key={i} className="rounded-2xl border border-gray-100 bg-white p-7 card-hover">
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
-                  <Icon name={f.icon} fallback="Check" size={28} style={{ color: "var(--orange)" }} />
-                </div>
-                <h3 className="font-bold text-[19px] mb-2.5 leading-snug">{f.title}</h3>
-                <p className="text-[15px] text-[#666] leading-relaxed">{f.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ЭКРАН 3 — КАТАЛОГ */}
-      <section id="catalog" className="py-16 bg-[#F7F7F7] scroll-mt-16">
+      <section id="catalog" className="py-16 bg-white scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="section-title">Каталог плёнки ПОФ</h2>
@@ -375,6 +351,30 @@ export default function PoffPlenka() {
             onImageClick={(pictures, idx) => setLightbox({ pictures, idx })}
           />
 
+        </div>
+      </section>
+
+      {/* ЭКРАН 2 — СВОЙСТВА ПЛЁНКИ */}
+      <section id="properties" className="py-16 bg-[#F7F7F7] scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="section-title">Свойства плёнки ПОФ</h2>
+            <p className="text-[#666] mt-2 max-w-2xl mx-auto">
+              Что даёт полиолефиновая плёнка на производстве и в упаковочном цехе
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {PRODUCT_FACTS.map((f, i) => (
+              <div key={i} className="rounded-2xl border border-gray-100 bg-white p-7 card-hover">
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <Icon name={f.icon} fallback="Check" size={28} style={{ color: "var(--orange)" }} />
+                </div>
+                <h3 className="font-bold text-[19px] mb-2.5 leading-snug">{f.title}</h3>
+                <p className="text-[15px] text-[#666] leading-relaxed">{f.text}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

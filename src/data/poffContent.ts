@@ -326,8 +326,8 @@ export const FAQ: FaqItem[] = [
 
 export const NAV = [
   { label: "Главная", href: "/" },
-  { label: "Свойства", href: "#properties" },
   { label: "Каталог", href: "#catalog" },
+  { label: "Свойства", href: "#properties" },
   { label: "Применение", href: "#use-cases" },
   { label: "Выбор толщины", href: "#thickness" },
   { label: "Условия", href: "#advantages" },
