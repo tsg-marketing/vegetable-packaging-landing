@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "YML фид плёнки ПОФ отдаётся",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "CORS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}
