@@ -28,7 +28,6 @@ import {
   CHOICE_POINTS,
   COMPANY_ADVANTAGES,
   PRODUCT_FACTS,
-  APPLICATIONS,
   FAQ,
   NAV,
 } from "@/data/poffContent";
@@ -248,8 +247,13 @@ export default function PoffPlenka() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch py-8 lg:py-10">
           <div className="lg:col-span-6 pr-0 lg:pr-4 fade-up flex flex-col justify-center">
             <h1 className="text-[clamp(26px,4vw,46px)] font-bold leading-[1.15] mb-5 text-[#1A1A1A]">
-              ПОФ термоусадочная плёнка <span style={{ color: "var(--orange)" }}>в наличии</span>
+              Термоусадочная ПОФ плёнка по <span style={{ color: "var(--orange)" }}>260 руб/кг*</span>. В наличии
             </h1>
+
+            <p className="text-[13px] text-[#777] leading-snug mb-5 max-w-xl">
+              * цена действительна для клиентов из Уральского федерального округа, Республики Башкортостан
+              и Оренбургской области
+            </p>
 
             <p className="text-[19px] sm:text-[21px] font-semibold text-[#1A1A1A] mb-8 max-w-xl leading-snug">
               Подберём под вашу продукцию и рассчитаем <span style={{ color: "var(--orange)" }}>цену за метр</span>.
@@ -321,6 +325,7 @@ export default function PoffPlenka() {
 
           <ShrinkCatalog
             items={POFF_PRODUCTS}
+            hideCardTitle
             categories={CATALOG_CATEGORIES}
             fallbackImg={IMG_FALLBACK}
             priorityParams={["Толщина", "Намотка", "Ширина"]}
@@ -534,38 +539,6 @@ export default function PoffPlenka() {
             <button onClick={() => openFos(undefined, "Специальные условия для клиентов из УрФО")} className="btn-orange px-7 py-3.5 flex-shrink-0">
               Узнать условия
             </button>
-          </div>
-        </div>
-      </section>
-
-      {/* ЭКРАН 6 — ГДЕ ИСПОЛЬЗУЕТСЯ */}
-      <section id="applications" className="py-16 bg-white scroll-mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 className="section-title">Что упаковывают в плёнку ПОФ</h2>
-            <p className="text-[#666] mt-2 max-w-2xl mx-auto">
-              Пищевая и непищевая продукция — штучно и группой, на ручных аппаратах и автоматических линиях
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            <div className="lg:col-span-5 rounded-2xl overflow-hidden min-h-[280px]">
-              <img src={IMG_LINE} alt="Упаковочная линия с термоусадочной плёнкой" loading="lazy" className="w-full h-full object-cover" />
-            </div>
-
-            <div className="lg:col-span-7">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {APPLICATIONS.map((a, i) => (
-                  <div key={i} className="rounded-xl border border-gray-100 px-4 py-4 flex items-center gap-3 card-hover bg-white">
-                    <Icon name={a.icon} fallback="Package" size={20} className="flex-shrink-0" style={{ color: "var(--orange)" }} />
-                    <span className="text-[14px] font-medium text-[#333] leading-snug">{a.label}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-[14px] text-[#777] mt-5 leading-relaxed">
-                Вашей продукции нет в списке? Опишите товар — подберём толщину и намотку под задачу.
-              </p>
-            </div>
           </div>
         </div>
       </section>

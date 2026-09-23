@@ -29,6 +29,8 @@ type Props = {
   gridClassName?: string;
   /** Дополнительный блок, который выводится последней ячейкой сетки. */
   tail?: React.ReactNode;
+  /** Скрыть заголовок товара в карточке и показать параметры крупнее. */
+  hideCardTitle?: boolean;
   onDetails: (p: CatalogProduct) => void;
   onLoaded?: (list: CatalogProduct[]) => void;
   onInquiry: (productName: string) => void;
@@ -50,6 +52,7 @@ export default function ShrinkCatalog({
   excludeParams,
   gridClassName = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5",
   tail,
+  hideCardTitle = false,
   onDetails,
   onLoaded,
   onInquiry,
@@ -209,13 +212,15 @@ export default function ShrinkCatalog({
                   onImageClick={onImageClick}
                 />
                 <div className="p-5 flex-1 flex flex-col">
-                  <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-3 leading-snug min-h-[44px]">{p.name}</h3>
+                  {!hideCardTitle && (
+                    <h3 className="font-bold text-[#1A1A1A] text-[15px] mb-3 leading-snug min-h-[44px]">{p.name}</h3>
+                  )}
                   {keyParams.length > 0 && (
-                    <ul className="mb-4 space-y-1.5">
+                    <ul className={hideCardTitle ? "mb-4 space-y-2" : "mb-4 space-y-1.5"}>
                       {keyParams.map((pr, i) => (
-                        <li key={i} className="flex items-start gap-2 text-[13px] leading-snug">
+                        <li key={i} className={hideCardTitle ? "flex items-start gap-2 text-[17px] leading-snug" : "flex items-start gap-2 text-[13px] leading-snug"}>
                           <span className="text-[#888] mt-1">·</span>
-                          <span className="text-[#444]">{pr.name}: <span className="text-[#1A1A1A]">{pr.value}</span></span>
+                          <span className="text-[#444]">{pr.name}: <span className="text-[#1A1A1A] font-semibold">{pr.value}</span></span>
                         </li>
                       ))}
                     </ul>
