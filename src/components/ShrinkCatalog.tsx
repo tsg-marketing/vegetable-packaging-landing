@@ -15,6 +15,8 @@ type Category = { id: string; name: string };
 type Props = {
   categories: Category[];
   fallbackImg: string;
+  /** Готовый список товаров — если задан, загрузка из фида не выполняется. */
+  items?: CatalogProduct[];
   withSearch?: boolean;
   endpoint?: string;
   allTabLabel?: string;
@@ -39,6 +41,7 @@ const ALL_ID = "__all__";
 export default function ShrinkCatalog({
   categories,
   fallbackImg,
+  items,
   withSearch = false,
   endpoint = SHRINK_CATALOG_ENDPOINT,
   allTabLabel,
@@ -53,23 +56,29 @@ export default function ShrinkCatalog({
   onVideo,
   onImageClick,
 }: Props) {
-  const [products, setProducts] = useState<CatalogProduct[]>([]);
+  const [products, setProducts] = useState<CatalogProduct[]>(items || []);
   const onLoadedRef = useRef(onLoaded);
   onLoadedRef.current = onLoaded;
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!items);
   const [error, setError] = useState(false);
   const [active, setActive] = useState(allTabLabel ? ALL_ID : (categories[0]?.id || ""));
   const [search, setSearch] = useState("");
   const [show, setShow] = useState(8);
 
   useEffect(() => {
+    if (items) {
+      setProducts(items);
+      onLoadedRef.current?.(items);
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     loadCatalog(endpoint)
       .then(list => { if (!cancelled) { setProducts(list); onLoadedRef.current?.(list); } })
       .catch(() => { if (!cancelled) setError(true); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [endpoint]);
+  }, [endpoint, items]);
 
   useEffect(() => { setShow(8); }, [active, search]);
 

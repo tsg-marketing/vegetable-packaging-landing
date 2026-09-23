@@ -33,6 +33,7 @@ import {
   FAQ,
   NAV,
 } from "@/data/poffContent";
+import { POFF_PRODUCTS } from "@/data/poffProducts";
 
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const IMG_HERO = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/ea77bc7e-f6ce-4b89-a17a-1eaa0bbd19fa.png";
@@ -339,11 +340,12 @@ export default function PoffPlenka() {
           <div className="text-center mb-10">
             <h2 className="section-title">Каталог плёнки ПОФ</h2>
             <p className="text-[#666] mt-2 max-w-2xl mx-auto">
-              Актуальные позиции обновляются автоматически — уточним остатки под ваш объём
+              Ходовые размеры в наличии на складе — уточним остатки под ваш объём
             </p>
           </div>
 
           <ShrinkCatalog
+            items={POFF_PRODUCTS}
             categories={CATALOG_CATEGORIES}
             fallbackImg={IMG_FALLBACK}
             priorityParams={["Толщина", "Намотка", "Ширина"]}
