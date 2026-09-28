@@ -59,6 +59,7 @@ function isHiddenParam(name: string): boolean {
   const n = name.trim().toLowerCase();
   if (n === "guid") return true;
   if (/видео/i.test(name)) return true;
+  if (/налич/i.test(name)) return true;
   return false;
 }
 

@@ -47,7 +47,7 @@ function isVideoParam(p: Param): boolean {
   return /видео/i.test(p.name);
 }
 function sortParams(params: Param[]): Param[] {
-  const cleaned = params.filter(p => !isVideoParam(p));
+  const cleaned = params.filter(p => !isVideoParam(p) && !/налич/i.test(p.name));
   const isPerf = (p: Param) => /производитель/i.test(p.name);
   const perf = cleaned.filter(isPerf);
   const rest = cleaned.filter(p => !isPerf(p));
@@ -633,7 +633,7 @@ export default function Index() {
                       </h3>
 
                       {/* All params, performance first — compact list with check icons */}
-                      {prod.params.length > 0 && (
+                      {sortParams(prod.params).length > 0 && (
                         <ul className="mb-4 space-y-2">
                           {sortParams(prod.params).map((pr, i) => (
                             <li key={i} className="flex items-start gap-2 text-[14px] leading-snug">
@@ -1193,7 +1193,7 @@ export default function Index() {
                   )}
 
                   {/* Params */}
-                  {openProduct.params.length > 0 && (
+                  {sortParams(openProduct.params).length > 0 && (
                     <div className="mb-6">
                       <h4 className="text-[13px] font-bold uppercase tracking-wider text-[#999] mb-3">Характеристики</h4>
                       <div className="rounded-lg border border-gray-100 divide-y divide-gray-100">

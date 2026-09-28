@@ -65,13 +65,14 @@ const BRAND_KEY_PARAMS: Record<string, string[]> = {
 export function keyParamsFor(p: PalletProduct, limit = 4) {
   const wanted = BRAND_KEY_PARAMS[p.brand];
   const result: { name: string; value: string }[] = [];
+  const allowed = p.params.filter(x => !/налич/i.test(x.name));
   if (wanted) {
     for (const w of wanted) {
-      const found = p.params.find(x => x.name === w);
+      const found = allowed.find(x => x.name === w);
       if (found) result.push(found);
     }
   }
-  for (const x of p.params) {
+  for (const x of allowed) {
     if (result.length >= limit) break;
     if (!result.some(r => r.name === x.name)) result.push(x);
   }

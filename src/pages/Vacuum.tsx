@@ -50,6 +50,7 @@ const HIDDEN_PARAM_NAMES = ["guid", "видео (ссылка)", "видео(с�
 
 function isHiddenParam(name: string): boolean {
   const n = name.trim().toLowerCase();
+  if (/налич/i.test(n)) return true;
   return HIDDEN_PARAM_NAMES.some(h => n === h);
 }
 

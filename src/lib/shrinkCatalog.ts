@@ -22,6 +22,7 @@ export function isHiddenParam(name: string): boolean {
   if (n === "guid") return true;
   if (HIDDEN_PARAMS.includes(n)) return true;
   if (/видео/i.test(name)) return true;
+  if (/налич/i.test(name)) return true;
   return false;
 }
 

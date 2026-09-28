@@ -54,8 +54,9 @@ function stripHtml(html: string): string {
 
 function sortParams(params: Param[]): Param[] {
   const isPerf = (p: Param) => /производитель/i.test(p.name);
-  const perf = params.filter(isPerf);
-  const rest = params.filter(p => !isPerf(p));
+  const cleaned = params.filter(p => !/налич/i.test(p.name));
+  const perf = cleaned.filter(isPerf);
+  const rest = cleaned.filter(p => !isPerf(p));
   return [...perf, ...rest];
 }
 
@@ -840,7 +841,7 @@ export default function Home() {
       {openProduct && (() => {
         const pics = openProduct.pictures.length > 0 ? openProduct.pictures : [HERO_IMG];
         const safeIdx = Math.min(modalSlideIdx, pics.length - 1);
-        const params = openProduct.params || [];
+        const params = (openProduct.params || []).filter(p => !/налич/i.test(p.name));
         return (
           <div
             className="fixed inset-0 z-[110] flex items-start sm:items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm"

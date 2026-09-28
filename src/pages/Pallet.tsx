@@ -901,11 +901,11 @@ export default function Pallet() {
                 </div>
               )}
 
-              {detailsProduct.params.length > 0 && (
+              {detailsProduct.params.filter(pr => !/налич/i.test(pr.name)).length > 0 && (
                 <div>
                   <h4 className="font-bold text-[13px] uppercase tracking-wider mb-3" style={{ color: "var(--orange)" }}>Характеристики</h4>
                   <div className="rounded-xl border border-gray-100 divide-y divide-gray-100">
-                    {detailsProduct.params.map((pr, i) => (
+                    {detailsProduct.params.filter(pr => !/налич/i.test(pr.name)).map((pr, i) => (
                       <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 px-4 py-2.5 odd:bg-[#FAFAFA]">
                         <span className="text-[13px] text-[#666] sm:w-1/2">{pr.name}</span>
                         <span className="text-[13.5px] text-[#1A1A1A] font-medium sm:flex-1">{pr.value}</span>
