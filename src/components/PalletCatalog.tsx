@@ -70,9 +70,15 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
       if (brand !== ALL && p.brand !== brand) return false;
       return true;
     });
-    return list.sort(
-      (a, b) => (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER),
-    );
+    const byPrice = (a: typeof list[number], b: typeof list[number]) =>
+      (a.price || Number.MAX_SAFE_INTEGER) - (b.price || Number.MAX_SAFE_INTEGER);
+    const isTechnosib = (b: string) => /техносиб/i.test(b || "");
+    return list.sort((a, b) => {
+      const ta = isTechnosib(a.brand) ? 0 : 1;
+      const tb = isTechnosib(b.brand) ? 0 : 1;
+      if (ta !== tb) return ta - tb;
+      return byPrice(a, b);
+    });
   }, [products, brand, kind, search]);
 
   if (loading) {
@@ -104,7 +110,12 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
   }
 
   const kindTabs = KIND_TABS.filter(t => (kindCounts[t.id] || 0) > 0);
-  const brandTabs = [{ id: ALL, name: "Все бренды" }, ...brands.filter(b => (brandCounts[b] || 0) > 0).map(b => ({ id: b, name: b }))];
+  const activeBrands = brands.filter(b => (brandCounts[b] || 0) > 0).map(b => ({ id: b, name: b }));
+  const allTab = { id: ALL, name: "Все бренды" };
+  const hualianIdx = activeBrands.findIndex(b => /hualian/i.test(b.id));
+  const brandTabs = hualianIdx >= 0
+    ? [...activeBrands.slice(0, hualianIdx + 1), allTab, ...activeBrands.slice(hualianIdx + 1)]
+    : [...activeBrands, allTab];
 
   return (
     <>

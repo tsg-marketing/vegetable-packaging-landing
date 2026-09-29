@@ -57,7 +57,7 @@ export function stripHtml(html: string): string {
 
 export function formatPrice(price: number): string {
   if (!price || price <= 0) return "Цена по запросу";
-  return new Intl.NumberFormat("ru-RU").format(price) + " руб";
+  return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(Math.round(price)) + " руб";
 }
 
 export const TRAYSEALER_CATALOG_ENDPOINT = "https://functions.poehali.dev/82e780e2-dabb-4d9f-acdd-4987a46e05c3";
