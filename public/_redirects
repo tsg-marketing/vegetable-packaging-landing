@@ -1,3 +1,4 @@
 /obanderolivayushchie-mashiny    /obanderolivanie    301
+/poff_plenka    /    301
 /api/*    /api/:splat    200
 /*        /index.html    200

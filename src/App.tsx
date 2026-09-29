@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Vegetables from "./pages/Vegetables";
 import Vacuum from "./pages/Vacuum";
@@ -52,7 +52,7 @@ const App = () => {
             <Route path="/termousadka" element={<Termousadka />} />
             <Route path="/traysealers" element={<Traysealers />} />
             <Route path="/pallet" element={<Pallet />} />
-            <Route path="/poff_plenka" element={<PoffPlenka />} />
+            <Route path="/poff_plenka" element={<Navigate to="/" replace />} />
             <Route path="/about_us" element={<AboutUs />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
