@@ -39,6 +39,8 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
         if (cancelled) return;
         setProducts(list);
         setBrands(br);
+        const tech = br.find(b => /техносиб/i.test(b));
+        if (tech && list.some(p => p.kind === "wrapper" && p.brand === tech)) setBrand(tech);
         onLoadedRef.current?.(list);
       })
       .catch(() => { if (!cancelled) setError(true); })
