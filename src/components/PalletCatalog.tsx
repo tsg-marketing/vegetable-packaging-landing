@@ -160,7 +160,7 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
         </div>
       )}
 
-      {!search && brandTabs.length > 2 && (
+      {!search && activeBrands.length > 0 && (
         <div className="flex flex-wrap justify-center gap-2 mb-8">
           {brandTabs.map(b => {
             const isActive = b.id === brand;

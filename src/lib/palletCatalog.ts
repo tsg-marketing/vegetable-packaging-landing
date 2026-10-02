@@ -22,7 +22,7 @@ let cache: Promise<{ products: PalletProduct[]; brands: string[] }> | null = nul
 
 export function loadPalletCatalog(): Promise<{ products: PalletProduct[]; brands: string[] }> {
   if (!cache) {
-    cache = fetch(PALLET_CATALOG_ENDPOINT)
+    cache = fetch(`${PALLET_CATALOG_ENDPOINT}?v=2`)
       .then(r => {
         if (!r.ok) throw new Error("bad status");
         return r.json();

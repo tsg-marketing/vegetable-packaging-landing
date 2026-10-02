@@ -51,6 +51,39 @@ def _abs_url(url: str) -> str:
     return url
 
 
+CATEGORY_BRAND = {
+    "452": "ТЕХНОСИБ",
+    "333": "Hualian",
+    "334": "Robopac (Робопак)",
+}
+
+NAME_BRAND_RULES = [
+    (re.compile(r'\bTS\s?\d', re.I), "ТЕХНОСИБ"),
+    (re.compile(r'техносиб', re.I), "ТЕХНОСИБ"),
+    (re.compile(r'\bHL-|\bHPR-|hualian', re.I), "Hualian"),
+    (re.compile(r'ROTOPLAT|MASTERPLAT|ECOPLAT|TECHNOPLAT|ECOWRAP|MASTERWRAP|ROTARY|ROBOT\s|robopac', re.I), "Robopac (Робопак)"),
+]
+
+
+def _detect_brand(raw_params: dict, cat: str, name: str, url: str) -> str:
+    explicit = (raw_params.get('Бренд') or raw_params.get('Производитель') or '').strip()
+    if explicit:
+        return explicit
+    if cat in CATEGORY_BRAND:
+        return CATEGORY_BRAND[cat]
+    low_url = (url or '').lower()
+    if 'tekhnosib' in low_url:
+        return "ТЕХНОСИБ"
+    if 'hualian' in low_url:
+        return "Hualian"
+    if 'robopac' in low_url:
+        return "Robopac (Робопак)"
+    for rx, brand in NAME_BRAND_RULES:
+        if rx.search(name or ''):
+            return brand
+    return 'Другое'
+
+
 def _is_hidden_param(name: str) -> bool:
     low = name.lower()
     return any(marker in low for marker in HIDDEN_PARAM_MARKERS)
@@ -145,7 +178,7 @@ def _fetch_and_parse() -> dict:
             price_num = 0
 
         name = (offer.findtext('name', '') or '').strip()
-        brand = raw_params.get('Бренд', '').strip() or 'Другое'
+        brand = _detect_brand(raw_params, cat, name, offer.findtext('url', '') or '')
 
         available_attr = (offer.get('available') or '').strip().lower() == 'true'
         stock_params = [
