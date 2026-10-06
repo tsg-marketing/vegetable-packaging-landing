@@ -13,7 +13,6 @@ export type CompareItem = {
 
 const KEY = "tsib_compare_v1";
 const EVENT = "tsib-compare-change";
-export const COMPARE_LIMIT = 8;
 
 function read(): CompareItem[] {
   try {
@@ -55,7 +54,6 @@ export function useCompare() {
       write(list.filter(i => i.id !== item.id));
       return true;
     }
-    if (list.length >= COMPARE_LIMIT) return false;
     write([...list, item]);
     return true;
   }, []);

@@ -81,7 +81,7 @@ export default function Compare() {
           <div className="bg-white rounded-xl border border-gray-100 p-10 text-center">
             <Icon name="Scale" size={36} className="mx-auto mb-3 text-[#999]" />
             <p className="text-[#1A1A1A] font-semibold mb-1">Список сравнения пуст</p>
-            <p className="text-sm text-[#666] mb-5">Отметьте галочкой «Сравнить» товары в каталоге</p>
+            <p className="text-sm text-[#666] mb-5">Отметьте галочкой товары в каталоге, чтобы сравнить их</p>
             <Link to="/pallet#catalog" className="btn-orange">Перейти в каталог</Link>
           </div>
         ) : (
