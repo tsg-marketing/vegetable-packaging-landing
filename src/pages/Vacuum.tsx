@@ -129,11 +129,11 @@ function formatPrice(price: number): string {
 
 type TabKey = "all" | "291" | "294" | "292" | "290";
 const CATALOG_TABS: { key: TabKey; label: string; categoryId?: string }[] = [
-  { key: "all", label: "Вакуум-упаковочное" },
   { key: "291", label: "Бескамерные", categoryId: "291" },
   { key: "294", label: "Однокамерные", categoryId: "294" },
   { key: "292", label: "Двухкамерные", categoryId: "292" },
   { key: "290", label: "Вакуумные упаковщики", categoryId: "290" },
+  { key: "all", label: "Вакуум-упаковочное" },
 ];
 
 const EXTRA_VIDEOS: { id: string; name: string; url: string }[] = [
@@ -253,7 +253,7 @@ export default function Vacuum() {
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState(false);
   const [catalogShow, setCatalogShow] = useState(9);
-  const [catalogTab, setCatalogTab] = useState<TabKey>("all");
+  const [catalogTab, setCatalogTab] = useState<TabKey>("291");
   const [catalogSearch, setCatalogSearch] = useState("");
 
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
@@ -270,6 +270,12 @@ export default function Vacuum() {
   })();
 
   useEffect(() => { setCatalogShow(9); }, [catalogTab, catalogSearch]);
+
+  useEffect(() => {
+    if (!catalog.length || catalogTab === "all" || (catalogCounts[catalogTab] ?? 0) > 0) return;
+    const first = CATALOG_TABS.find(t => t.key !== "all" && (catalogCounts[t.key] ?? 0) > 0);
+    setCatalogTab(first ? first.key : "all");
+  }, [catalog, catalogTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (detailsProduct || videoModal) document.body.style.overflow = "hidden";
@@ -646,7 +652,7 @@ export default function Vacuum() {
                   <Icon name="SearchX" size={32} className="mx-auto mb-3 text-[#888]" />
                   <p className="text-[#1A1A1A] font-semibold mb-1">Ничего не найдено</p>
                   <p className="text-sm text-[#666] mb-4">Попробуйте изменить запрос или выбрать другую категорию</p>
-                  <button onClick={() => { setCatalogSearch(""); setCatalogTab("all"); }} className="btn-outline-orange">
+                  <button onClick={() => { setCatalogSearch(""); setCatalogTab((CATALOG_TABS.find(t => t.key !== "all" && (catalogCounts[t.key] ?? 0) > 0)?.key) || "all"); }} className="btn-outline-orange">
                     Сбросить фильтры
                   </button>
                 </div>

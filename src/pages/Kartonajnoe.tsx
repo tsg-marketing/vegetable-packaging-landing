@@ -245,7 +245,7 @@ export default function Kartonajnoe() {
   const [catalogError, setCatalogError] = useState(false);
   const [catalogShow, setCatalogShow] = useState(9);
   const [catalogSearch, setCatalogSearch] = useState("");
-  const [catalogCat, setCatalogCat] = useState("all");
+  const [catalogCat, setCatalogCat] = useState("559");
 
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
 
@@ -262,12 +262,18 @@ export default function Kartonajnoe() {
   }, [detailsProduct, videoModal, lightbox, fosOpen, thanksOpen]);
 
   const CATEGORY_TABS = [
-    { id: "all", label: "Все" },
     { id: "559", label: "Формирователи коробов" },
     { id: "558", label: "Заклейщики коробов" },
     { id: "325", label: "Картонажное оборудование" },
+    { id: "all", label: "Все" },
   ];
   const catCount = (id: string) => id === "all" ? catalog.length : catalog.filter(p => p.categoryId === id).length;
+
+  useEffect(() => {
+    if (!catalog.length || catalogCat === "all" || catCount(catalogCat) > 0) return;
+    const first = CATEGORY_TABS.find(t => t.id !== "all" && catCount(t.id) > 0);
+    setCatalogCat(first ? first.id : "all");
+  }, [catalog, catalogCat]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredCatalog = catalog.filter(p => {
     if (catalogCat !== "all" && p.categoryId !== catalogCat) return false;

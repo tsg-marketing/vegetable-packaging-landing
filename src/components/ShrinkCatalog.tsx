@@ -64,7 +64,7 @@ export default function ShrinkCatalog({
   onLoadedRef.current = onLoaded;
   const [loading, setLoading] = useState(!items);
   const [error, setError] = useState(false);
-  const [active, setActive] = useState(allTabLabel ? ALL_ID : (categories[0]?.id || ""));
+  const [active, setActive] = useState(categories[0]?.id || "");
   const [search, setSearch] = useState("");
   const [show, setShow] = useState(8);
 
@@ -94,8 +94,15 @@ export default function ShrinkCatalog({
 
   const tabs = useMemo(() => {
     const base = hideEmptyTabs ? categories.filter(c => (counts[c.id] || 0) > 0) : categories;
-    return allTabLabel ? [{ id: ALL_ID, name: allTabLabel }, ...base] : base;
+    return allTabLabel ? [...base, { id: ALL_ID, name: allTabLabel }] : base;
   }, [categories, counts, hideEmptyTabs, allTabLabel]);
+
+  useEffect(() => {
+    if (loading || !products.length) return;
+    if (active === ALL_ID || (counts[active] || 0) > 0) return;
+    const first = tabs.find(t => t.id !== ALL_ID && (counts[t.id] || 0) > 0);
+    setActive(first ? first.id : (allTabLabel ? ALL_ID : active));
+  }, [loading, products, counts, tabs, active, allTabLabel]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();

@@ -114,10 +114,7 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
   const kindTabs = KIND_TABS.filter(t => (kindCounts[t.id] || 0) > 0);
   const activeBrands = brands.filter(b => (brandCounts[b] || 0) > 0).map(b => ({ id: b, name: b }));
   const allTab = { id: ALL, name: "Все бренды" };
-  const hualianIdx = activeBrands.findIndex(b => /hualian/i.test(b.id));
-  const brandTabs = hualianIdx >= 0
-    ? [...activeBrands.slice(0, hualianIdx + 1), allTab, ...activeBrands.slice(hualianIdx + 1)]
-    : [...activeBrands, allTab];
+  const brandTabs = [...activeBrands, allTab];
 
   return (
     <>
@@ -144,7 +141,11 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
             return (
               <button
                 key={t.id}
-                onClick={() => { setKind(t.id); setBrand(ALL); }}
+                onClick={() => {
+                  setKind(t.id);
+                  const first = brands.find(b => products.some(p => p.kind === t.id && p.brand === b));
+                  setBrand(first || ALL);
+                }}
                 className="px-4 py-2.5 rounded-lg text-[14px] font-semibold transition-all border"
                 style={{
                   background: isActive ? "var(--orange)" : "#fff",
