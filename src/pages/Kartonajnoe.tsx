@@ -48,6 +48,24 @@ function visibleParams(params: CatalogParam[]): CatalogParam[] {
   return params.filter(p => !isHiddenParam(p.name));
 }
 
+const CARD_PARAM_KEYS: Record<string, string[]> = {
+  "559": ["макс. размер короба", "мин. размер короба", "ширина скотча"],
+  "558": ["скорость заклейки", "высота конвейера", "толщина скотча", "ширина ленты"],
+};
+
+function cardParams(p: { categoryId: string; params: CatalogParam[] }): CatalogParam[] {
+  const keys = CARD_PARAM_KEYS[p.categoryId];
+  if (!keys) return visibleParams(p.params);
+  const norm = (s: string) => s.toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ");
+  const res: CatalogParam[] = [];
+  for (const key of keys) {
+    for (const x of p.params) {
+      if (norm(x.name).includes(key) && !res.includes(x) && !isHiddenParam(x.name)) res.push(x);
+    }
+  }
+  return res;
+}
+
 function getVideoUrl(params: CatalogParam[]): string | null {
   const p = params.find(x => /видео|video/i.test(x.name));
   if (!p) return null;
@@ -669,7 +687,7 @@ export default function Kartonajnoe() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredCatalog.slice(0, catalogShow).map(p => {
-                    const keyParams = visibleParams(p.params);
+                    const keyParams = cardParams(p);
                     const videoUrl = getVideoUrl(p.params);
                     return (
                       <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24 relative">
