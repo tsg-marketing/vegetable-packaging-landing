@@ -48,6 +48,26 @@ function visibleParams(params: CatalogParam[]): CatalogParam[] {
   return params.filter(p => !isHiddenParam(p.name));
 }
 
+const CARD_PARAM_KEYS = [
+  "расчетная производительность",
+  "длина пакета",
+  "ширина пакета",
+  "тип подачи пленки",
+  "тип подающего конвейера",
+  "расстояние между толкателями",
+];
+
+function cardParams(params: CatalogParam[]): CatalogParam[] {
+  const norm = (s: string) => s.toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ");
+  const res: CatalogParam[] = [];
+  for (const key of CARD_PARAM_KEYS) {
+    for (const p of params) {
+      if (norm(p.name).includes(key) && !res.includes(p) && !isHiddenParam(p.name)) res.push(p);
+    }
+  }
+  return res;
+}
+
 function getVideoUrl(params: CatalogParam[]): string | null {
   const p = params.find(x => /видео.*ссылк/i.test(x.name) || /^видео\s*\(ссылка\)$/i.test(x.name.trim()));
   if (!p) return null;
@@ -636,7 +656,7 @@ export default function Gorizontalnoe() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredCatalog.slice(0, catalogShow).map(p => {
-                    const keyParams = visibleParams(p.params);
+                    const keyParams = cardParams(p.params);
                     const videoUrl = getVideoUrl(p.params);
                     return (
                       <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24 relative">
