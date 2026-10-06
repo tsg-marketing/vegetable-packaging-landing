@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/ui/icon";
 import ProductGallery from "@/components/ProductGallery";
+import CompareBar from "@/components/CompareBar";
+import { useCompare, COMPARE_LIMIT } from "@/lib/compare";
+import { toast } from "sonner";
 import { formatPrice } from "@/lib/shrinkCatalog";
 import {
   PalletProduct,
@@ -28,6 +31,21 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
   const [brand, setBrand] = useState(ALL);
   const [kind, setKind] = useState("wrapper");
   const [search, setSearch] = useState("");
+  const compare = useCompare();
+
+  const toggleCompare = (p: PalletProduct) => {
+    const ok = compare.toggle({
+      id: `pallet-${p.id}`,
+      name: p.name,
+      brand: p.brand,
+      price: p.price,
+      picture: p.pictures[0] || fallbackImg,
+      url: p.url,
+      params: p.params.filter(x => !/налич/i.test(x.name)),
+      source: "/pallet#catalog",
+    });
+    if (!ok) toast.error(`Можно сравнить не более ${COMPARE_LIMIT} товаров`);
+  };
 
   const onLoadedRef = useRef(onLoaded);
   onLoadedRef.current = onLoaded;
@@ -42,6 +60,9 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
         const tech = br.find(b => /техносиб/i.test(b));
         if (tech && list.some(p => p.kind === "wrapper" && p.brand === tech)) setBrand(tech);
         onLoadedRef.current?.(list);
+        if (window.location.hash === "#catalog") {
+          setTimeout(() => document.getElementById("catalog")?.scrollIntoView(), 50);
+        }
       })
       .catch(() => { if (!cancelled) setError(true); })
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -196,7 +217,21 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
           {filtered.map(p => {
             const params = keyParamsFor(p);
             return (
-              <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24">
+              <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24 relative">
+                <label
+                  className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold cursor-pointer select-none border shadow-sm"
+                  style={compare.has(`pallet-${p.id}`)
+                    ? { background: "var(--orange)", color: "#fff", borderColor: "var(--orange)" }
+                    : { background: "rgba(255,255,255,0.95)", color: "#444", borderColor: "#e5e5e5" }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={compare.has(`pallet-${p.id}`)}
+                    onChange={() => toggleCompare(p)}
+                    className="w-3.5 h-3.5 accent-white"
+                  />
+                  Сравнить
+                </label>
                 <ProductGallery
                   images={p.pictures}
                   alt={p.name}
@@ -255,6 +290,7 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
         </div>
       )}
 
+      <CompareBar />
     </>
   );
 }
