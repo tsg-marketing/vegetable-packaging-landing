@@ -15,8 +15,7 @@ export default function QuickFilters<T extends { params: { name: string; value: 
   value,
   onChange,
 }: Props<T>) {
-  const [openId, setOpenId] = useState<string | null>(null);
-  const activeCount = Object.values(value).filter(Boolean).length;
+  const [openId, setOpenId] = useState<string | null>(() => groups.find(g => value[g.id])?.id ?? null);
   const openGroup = groups.find(g => g.id === openId) || null;
 
   const btn = (active: boolean) =>
@@ -43,17 +42,6 @@ export default function QuickFilters<T extends { params: { name: string; value: 
             </button>
           );
         })}
-        <button
-          onClick={() => {
-            onChange({});
-            setOpenId(null);
-          }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border text-[14px] font-semibold transition-all hover:shadow-sm"
-          style={btn(activeCount === 0)}
-        >
-          <Icon name="LayoutGrid" size={16} />
-          Все машины
-        </button>
       </div>
 
       {openGroup && (
@@ -68,7 +56,6 @@ export default function QuickFilters<T extends { params: { name: string; value: 
                 disabled={disabled}
                 onClick={() => {
                   onChange({ ...value, [openGroup.id]: active ? undefined : o.id });
-                  setOpenId(null);
                 }}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border text-[13px] font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 style={active ? btn(true) : { background: "rgba(255,102,0,0.06)", color: "#1A1A1A", borderColor: "rgba(255,102,0,0.25)" }}

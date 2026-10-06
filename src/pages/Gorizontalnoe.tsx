@@ -255,7 +255,7 @@ export default function Gorizontalnoe() {
   const [catalogError, setCatalogError] = useState(false);
   const [catalogShow, setCatalogShow] = useState(9);
   const [catalogSearch, setCatalogSearch] = useState("");
-  const [quickFilter, setQuickFilter] = useState<FilterState>({});
+  const [quickFilter, setQuickFilter] = useState<FilterState>({ speed: "0-60" });
 
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
 
