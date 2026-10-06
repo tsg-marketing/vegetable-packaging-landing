@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import CompareToggle from "@/components/CompareToggle";
 import useProductHash from "@/hooks/useProductHash";
 import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
@@ -638,7 +639,8 @@ export default function Gorizontalnoe() {
                     const keyParams = visibleParams(p.params);
                     const videoUrl = getVideoUrl(p.params);
                     return (
-                      <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24">
+                      <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24 relative">
+                          <CompareToggle id={`gorizontalnoe-${p.id}`} name={p.name} price={p.price} picture={p.pictures[0] || IMG_HERO} url={p.url} params={p.params} source="/gorizontalnoe#catalog" />
                         <ProductGallery
                           images={p.pictures}
                           alt={p.name}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import CompareToggle from "@/components/CompareToggle";
 import useProductHash from "@/hooks/useProductHash";
 import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
@@ -585,7 +586,8 @@ export default function Index() {
                 const idx = cardSlideIdx[prod.id] ?? 0;
                 const safeIdx = Math.min(idx, pics.length - 1);
                 return (
-                  <div key={prod.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
+                  <div key={prod.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col relative">
+                    <CompareToggle id={`vegetables-${prod.id}`} name={prod.name} brand={prod.vendor} price={prod.price} picture={pics[0]} url={prod.url} params={prod.params} source="/vegetables#catalog" />
                     {/* Slider */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-gray-50 group">
                       <img

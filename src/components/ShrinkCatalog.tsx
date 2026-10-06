@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/ui/icon";
+import CompareToggle from "@/components/CompareToggle";
 import ProductGallery from "@/components/ProductGallery";
 import {
   CatalogProduct,
@@ -209,7 +210,8 @@ export default function ShrinkCatalog({
             const keyParams = ranked.slice(0, 4);
             const videoUrl = getVideoUrl(p.params);
             return (
-              <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24">
+              <div key={p.id} id={`product-${p.id}`} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col scroll-mt-24 relative">
+                <CompareToggle id={`${window.location.pathname.replace(/\//g, "") || "home"}-${p.id}`} name={p.name} brand={p.vendor} price={p.price} picture={p.pictures[0] || fallbackImg} url={p.url} params={p.params} source={`${window.location.pathname}#catalog`} />
                 <ProductGallery
                   images={p.pictures}
                   alt={p.name}

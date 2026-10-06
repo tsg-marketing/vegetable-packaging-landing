@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/ui/icon";
 import ProductGallery from "@/components/ProductGallery";
-import CompareBar from "@/components/CompareBar";
 import { useCompare } from "@/lib/compare";
 import { formatPrice } from "@/lib/shrinkCatalog";
 import {
@@ -290,7 +289,6 @@ export default function PalletCatalog({ fallbackImg, onDetails, onLoaded, onInqu
         </div>
       )}
 
-      <CompareBar />
     </>
   );
 }

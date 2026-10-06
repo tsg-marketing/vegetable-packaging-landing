@@ -15,6 +15,8 @@ import Termousadka from "./pages/Termousadka";
 import Traysealers from "./pages/Traysealers";
 import Pallet from "./pages/Pallet";
 import Compare from "./pages/Compare";
+import CompareBar from "@/components/CompareBar";
+import ScrollToHash from "@/components/ScrollToHash";
 import AboutUs from "./pages/AboutUs";
 import NotFound from "./pages/NotFound";
 import { ymGoal } from "@/lib/ym";
@@ -58,6 +60,8 @@ const App = () => {
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <CompareBar />
+          <ScrollToHash />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import { useCompare } from "@/lib/compare";
 
 export default function CompareBar() {
   const { items, clear } = useCompare();
-  if (items.length === 0) return null;
+  const { pathname } = useLocation();
+  if (items.length === 0 || pathname === "/compare") return null;
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-xl">

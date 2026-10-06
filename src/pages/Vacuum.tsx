@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Icon from "@/components/ui/icon";
+import CompareToggle from "@/components/CompareToggle";
 import useProductHash from "@/hooks/useProductHash";
 import { createLeadSender } from "@/lib/lead";
 import EquipmentMenu from "@/components/EquipmentMenu";
@@ -661,7 +662,8 @@ export default function Vacuum() {
                   {filteredCatalog.slice(0, catalogShow).map(p => {
                     const keyParams = pickParams(p.params);
                     return (
-                      <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
+                      <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col relative">
+                        <CompareToggle id={`vacuum-${p.id}`} name={p.name} price={p.price} picture={p.pictures[0] || IMG_HERO} url={p.url} params={p.params} source="/vacuum#catalog" />
                         <ProductGallery
                           images={p.pictures}
                           alt={p.name}

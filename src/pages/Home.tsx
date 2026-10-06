@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Icon from "@/components/ui/icon";
+import CompareToggle from "@/components/CompareToggle";
 import useProductHash from "@/hooks/useProductHash";
 import { createLeadSender } from "@/lib/lead";
 import { captureUtm } from "@/lib/utm";
@@ -470,7 +471,8 @@ export default function Home() {
                       const img = pics[curIdx];
                       const canSlide = !isMaterials && pics.length > 1;
                       return (
-                        <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
+                        <div key={p.id} className="card-hover bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col relative">
+                          {!isMaterials && <CompareToggle id={`home-${p.id}`} name={title} brand={p.vendor} price={p.price} picture={pics[0]} url={p.url} params={p.params} source="/#catalog" />}
                           <div className="aspect-[4/3] bg-gray-50 overflow-hidden relative group">
                             <img
                               src={img}
