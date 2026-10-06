@@ -8,6 +8,8 @@ import { captureUtm } from "@/lib/utm";
 import QuizSideTab from "@/components/QuizSideTab";
 import FlowpackQuiz, { FlowpackQuizPayload } from "@/components/FlowpackQuiz";
 import ProductGallery from "@/components/ProductGallery";
+import QuickFilters from "@/components/QuickFilters";
+import { FLOWPACK_FILTERS, FilterState, applyFilters } from "@/lib/flowpackFilters";
 import PolicyDisclaimer from "@/components/PolicyDisclaimer";
 import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 
@@ -253,6 +255,7 @@ export default function Gorizontalnoe() {
   const [catalogError, setCatalogError] = useState(false);
   const [catalogShow, setCatalogShow] = useState(9);
   const [catalogSearch, setCatalogSearch] = useState("");
+  const [quickFilter, setQuickFilter] = useState<FilterState>({});
 
   const [detailsProduct, setDetailsProduct] = useState<CatalogProduct | null>(null);
 
@@ -262,7 +265,7 @@ export default function Gorizontalnoe() {
 
   const [quizOpen, setQuizOpen] = useState(false);
 
-  useEffect(() => { setCatalogShow(9); }, [catalogSearch]);
+  useEffect(() => { setCatalogShow(9); }, [catalogSearch, quickFilter]);
 
   useEffect(() => {
     const anyOpen = detailsProduct || videoModal || lightbox || fosOpen || thanksOpen;
@@ -270,7 +273,7 @@ export default function Gorizontalnoe() {
     return () => { document.body.style.overflow = ""; };
   }, [detailsProduct, videoModal, lightbox, fosOpen, thanksOpen]);
 
-  const filteredCatalog = catalog.filter(p => {
+  const filteredCatalog = applyFilters(catalog, quickFilter).filter(p => {
     const q = catalogSearch.trim().toLowerCase();
     if (q) return p.name.toLowerCase().includes(q);
     return true;
@@ -616,6 +619,10 @@ export default function Gorizontalnoe() {
             )}
           </div>
 
+          {!catalogLoading && !catalogError && catalog.length > 0 && (
+            <QuickFilters groups={FLOWPACK_FILTERS} products={catalog} value={quickFilter} onChange={setQuickFilter} />
+          )}
+
           {catalogLoading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -649,7 +656,7 @@ export default function Gorizontalnoe() {
                   <Icon name="SearchX" size={32} className="mx-auto mb-3 text-[#888]" />
                   <p className="text-[#1A1A1A] font-semibold mb-1">Ничего не найдено</p>
                   <p className="text-sm text-[#666] mb-4">Попробуйте изменить запрос</p>
-                  <button onClick={() => setCatalogSearch("")} className="btn-outline-orange">
+                  <button onClick={() => { setCatalogSearch(""); setQuickFilter({}); }} className="btn-outline-orange">
                     Сбросить поиск
                   </button>
                 </div>
