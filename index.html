@@ -55,6 +55,19 @@
 <body>
 <div id="root"></div>
 <script type="module" src="/src/main.tsx"></script>
+  <script>
+    (function () {
+      var inFrame = false;
+      try { inFrame = window !== window.top; } catch (e) { inFrame = true; }
+      if (inFrame && !("WBK" in window)) {
+        Object.defineProperty(window, "WBK", {
+          configurable: true,
+          get: function () { return document.WBK; },
+          set: function (v) { document.WBK = v; }
+        });
+      }
+    })();
+  </script>
   <script type="text/javascript" src="https://cdn.envybox.io/widget/cbk.js?wcb_code=61fdea5bb65e0e5fccc9d30dcc78c2a0" charset="UTF-8" async></script>
 </body>
 </html>
