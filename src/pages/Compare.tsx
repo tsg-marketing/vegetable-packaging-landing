@@ -94,11 +94,11 @@ export default function Compare() {
             <table className="border-collapse text-[14px]" style={{ minWidth: 220 + items.length * 240 }}>
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-20 bg-white w-[220px] min-w-[220px] border-b border-r border-gray-100 p-4 text-left align-bottom text-[12px] uppercase tracking-wider font-bold text-[#888]">
+                  <th rowSpan={2} className="sticky left-0 z-20 bg-white w-[220px] min-w-[220px] border-b border-r border-gray-100 p-4 text-left align-bottom text-[12px] uppercase tracking-wider font-bold text-[#888]">
                     Характеристика
                   </th>
                   {items.map(it => (
-                    <th key={it.id} className="w-[240px] min-w-[240px] border-b border-r border-gray-100 p-4 align-top text-left font-normal relative">
+                    <th key={it.id} className="w-[240px] min-w-[240px] border-r border-gray-100 p-4 align-top text-left font-normal relative">
                       <button
                         onClick={() => remove(it.id)}
                         className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 hover:bg-gray-100 flex items-center justify-center text-[#999] hover:text-[#1A1A1A]"
@@ -114,7 +114,18 @@ export default function Compare() {
                         )}
                       </div>
                       <div className="font-bold text-[#1A1A1A] leading-snug">{it.name}</div>
-                      <button onClick={() => setLeadProduct(it.name)} className="btn-orange w-full mt-3 py-2.5 text-[14px]">
+                    </th>
+                  ))}
+                </tr>
+                <tr>
+                  {items.map(it => (
+                    <th key={it.id} className="border-b border-r border-gray-100 px-4 pb-4 pt-1 text-left font-normal">
+                      <button
+                        onClick={() => setLeadProduct(it.name)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold border transition-colors hover:bg-[rgba(255,102,0,0.14)]"
+                        style={{ color: "var(--orange)", borderColor: "rgba(255,102,0,0.35)", background: "rgba(255,102,0,0.06)" }}
+                      >
+                        <Icon name="Send" size={14} />
                         Оставить заявку
                       </button>
                     </th>
