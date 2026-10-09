@@ -129,12 +129,7 @@ export default function Traysealers() {
   }, []);
 
   const inquiryFromCatalog = useCallback((productName: string) => {
-    if (productName) {
-      setFormData(d => ({ ...d, comment: `Интересует: ${productName}` }));
-      document.getElementById("contacts")?.scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-    openFos();
+    openFos(productName || undefined);
   }, [openFos]);
 
   const submitFos = useCallback(async () => {
@@ -873,7 +868,7 @@ export default function Traysealers() {
             <p className="text-[15px] text-[#666] mb-5 leading-relaxed break-words">
               {fosOpen.productName
                 ? <>По товару: <span className="font-semibold text-[#1A1A1A]">{fosOpen.productName}</span></>
-                : "Менеджер свяжется в течение 15 минут."}
+                : "Менеджер свяжется с Вами в ближайшее время."}
             </p>
 
             <div className="space-y-4">
