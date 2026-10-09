@@ -66,6 +66,13 @@ $yaClientId = mb_substr($yaClientId, 0, 100);
 
 // Полный URL страницы, откуда пришла заявка (например https://pack.t-sib.ru/gorizontalnoe)
 $leadUrl = $pageUrl;
+if ($leadUrl === '' && !empty($data['url'])) {
+    $leadUrl = trim((string)$data['url']);
+}
+if ($leadUrl === '' && !empty($_SERVER['HTTP_REFERER'])) {
+    $leadUrl = trim((string)$_SERVER['HTTP_REFERER']);
+}
+$leadUrl = preg_replace('/[?#].*$/', '', $leadUrl);
 if ($leadUrl === '' && $page !== '') {
     $leadUrl = 'https://pack.t-sib.ru' . ($page[0] === '/' ? $page : '/' . $page);
 }
@@ -160,6 +167,7 @@ $logLine = '[' . date('Y-m-d H:i:s') . '] ' . json_encode([
     'quizAnswers' => $quizClean,
     'yaClientId'  => $yaClientId,
     'url'         => $leadUrl,
+    'urlFull'     => trim((string)($data['pageUrlFull'] ?? ($_SERVER['HTTP_REFERER'] ?? ''))),
     'page'        => $page,
     'utm'         => $utmClean,
     'ip'          => $_SERVER['REMOTE_ADDR'] ?? '',

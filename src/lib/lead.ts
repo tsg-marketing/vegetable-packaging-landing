@@ -37,7 +37,8 @@ function buildQuizMap(quiz: QuizAnswer[]): Record<string, string> {
 export function createLeadSender(equipment: string) {
   return async function sendLead(payload: LeadPayload): Promise<boolean> {
     try {
-      const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+      const pageUrlFull = typeof window !== "undefined" ? window.location.href : "";
+      const pageUrl = typeof window !== "undefined" ? `${window.location.origin}${currentPagePath() === "/" ? "/" : currentPagePath()}` : "";
       const baseName = String(payload.name ?? "").trim();
       const nameWithUrl = baseName && pageUrl ? `${baseName} — ${pageUrl}` : baseName;
       const yaClientId = await getYaClientId();
@@ -64,6 +65,8 @@ export function createLeadSender(equipment: string) {
         ...payload,
         page: currentPagePath(),
         pageUrl,
+        pageUrlFull,
+        url: pageUrl,
         equipment,
         source: payload.source || "site",
         name: nameWithUrl,
@@ -82,6 +85,8 @@ export function createLeadSender(equipment: string) {
       const res = await fetch(LEAD_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        referrer: pageUrlFull || undefined,
+        referrerPolicy: "unsafe-url",
         body: JSON.stringify(body),
       });
       if (!res.ok) return false;
