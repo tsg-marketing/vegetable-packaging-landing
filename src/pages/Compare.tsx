@@ -4,6 +4,10 @@ import Icon from "@/components/ui/icon";
 import { useCompare } from "@/lib/compare";
 import { formatPrice } from "@/lib/shrinkCatalog";
 import { useSeo } from "@/lib/seo";
+import { createLeadSender } from "@/lib/lead";
+import LeadModal from "@/components/LeadModal";
+
+const sendLead = createLeadSender("Сравнение товаров");
 
 const norm = (s: string) => s.trim().toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ");
 
@@ -15,6 +19,7 @@ export default function Compare() {
 
   const { items, remove, clear } = useCompare();
   const [onlyDiff, setOnlyDiff] = useState(false);
+  const [leadProduct, setLeadProduct] = useState<string | null>(null);
   const backHref = items[items.length - 1]?.source || "/";
 
   const rows = useMemo(() => {
@@ -109,6 +114,9 @@ export default function Compare() {
                         )}
                       </div>
                       <div className="font-bold text-[#1A1A1A] leading-snug">{it.name}</div>
+                      <button onClick={() => setLeadProduct(it.name)} className="btn-orange w-full mt-3 py-2.5 text-[14px]">
+                        Оставить заявку
+                      </button>
                     </th>
                   ))}
                 </tr>
@@ -146,6 +154,13 @@ export default function Compare() {
           </div>
         )}
       </main>
+
+      <LeadModal
+        open={leadProduct !== null}
+        productName={leadProduct || undefined}
+        onClose={() => setLeadProduct(null)}
+        onSubmit={sendLead}
+      />
     </div>
   );
 }
