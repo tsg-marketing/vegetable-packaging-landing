@@ -18,6 +18,7 @@ import Compare from "./pages/Compare";
 import CompareBar from "@/components/CompareBar";
 import ScrollToHash from "@/components/ScrollToHash";
 import AboutUs from "./pages/AboutUs";
+import SiteContent from "./pages/SiteContent";
 import NotFound from "./pages/NotFound";
 import { ymGoal } from "@/lib/ym";
 
@@ -57,6 +58,7 @@ const App = () => {
             <Route path="/poff_plenka" element={<Navigate to="/" replace />} />
             <Route path="/about_us" element={<AboutUs />} />
             <Route path="/compare" element={<Compare />} />
+            <Route path="/site-content-export" element={<SiteContent />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
