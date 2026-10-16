@@ -13,7 +13,7 @@ function FileRow({ f }: { f: ContentFile }) {
       <Icon name="FileText" size={20} className="text-[#999] flex-shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="font-semibold text-[#1A1A1A] truncate">{f.title}</div>
-        <div className="text-[12px] text-[#888]">{f.file} · {formatSize(f.size)}</div>
+        <div className="text-[12px] text-[#888]">{f.file} · {formatSize(f.size)}{f.count !== undefined ? ` · ${f.count} товаров` : ""}</div>
       </div>
       <a href={BASE + f.file} target="_blank" rel="noopener noreferrer" className="text-[13px] font-semibold px-3 py-1.5 rounded-lg border border-gray-200 text-[#444] hover:border-gray-300 hidden sm:inline-flex">
         Открыть
@@ -36,7 +36,7 @@ export default function SiteContent() {
     return () => { meta.remove(); };
   }, []);
 
-  const { pages, catalogs, all, zip } = SITE_CONTENT_FILES;
+  const { pages, all, zip } = SITE_CONTENT_FILES;
 
   return (
     <div className="min-h-screen bg-[#F7F7F7]">
@@ -51,7 +51,7 @@ export default function SiteContent() {
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">Контент сайта в TXT</h1>
-        <p className="text-[#666] mt-1 mb-6">Тексты всех страниц и каталоги оборудования с характеристиками. Выгрузка от {SITE_CONTENT_DATE}.</p>
+        <p className="text-[#666] mt-1 mb-6">Тексты страниц и полные карточки оборудования: характеристики и описания из фида. Выгрузка от {SITE_CONTENT_DATE}.</p>
 
         <div className="flex flex-wrap gap-3 mb-8">
           <a href={BASE + zip.file} download className="btn-orange px-5 py-3 inline-flex items-center gap-2">
@@ -65,13 +65,8 @@ export default function SiteContent() {
         </div>
 
         <h2 className="text-lg font-bold text-[#1A1A1A] mb-3">Страницы сайта</h2>
-        <div className="bg-white rounded-xl border border-gray-100 mb-8">
-          {pages.map(f => <FileRow key={f.file} f={f} />)}
-        </div>
-
-        <h2 className="text-lg font-bold text-[#1A1A1A] mb-3">Каталоги оборудования</h2>
         <div className="bg-white rounded-xl border border-gray-100">
-          {catalogs.map(f => <FileRow key={f.file} f={f} />)}
+          {pages.map(f => <FileRow key={f.file} f={f} />)}
         </div>
       </main>
     </div>

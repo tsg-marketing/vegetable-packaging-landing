@@ -1,110 +1,72 @@
-export type ContentFile = { file: string; title: string; size: number };
+export type ContentFile = { file: string; title: string; size: number; count?: number };
 
 export const SITE_CONTENT_DATE = "16.10.2026";
 
-export const SITE_CONTENT_FILES: { pages: ContentFile[]; catalogs: ContentFile[]; all: ContentFile; zip: ContentFile } = {
+export const SITE_CONTENT_FILES: { pages: ContentFile[]; all: ContentFile; zip: ContentFile } = {
   "pages": [
     {
       "file": "home.txt",
       "title": "Главная",
-      "size": 23459
+      "size": 421799,
+      "count": 96
     },
     {
       "file": "vegetables.txt",
-      "title": "Упаковка овощей",
-      "size": 19040
+      "title": "Оборудование для упаковки овощей",
+      "size": 88229,
+      "count": 18
     },
     {
       "file": "vacuum.txt",
       "title": "Вакуумное оборудование",
-      "size": 12778
+      "size": 850818,
+      "count": 174
     },
     {
       "file": "gorizontalnoe.txt",
-      "title": "Горизонтальное оборудование",
-      "size": 17325
+      "title": "Горизонтальное упаковочное оборудование",
+      "size": 329266,
+      "count": 62
     },
     {
       "file": "kartonajnoe.txt",
       "title": "Картонажное оборудование",
-      "size": 13787
+      "size": 237045,
+      "count": 51
     },
     {
       "file": "obanderolivanie.txt",
       "title": "Обандероливающие машины",
-      "size": 15990
+      "size": 50312,
+      "count": 11
     },
     {
       "file": "termousadka.txt",
       "title": "Термоусадочное оборудование",
-      "size": 17691
+      "size": 406957,
+      "count": 92
     },
     {
       "file": "traysealers.txt",
       "title": "Запайщики лотков",
-      "size": 19212
+      "size": 499940,
+      "count": 111
     },
     {
       "file": "pallet.txt",
-      "title": "Паллетоупаковщики",
-      "size": 20646
-    },
-    {
-      "file": "about_us.txt",
-      "title": "О компании",
-      "size": 9978
-    }
-  ],
-  "catalogs": [
-    {
-      "file": "catalog-vegetables.txt",
-      "title": "Упаковка овощей",
-      "size": 80649
-    },
-    {
-      "file": "catalog-vacuum.txt",
-      "title": "Вакуумное оборудование",
-      "size": 843032
-    },
-    {
-      "file": "catalog-gorizontalnoe.txt",
-      "title": "Горизонтальное оборудование",
-      "size": 317379
-    },
-    {
-      "file": "catalog-kartonajnoe.txt",
-      "title": "Картонажное оборудование",
-      "size": 227527
-    },
-    {
-      "file": "catalog-obanderolivanie.txt",
-      "title": "Обандероливающие машины",
-      "size": 40065
-    },
-    {
-      "file": "catalog-termousadka.txt",
-      "title": "Термоусадочное оборудование",
-      "size": 382198
-    },
-    {
-      "file": "catalog-traysealers.txt",
-      "title": "Запайщики лотков",
-      "size": 489070
-    },
-    {
-      "file": "catalog-pallet.txt",
       "title": "Паллетоупаковщики и паллетайзеры",
-      "size": 583461
+      "size": 600665,
+      "count": 86
     }
   ],
   "all": {
     "file": "all-site-content.txt",
     "title": "Весь контент одним файлом",
-    "size": 3133341
+    "size": 3485058
   },
   "zip": {
     "file": "site-content.zip",
     "title": "Все файлы архивом (ZIP)",
-    "size": 947280
+    "size": 1060021
   }
 };
