@@ -11,7 +11,14 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 from typing import Any
-from xml.sax.saxutils import escape
+from xml.sax.saxutils import escape as _sax_escape
+
+_BAD_XML_CHARS = re.compile('[\x00-\x08\x0b\x0c\x0e-\x1f]')
+
+
+def escape(value) -> str:
+    text = _BAD_XML_CHARS.sub('', str(value if value is not None else ''))
+    return _sax_escape(text, {'"': '&quot;', "'": '&apos;'})
 
 FEED_URL = "https://t-sib.ru/upload/catalog.xml"
 SITE = "https://pack.t-sib.ru"
