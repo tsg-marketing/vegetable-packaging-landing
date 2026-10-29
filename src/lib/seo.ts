@@ -51,6 +51,6 @@ export function useSeo({ title, description, image }: SeoOptions): void {
       link.setAttribute("rel", "canonical");
       document.head.appendChild(link);
     }
-    link.setAttribute("href", url);
+    link.setAttribute("href", meta.canonical || url);
   }, [title, description, image]);
 }

@@ -3,6 +3,7 @@ export type PageMeta = {
   title: string;
   description: string;
   image: string;
+  canonical?: string;
 };
 
 export const SITE_URL = "https://pack.t-sib.ru";
@@ -16,48 +17,56 @@ export const PAGES_META: PageMeta[] = [
   },
   {
     path: "/vegetables",
+    canonical: "https://t-sib.ru/catalog/upakovochnoe-oborudovanie/oborudovanie-dlya-upakovki-ovoshchey/",
     title: "Оборудование для упаковки овощей и фруктов в сетку и лотки — Техно-Сиб",
     description: "Клипсаторы и автоматические линии для упаковки овощей и фруктов в сетку, плёнку и лотки. Встроенная маркировка для сетей. Подбор за 1 день, гарантия 12 мес.",
     image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/22bbdae7-6281-4ea3-9e01-c96ce393f30f.png",
   },
   {
     path: "/vacuum",
+    canonical: "https://t-sib.ru/catalog/upakovochnoe-oborudovanie/vakuum-upakovochnoe-oborudovanie/",
     title: "Вакуумные упаковщики — настольные и напольные вакуум-машины | Техно-Сиб",
     description: "Вакуумное упаковочное оборудование: одно- и двухкамерные настольные и напольные упаковщики. Герметичный шов 3,5 мм для пищевых, медицинских и промышленных товаров.",
     image: "https://cdn.poehali.dev/files/4636d5a7-aed0-42a8-9883-c7efdaac6536.png",
   },
   {
     path: "/gorizontalnoe",
+    canonical: "https://t-sib.ru/catalog/upakovochnoe-oborudovanie/gorizontalnoe-upakovochnoe-oborudovanie/",
     title: "Горизонтальные упаковочные машины flow-pack — флоупак | Техно-Сиб",
     description: "Горизонтальные упаковочные машины flow-pack: скорость до 330 уп/мин, плёнка 180–950 мм. Упаковка кондитерки, хлеба, зелени, замороженных и непищевых товаров.",
     image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/e0d32b09-ff0b-4093-8fe4-1bb4733d849b.jpg",
   },
   {
     path: "/kartonajnoe",
+    canonical: "https://t-sib.ru/catalog/upakovochnoe-oborudovanie/kartonazhnoe-oborudovanie/",
     title: "Картонажное оборудование — формирователи и заклейщики коробов | Техно-Сиб",
     description: "Картонажное упаковочное оборудование: формирователи и заклейщики коробов до 50 коробов/мин. Короба от 130×80 до 850×600 мм. Для маркетплейсов, e-commerce и логистики.",
     image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/e080e415-acc2-4182-8331-888da44fa6e4.jpg",
   },
   {
     path: "/obanderolivanie",
+    canonical: "https://t-sib.ru/catalog/upakovochnoe-oborudovanie/oborudovanie-dlya-upakovki-i-obvyazki-myagkimi-lentami/",
     title: "Оборудование для обвязки мягкими лентами и картонной обечайкой | Техно-Сиб",
     description: "Обандероливающие машины и автоматы для упаковки в картонную обечайку: WK02-30, BM30, HL-228, S-60, W-80. От настольных мини-моделей до автоматических линий. Гарантия 12 мес.",
     image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/fb95c3ad-3bfd-405e-940c-a6851562a7ec.png",
   },
   {
     path: "/termousadka",
+    canonical: "https://t-sib.ru/catalog/upakovochnoe-oborudovanie/termousadochnoe-oborudovanie/",
     title: "Термоусадочное оборудование — купить термоусадочную машину | Техно-Сиб",
     description: "Термоусадочное оборудование до 3 600 упаковок в час: аппараты для штучной и групповой упаковки, термотоннели, термоусадочные танки, термоформеры. Плёнка ПОФ, ПВХ, ПВД.",
     image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/fb8efd8b-405d-46d4-8511-ad9d9dedf599.png",
   },
   {
     path: "/traysealers",
+    canonical: "https://t-sib.ru/catalog/upakovochnoe-oborudovanie/zapayshchiki-lotkov-treysillery/",
     title: "Запайщики лотков (трейсилеры) — купить запайщик лотков | Техно-Сиб",
     description: "Запайщики лотков до 3 600 упаковок в час: автоматические, полуавтоматические и ручные трейсилеры. Запайка в вакуум, газ (MAP), скин. Гарантия 12 месяцев, доставка по РФ и СНГ.",
     image: "https://cdn.poehali.dev/projects/7f0941a7-b646-4462-83cf-d72a4486c6fc/bucket/8130b6af-c559-48ae-9b19-04d134f719e7.png",
   },
   {
     path: "/pallet",
+    canonical: "https://t-sib.ru/catalog/upakovochnoe-oborudovanie/palletoupakovshchiki/",
     title: "Паллетоупаковщики и паллетообмотчики — купить с доставкой | Техно-Сиб",
     description: "Паллетоупаковщики ТЕХНОСИБ, Robopac и Hualian: стационарные, мобильные и с вращающейся рукой. Предрастяжение плёнки до 250%, паллеты до 2 т. Гарантия 12 мес., доставка по РФ.",
     image: "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/files/54937e2d-7e2e-40fc-bf2c-3abc5b06839c.jpg",

@@ -13,6 +13,15 @@ export const EQUIPMENT_LINKS: EquipmentLink[] = [
   { label: "Машины для обандероливания и картонной обечайки", href: "/obanderolivanie" },
 ];
 
+export const GROUP_LANDINGS: Record<string, string> = {
+  "290": "/vacuum",
+  "306": "/gorizontalnoe",
+  "307": "/traysealers",
+  "325": "/kartonajnoe",
+  "340": "/termousadka",
+  "452": "/pallet",
+};
+
 const GROUPS_API = "https://functions.poehali.dev/ed4e9bba-a8d4-434c-af4e-52809800893d";
 
 type Group = { id: string; name: string };
@@ -46,7 +55,7 @@ type Props = { currentHref?: string; variant: "desktop" | "mobile"; showGroups?:
 
 export default function EquipmentMenu({ currentHref, variant, showGroups = true }: Props) {
   const allGroups = useEquipmentGroups();
-  const groups = showGroups ? allGroups : [];
+  const groups = showGroups ? allGroups.filter(g => !GROUP_LANDINGS[g.id]) : [];
 
   if (variant === "mobile") {
     return (

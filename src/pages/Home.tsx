@@ -10,6 +10,7 @@ import { formatPhoneRu, isValidPhoneRu } from "@/lib/phone";
 import { useSeo } from "@/lib/seo";
 import { getPageMeta } from "@/lib/pageMeta";
 import LegalInfo from "@/components/LegalInfo";
+import { GROUP_LANDINGS } from "@/components/EquipmentMenu";
 
 const LOGO_URL = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/2c1f2adf-4b66-4083-b3f3-ea2916e31297.png";
 const HERO_IMG = "https://cdn.poehali.dev/projects/3f792b21-d338-4186-a2a6-6c21df1b4449/bucket/6987fa02-cd88-4e57-944b-bcaecae0723b.png";
@@ -207,6 +208,8 @@ export default function Home() {
     setThanksOpen(true);
   }, [fosData, fosOpen, fosSubmitting, validateFos]);
 
+  const menuGroups = groups.filter(g => !GROUP_LANDINGS[g.id]);
+
   const scrollTo = (href: string) => {
     setMenuOpen(false);
     setEquipmentOpen(false);
@@ -253,8 +256,8 @@ export default function Home() {
                       </button>
                     )
                   ))}
-                  {groups.length > 0 && <div className="my-2 border-t border-gray-100" />}
-                  {groups.map(g => (
+                  {menuGroups.length > 0 && <div className="my-2 border-t border-gray-100" />}
+                  {menuGroups.map(g => (
                     <button
                       key={g.id}
                       onClick={() => scrollTo(`group-${g.id}`)}
@@ -328,7 +331,7 @@ export default function Home() {
                     </button>
                   )
                 ))}
-                {groups.map(g => (
+                {menuGroups.map(g => (
                   <button key={g.id} onClick={() => scrollTo(`group-${g.id}`)} className="block w-full text-left py-2.5 text-[15px] text-[#444]">
                     {g.name}
                   </button>
@@ -456,10 +459,22 @@ export default function Home() {
               {groups.map(g => (
                 <div key={g.id} id={`group-${g.id}`} className="scroll-mt-28">
                   <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-7">
-                    <h3 className="text-[24px] sm:text-[28px] font-bold text-[#1A1A1A]">{g.name}</h3>
-                    {g.total > g.products.length && (
-                      <p className="text-sm text-[#888]">Показано {g.products.length} из {g.total}</p>
-                    )}
+                    <h3 className="text-[24px] sm:text-[28px] font-bold text-[#1A1A1A]">
+                      {GROUP_LANDINGS[g.id] ? (
+                        <a href={GROUP_LANDINGS[g.id]} className="hover:text-[var(--orange)] transition-colors">{g.name}</a>
+                      ) : g.name}
+                    </h3>
+                    <div className="flex items-center gap-4">
+                      {g.total > g.products.length && (
+                        <p className="text-sm text-[#888]">Показано {g.products.length} из {g.total}</p>
+                      )}
+                      {GROUP_LANDINGS[g.id] && (
+                        <a href={GROUP_LANDINGS[g.id]} className="text-sm font-semibold text-[var(--orange)] hover:underline inline-flex items-center gap-1 whitespace-nowrap">
+                          Все модели
+                          <Icon name="ArrowRight" size={14} />
+                        </a>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
