@@ -907,7 +907,7 @@ export default function Obanderolivayushchie() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
             {[
               { icon: "Award", big: "25", title: "лет на рынке", desc: "Опыт и экспертиза в упаковочном оборудовании" },
-              { icon: "MapPin", title: "2 города", desc: "Офисы в Москве и Новосибирске" },
+              { icon: "MapPin", title: "3 города", desc: "Москва, Новосибирск, Челябинск" },
               { icon: "Globe", title: "Проверенные партнёры", desc: "Из Европы, России и Китая" },
             ].map((c, i) => (
               <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 text-center card-hover">
@@ -936,7 +936,7 @@ export default function Obanderolivayushchie() {
               </p>
             </div>
             <p className="text-[15px] text-[#555] leading-relaxed mb-4">
-              Собственные офисы продаж, склады, сервисная служба и отлаженная логистика в Москве и Новосибирске
+              Собственные офисы продаж, склады, сервисная служба и отлаженная логистика в Москве, Новосибирске и Челябинске
               позволяют нам оперативно выполнять поставки и поддерживать оборудование на территории России и стран СНГ.
             </p>
             <p className="text-[15px] text-[#555] leading-relaxed mb-6">

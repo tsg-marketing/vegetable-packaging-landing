@@ -530,7 +530,7 @@ export default function Traysealers() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
             {[
               { icon: "Calendar", title: "25 лет на рынке", desc: "Опыт работы с 2001 года" },
-              { icon: "MapPin", title: "2 города", desc: "Офисы в Москве и Новосибирске" },
+              { icon: "MapPin", title: "3 города", desc: "Москва, Новосибирск, Челябинск" },
               { icon: "Globe", title: "Проверенные партнёры", desc: "Из Европы, России и Китая" },
             ].map((c, i) => (
               <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 text-center card-hover">
@@ -557,7 +557,7 @@ export default function Traysealers() {
               </p>
             </div>
             <p className="text-[15px] text-[#555] leading-relaxed mb-6">
-              Собственные офисы продаж, склады, сервисная служба и отлаженная логистика в Москве и Новосибирске
+              Собственные офисы продаж, склады, сервисная служба и отлаженная логистика в Москве, Новосибирске и Челябинске
               позволяют нам оперативно выполнять поставки и поддерживать оборудование на территории России и стран СНГ.
             </p>
             <div className="border-t border-gray-100 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
